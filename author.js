@@ -1,11 +1,11 @@
-// 著者の略歴データ（主要著者のみ）
-const authorBios = {
-    '尾田栄一郎': '1975年1月1日生まれ、熊本県出身。1997年に『ONE PIECE』の連載を開始。世界中で愛される国民的漫画家として、数々の記録を打ち立てている。「最も多く発行された単一作家によるコミックシリーズ」としてギネス世界記録に認定されている。',
-    '吾峠呼世晴': '福岡県出身の漫画家。2016年から2020年まで『鬼滅の刃』を週刊少年ジャンプにて連載。独特の世界観と心に残る名言で、社会現象を巻き起こした。2019年には「第14回東京アニメアワード アニメ オブ ザ イヤー作品賞」を受賞。',
-    '芥見下々': '岩手県出身の漫画家。2018年より『呪術廻戦』を週刊少年ジャンプにて連載中。ダークファンタジーとバトルアクションを融合させた作風で、若い世代を中心に絶大な人気を誇る。2021年にはテレビアニメ化され、大ヒットを記録。',
-    '遠藤達哉': '茨城県出身の漫画家。2019年より『SPY×FAMILY』を少年ジャンプ+にて連載中。スパイ×殺し屋×超能力者という異色の家族を描いたホームコメディで、幅広い層から支持を集めている。2022年にアニメ化され、さらなる人気を博している。',
-    '藤本タツキ': '秋田県出身の漫画家。2019年から2021年まで『チェンソーマン』第一部を週刊少年ジャンプにて連載。2022年より少年ジャンプ+にて第二部を連載中。斬新な発想と予測不可能な展開で、新世代のカリスマ的存在となっている。',
-    '堀越耕平': '愛知県出身の漫画家。2014年より『僕のヒーローアカデミア』を週刊少年ジャンプにて連載中。王道ヒーロー漫画として国内外で絶大な人気を誇り、アニメ、映画、ゲームなど多方面でメディア展開されている。熱いバトルと感動のドラマが魅力。'
+// 著者の略歴データ（フォールバック用）
+const authorBiosFallback = {
+    '尾田栄一郎': '1975年1月1日生まれ、熊本県出身。1997年に『ONE PIECE』の連載を開始。世界中で愛される国民的漫画家として、数々の記録を打ち立てている。',
+    '吾峠呼世晴': '福岡県出身の漫画家。2016年から2020年まで『鬼滅の刃』を週刊少年ジャンプにて連載。独特の世界観と心に残る名言で、社会現象を巻き起こした。',
+    '芥見下々': '岩手県出身の漫画家。2018年より『呪術廻戦』を週刊少年ジャンプにて連載中。ダークファンタジーとバトルアクションを融合させた作風で人気を誇る。',
+    '遠藤達哉': '茨城県出身の漫画家。2019年より『SPY×FAMILY』を少年ジャンプ+にて連載中。スパイ×殺し屋×超能力者という異色の家族を描いたホームコメディ。',
+    '藤本タツキ': '秋田県出身の漫画家。2019年から『チェンソーマン』を連載。斬新な発想と予測不可能な展開で、新世代のカリスマ的存在。',
+    '堀越耕平': '愛知県出身の漫画家。2014年より『僕のヒーローアカデミア』を連載中。王道ヒーロー漫画として国内外で絶大な人気を誇る。'
 };
 
 // URLパラメータから著者名を取得
@@ -27,9 +27,64 @@ async function displayAuthorDetail() {
     document.title = `${authorName} - THE MANGA STORE`;
     document.getElementById('author-name').textContent = authorName;
 
-    // 略歴を表示
-    const bio = authorBios[authorName] || `${authorName}による人気作品を多数執筆している漫画家。独自の世界観と魅力的なキャラクター描写で、多くの読者を魅了している。`;
-    document.getElementById('author-bio').textContent = bio;
+    // Wikipedia APIから著者情報を取得
+    const cleanName = authorName.replace(/[\s\u3000]+/g, '');
+    let bio = authorBiosFallback[authorName] || authorBiosFallback[cleanName] || '';
+    let wikipediaUrl = '';
+    try {
+        const wikiResp = await fetch(`/api/author?name=${encodeURIComponent(authorName)}`);
+        if (wikiResp.ok) {
+            const wikiData = await wikiResp.json();
+            if (wikiData.extract) {
+                bio = wikiData.extract;
+            }
+            if (wikiData.description) {
+                document.getElementById('author-name').textContent = `${authorName}`;
+                const descEl = document.getElementById('author-description');
+                if (descEl) descEl.textContent = wikiData.description;
+            }
+            wikipediaUrl = wikiData.wikipediaUrl || '';
+        }
+    } catch (err) {
+        console.warn('Wikipedia情報取得失敗:', err);
+    }
+
+    if (!bio) {
+        bio = `${cleanName}による作品。`;
+    }
+
+    const bioEl = document.getElementById('author-bio');
+    bioEl.innerHTML = '';
+
+    // Wikipediaのextractをセクション分けして整形表示
+    const sections = bio.split(/\n+/);
+    sections.forEach(section => {
+        const trimmed = section.trim();
+        if (!trimmed) return;
+        // セクション見出し（== xxx ==）を検出
+        const headingMatch = trimmed.match(/^=+\s*(.+?)\s*=+$/);
+        if (headingMatch) {
+            const h = document.createElement('strong');
+            h.textContent = headingMatch[1];
+            h.style.cssText = 'display:block;margin-top:16px;margin-bottom:6px;font-size:15px;';
+            bioEl.appendChild(h);
+        } else {
+            const p = document.createElement('p');
+            p.textContent = trimmed;
+            p.style.cssText = 'margin:0 0 8px 0;';
+            bioEl.appendChild(p);
+        }
+    });
+
+    if (wikipediaUrl) {
+        const wikiLink = document.createElement('a');
+        wikiLink.href = wikipediaUrl;
+        wikiLink.target = '_blank';
+        wikiLink.rel = 'noopener noreferrer';
+        wikiLink.textContent = 'Wikipedia で詳しく見る →';
+        wikiLink.style.cssText = 'display:inline-block;margin-top:12px;color:var(--color-link);font-size:13px;text-decoration:none;border-bottom:1px solid var(--color-link);';
+        bioEl.appendChild(wikiLink);
+    }
 
     // APIから著者の作品を取得
     let works = await fetchAuthorWorks(authorName);
@@ -65,6 +120,7 @@ async function displayAuthorDetail() {
 
     // 作品一覧を表示
     displayAuthorWorks(works);
+
 }
 
 // APIから著者の作品を検索

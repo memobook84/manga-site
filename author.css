@@ -26,6 +26,12 @@
     font-weight: 700;
 }
 
+.author-description {
+    font-size: 14px;
+    color: var(--color-text-sub);
+    margin-top: 4px;
+}
+
 .author-meta {
     display: flex;
     gap: 20px;

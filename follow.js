@@ -31,7 +31,7 @@ function displayFollowedManga() {
         let imageHtml;
         if (manga.imageUrl) {
             imageHtml = `<img src="${manga.imageUrl}" alt="${manga.title}"
-                          style="width:100%;height:280px;object-fit:cover;"
+                          style="width:100%;height:320px;object-fit:contain;background:#f5f3f0;"
                           onerror="this.parentElement.innerHTML='<div class=\\'manga-placeholder\\' style=\\'background-color:${manga.color || '#666'};height:280px;\\'><span class=\\'manga-placeholder-text\\'>${manga.title}</span></div>'"
                           loading="lazy">`;
         } else {

@@ -2,190 +2,162 @@
 function getDetailParams() {
     const params = new URLSearchParams(window.location.search);
     return {
-        id: params.get('id') ? parseInt(params.get('id')) : null,
-        isbn: params.get('isbn') || null,
         title: params.get('title') ? decodeURIComponent(params.get('title')) : null,
     };
 }
 
-// 漫画の詳細を表示（メイン処理）
+// タイトルから巻数を抽出
+function extractVolumeNumber(title) {
+    if (!title) return null;
+    // "ONE PIECE 114" → 114
+    let m = title.match(/[\s　]+(\d+)$/);
+    if (m) return parseInt(m[1]);
+    // "名探偵コナン（108）" → 108
+    m = title.match(/[（(](\d+)[）)]$/);
+    if (m) return parseInt(m[1]);
+    // "xxx 第3巻" → 3
+    m = title.match(/第(\d+)巻?$/);
+    if (m) return parseInt(m[1]);
+    // "xxx 3巻" → 3
+    m = title.match(/(\d+)巻$/);
+    if (m) return parseInt(m[1]);
+    return null;
+}
+
+// 漫画の詳細を表示（メイン処理 — シリーズページ）
 async function displayMangaDetail() {
-    const { id, isbn, title } = getDetailParams();
+    const { title } = getDetailParams();
 
-    // APIから取得を試みる
-    let manga = null;
-
-    if (isbn) {
-        manga = await fetchMangaByIsbn(isbn);
-    } else if (title) {
-        manga = await fetchMangaByTitle(title);
-    }
-
-    // APIで取得できなかった場合、ローカルデータベースからフォールバック
-    if (!manga && id !== null) {
-        const localManga = mangaDatabase.find(m => m.id === id);
-        if (localManga) {
-            manga = {
-                ...localManga,
-                imageUrl: '',
-                price: '',
-                priceRaw: 0,
-                isbn: '',
-                itemUrl: '',
-                seriesName: localManga.label || '',
-                color: localManga.color,
-            };
-        }
-    }
-
-    if (!manga) {
+    if (!title) {
         document.getElementById('manga-title').textContent = '漫画が見つかりません';
         return;
     }
 
-    // ページタイトルを更新
-    document.title = `${manga.title} - THE MANGA STORE`;
+    // タイトルで全巻を検索
+    let allVolumes = [];
+    try {
+        const response = await fetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30`);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        const data = await response.json();
+        const adapted = adaptApiResponse(data);
+        allVolumes = adapted.items;
+    } catch (err) {
+        console.warn('シリーズ検索失敗:', err);
+        document.getElementById('manga-title').textContent = '漫画が見つかりません';
+        return;
+    }
 
-    // 画像を表示
-    const imageContainer = document.querySelector('.detail-image');
-    imageContainer.innerHTML = createDetailImageElement(manga);
+    if (allVolumes.length === 0) {
+        document.getElementById('manga-title').textContent = '漫画が見つかりません';
+        return;
+    }
 
-    document.getElementById('manga-title').textContent = manga.title;
+    // シリーズ名でフィルタリング（関連ない作品を除外）
+    const seriesName = extractSeriesName(title);
+    const filtered = allVolumes.filter(v => {
+        const vSeries = extractSeriesName(v.title);
+        return vSeries === seriesName;
+    });
+    const volumes = filtered.length > 0 ? filtered : allVolumes;
 
-    // 著者名をリンクとして設定
+    // --- シリーズ情報を集約 ---
+
+    // タイトル
+    const displaySeriesName = seriesName || title;
+    document.title = `${displaySeriesName} - THE MANGA STORE`;
+    document.getElementById('manga-title').textContent = displaySeriesName;
+
+    // 著者・出版社・レーベル: 最初の巻から取得
+    const firstVol = volumes[0];
     const authorLink = document.getElementById('manga-author');
-    authorLink.textContent = manga.author;
-    authorLink.href = `author.html?name=${encodeURIComponent(manga.author)}`;
+    authorLink.textContent = firstVol.author || '-';
+    authorLink.href = `author.html?name=${encodeURIComponent(firstVol.author || '')}`;
 
-    document.getElementById('manga-publisher').textContent = manga.publisher || '-';
-    document.getElementById('manga-label').textContent = manga.label || manga.seriesName || '-';
-    document.getElementById('manga-genre').textContent = manga.genre || '-';
-    document.getElementById('manga-date').textContent = manga.firstReleaseDate || '-';
-    document.getElementById('manga-description').textContent = manga.description || 'あらすじ情報がありません。';
+    document.getElementById('manga-publisher').textContent = firstVol.publisher || '-';
+    document.getElementById('manga-label').textContent = firstVol.label || firstVol.seriesName || '-';
+    document.getElementById('manga-genre').textContent = firstVol.genre || '-';
+
+    // 巻数表示
+    document.getElementById('manga-date').textContent = `${volumes.length}巻`;
+
+    // あらすじ: descriptionが空でない最初の巻から取得
+    const withDescription = volumes.find(v => v.description && v.description.trim() !== '');
+    document.getElementById('manga-description').textContent =
+        (withDescription ? withDescription.description : '') || 'あらすじ情報がありません。';
+
+    // 表紙画像: 実カバーがある巻から選択（最新巻除外）
+    const sortedByDate = [...volumes].sort((a, b) => {
+        const dateA = a.firstReleaseDate || '';
+        const dateB = b.firstReleaseDate || '';
+        return dateB.localeCompare(dateA);
+    });
+    const nonLatest = sortedByDate.length > 1 ? sortedByDate.slice(1) : sortedByDate;
+    const withCover = nonLatest.filter(v => v.hasRealCover);
+    const coverPool = withCover.length > 0 ? withCover : nonLatest;
+    const coverVol = coverPool[Math.floor(Math.random() * coverPool.length)];
+
+    const imageContainer = document.querySelector('.detail-image');
+    imageContainer.innerHTML = createDetailImageElement({
+        ...coverVol,
+        title: displaySeriesName,
+    });
 
     // フォローボタンの設定
-    setupFollowButton(manga);
+    setupFollowButton({
+        ...firstVol,
+        title: displaySeriesName,
+    });
 
-    // 同シリーズの巻一覧を取得・表示
-    if (manga.seriesName || manga.title) {
-        await displayVolumesFromApi(manga);
-    } else if (manga.totalVolumes) {
-        displayVolumesLocal(manga);
-    }
+    // --- 巻一覧を表示 ---
+    displayVolumesList(volumes);
 }
 
-// ISBNでAPIから漫画を取得
-async function fetchMangaByIsbn(isbn) {
-    try {
-        const response = await fetch(`/api/books?isbn=${isbn}`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-        return adapted.items[0] || null;
-    } catch (err) {
-        console.warn('ISBN検索失敗:', err);
-        return null;
-    }
-}
-
-// タイトルでAPIから漫画を取得
-async function fetchMangaByTitle(title) {
-    try {
-        const response = await fetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=1`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-        return adapted.items[0] || null;
-    } catch (err) {
-        console.warn('タイトル検索失敗:', err);
-        return null;
-    }
-}
-
-// APIから同シリーズの巻を取得して表示
-async function displayVolumesFromApi(manga) {
-    const volumesGrid = document.getElementById('volumes-grid');
-    volumesGrid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:20px;color:var(--color-text-sub);">巻一覧を読み込み中...</p>';
-
-    try {
-        const searchTerm = manga.seriesName || manga.title;
-        const response = await fetch(`/api/books?keyword=${encodeURIComponent(searchTerm)}&hits=30&sort=standard`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-
-        if (adapted.items.length === 0) {
-            volumesGrid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:20px;color:var(--color-text-sub);">巻情報が見つかりませんでした</p>';
-            return;
-        }
-
-        volumesGrid.innerHTML = '';
-        adapted.items.forEach((vol, i) => {
-            const volumeItem = document.createElement('div');
-            volumeItem.className = 'volume-item';
-
-            const imageHtml = createImageElement(vol, 280);
-
-            volumeItem.innerHTML = `
-                ${imageHtml}
-                <div class="volume-info">
-                    <div class="volume-number">${vol.title}</div>
-                    <div class="volume-date">${vol.firstReleaseDate || ''}</div>
-                </div>
-            `;
-
-            volumeItem.addEventListener('click', () => {
-                if (vol.isbn) {
-                    window.location.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}`;
-                }
-            });
-
-            volumesGrid.appendChild(volumeItem);
-        });
-    } catch (err) {
-        console.warn('巻一覧取得失敗:', err);
-        if (manga.totalVolumes) {
-            displayVolumesLocal(manga);
-        } else {
-            volumesGrid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:20px;color:var(--color-text-sub);">巻情報を取得できませんでした</p>';
-        }
-    }
-}
-
-// ローカルデータで巻一覧を表示（フォールバック）
-function displayVolumesLocal(manga) {
+// 巻一覧を表示（巻数でソート、volume.htmlへリンク）
+function displayVolumesList(volumes) {
     const volumesGrid = document.getElementById('volumes-grid');
     volumesGrid.innerHTML = '';
 
-    const totalVolumes = manga.totalVolumes || 1;
-    const dateMatch = (manga.firstReleaseDate || '').match(/(\d+)年(\d+)月/);
-    let startYear = dateMatch ? parseInt(dateMatch[1]) : 2020;
-    let startMonth = dateMatch ? parseInt(dateMatch[2]) : 1;
+    if (volumes.length === 0) {
+        volumesGrid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:20px;color:var(--color-text-sub);">巻情報が見つかりませんでした</p>';
+        return;
+    }
 
-    for (let i = 1; i <= totalVolumes; i++) {
+    // 巻数を抽出してソート
+    const withVolNum = volumes.map(vol => ({
+        ...vol,
+        volumeNum: extractVolumeNumber(vol.title),
+    }));
+
+    withVolNum.sort((a, b) => {
+        if (a.volumeNum !== null && b.volumeNum !== null) return a.volumeNum - b.volumeNum;
+        if (a.volumeNum !== null) return -1;
+        if (b.volumeNum !== null) return 1;
+        return (a.title || '').localeCompare(b.title || '');
+    });
+
+    withVolNum.forEach(vol => {
         const volumeItem = document.createElement('div');
         volumeItem.className = 'volume-item';
 
-        const monthsElapsed = (i - 1) * 3;
-        const year = startYear + Math.floor((startMonth - 1 + monthsElapsed) / 12);
-        const month = ((startMonth - 1 + monthsElapsed) % 12) + 1;
+        const imageHtml = createImageElement(vol, 280);
+        const volumeLabel = vol.volumeNum !== null ? `${vol.volumeNum}巻` : vol.title;
 
         volumeItem.innerHTML = `
-            <div class="manga-placeholder" style="background-color: ${manga.color || '#666'}; height: 280px;">
-                <span class="manga-placeholder-text">${manga.title} ${i}巻</span>
-            </div>
+            ${imageHtml}
             <div class="volume-info">
-                <div class="volume-number">${i}巻</div>
-                <div class="volume-date">${year}/${String(month).padStart(2, '0')}</div>
+                <div class="volume-number">${volumeLabel}</div>
+                <div class="volume-date">${vol.firstReleaseDate || ''}</div>
             </div>
         `;
 
         volumeItem.addEventListener('click', () => {
-            window.location.href = `volume.html?seriesId=${manga.id}&volumeNum=${i}`;
+            if (vol.isbn) {
+                window.location.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}`;
+            }
         });
 
         volumesGrid.appendChild(volumeItem);
-    }
+    });
 }
 
 // フォロー機能
@@ -193,8 +165,7 @@ function setupFollowButton(manga) {
     const followButton = document.getElementById('follow-button');
     const followedManga = getFollowedManga();
 
-    const followId = manga.isbn || manga.id;
-    const isFollowed = followedManga.some(m => (m.isbn && m.isbn === manga.isbn) || m.id === manga.id);
+    const isFollowed = followedManga.some(m => m.title === manga.title);
     if (isFollowed) {
         followButton.classList.add('followed');
     }
@@ -206,7 +177,7 @@ function setupFollowButton(manga) {
 
 function toggleFollow(manga, button) {
     let followedManga = getFollowedManga();
-    const index = followedManga.findIndex(m => (m.isbn && m.isbn === manga.isbn) || m.id === manga.id);
+    const index = followedManga.findIndex(m => m.title === manga.title);
 
     if (index > -1) {
         followedManga.splice(index, 1);

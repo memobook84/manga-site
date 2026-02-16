@@ -33,7 +33,18 @@ function rakutenFetch(url) {
   });
 }
 
+function resolveImageUrl(item) {
+  const raw = item.largeImageUrl || item.mediumImageUrl || '';
+  if (!raw) return { imageUrl: '', hasRealCover: false };
+  const url = raw.replace('http://', 'https://');
+  const sized = url.includes('?_ex=') ? url.replace(/\?_ex=\d+x\d+/, '?_ex=800x800') : url + '?_ex=800x800';
+  const filename = url.split('/').pop().split('?')[0];
+  const hasRealCover = !filename.match(/^\d{10,13}\.gif$/);
+  return { imageUrl: sized, hasRealCover };
+}
+
 function mapItem(item) {
+  const { imageUrl, hasRealCover } = resolveImageUrl(item);
   return {
     title: item.title || '',
     author: item.author || '',
@@ -42,7 +53,8 @@ function mapItem(item) {
     genre: item.booksGenreId || '',
     firstReleaseDate: item.salesDate || '',
     description: item.itemCaption || '',
-    imageUrl: (item.largeImageUrl || item.mediumImageUrl || '').replace('http://', 'https://'),
+    imageUrl: imageUrl,
+    hasRealCover: hasRealCover,
     price: item.itemPrice || 0,
     isbn: item.isbn || '',
     itemUrl: item.itemUrl || '',

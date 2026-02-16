@@ -20,7 +20,66 @@ function showSkeleton(count = 30) {
     }
 }
 
-// 漫画データを表示する関数（API or フォールバック共通）
+// 掲載対象の出版社
+const ALLOWED_PUBLISHERS = ['集英社', '小学館', '講談社'];
+
+function filterByPublisher(items) {
+    return items.filter(item =>
+        ALLOWED_PUBLISHERS.some(pub => (item.publisher || '').includes(pub))
+    );
+}
+
+// APIレスポンスのアイテムをシリーズ単位にグループ化
+function groupBySeries(items) {
+    items = filterByPublisher(items);
+    const seriesMap = new Map();
+
+    items.forEach(item => {
+        const seriesKey = extractSeriesName(item.title);
+        if (!seriesKey) return;
+
+        if (!seriesMap.has(seriesKey)) {
+            seriesMap.set(seriesKey, {
+                seriesName: seriesKey,
+                author: item.author,
+                volumes: [],
+            });
+        }
+        seriesMap.get(seriesKey).volumes.push(item);
+    });
+
+    // 各シリーズから代表アイテムを選択
+    const result = [];
+    seriesMap.forEach(series => {
+        // 発売日で降順ソート（最新が先頭）
+        const sorted = [...series.volumes].sort((a, b) => {
+            const dateA = a.firstReleaseDate || '';
+            const dateB = b.firstReleaseDate || '';
+            if (dateA !== dateB) return dateB.localeCompare(dateA);
+            const numA = parseInt((a.title || '').match(/\d+/)?.[0]) || 0;
+            const numB = parseInt((b.title || '').match(/\d+/)?.[0]) || 0;
+            return numB - numA;
+        });
+        // 最新刊を除外
+        const nonLatest = sorted.length > 1 ? sorted.slice(1) : sorted;
+        const withCover = nonLatest.filter(v => v.hasRealCover);
+        const pool = withCover.length > 0 ? withCover : nonLatest;
+        const representative = pool[Math.floor(Math.random() * pool.length)];
+
+        result.push({
+            ...representative,
+            title: series.seriesName,
+            _needsCover: !representative.hasRealCover,
+            displayTitle: series.seriesName,
+            author: series.author,
+            volumeCount: series.volumes.length,
+        });
+    });
+
+    return result;
+}
+
+// 漫画データを表示する関数
 function displayMangaItems(items) {
     const gridContainer = document.querySelector('.manga-grid');
     gridContainer.innerHTML = '';
@@ -38,45 +97,88 @@ function displayMangaItems(items) {
 
         mangaItem.innerHTML = `
             ${imageHtml}
-            <h3>${item.title}</h3>
+            <h3>${item.displayTitle || item.title}</h3>
             <p class="author">${item.author}</p>
         `;
 
         mangaItem.addEventListener('click', () => {
-            if (item.isbn) {
-                window.location.href = `detail.html?isbn=${item.isbn}&title=${encodeURIComponent(item.title)}`;
-            } else {
-                window.location.href = `detail.html?id=${item.id}`;
-            }
+            // 作品ページへ遷移（シリーズ名で検索）
+            const seriesTitle = item.displayTitle || item.title;
+            window.location.href = `detail.html?title=${encodeURIComponent(seriesTitle)}`;
         });
 
         gridContainer.appendChild(mangaItem);
     });
 }
 
-// APIからデータを取得
+// APIからデータを取得（複数ページ取得して作品数を確保）
 async function fetchFromApi(page = 1, keyword = '') {
     isLoading = true;
     showSkeleton();
 
     try {
-        let url;
+        let allItems = [];
+
         if (keyword) {
-            url = `/api/search?keyword=${encodeURIComponent(keyword)}&page=${page}&hits=30`;
+            // 検索時は1ページのみ
+            const response = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}&page=${page}&hits=30`);
+            if (!response.ok) throw new Error(`API error: ${response.status}`);
+            const data = await response.json();
+            const adapted = adaptApiResponse(data);
+            allItems = adapted.items;
+            totalPages = adapted.pageCount;
+            currentPage = adapted.page;
         } else {
-            url = `/api/books?genre=001001&hits=30&page=${page}&sort=sales`;
+            // トップページは5ページ分取得（出版社フィルタで減るため多めに）
+            const startPage = (page - 1) * 5 + 1;
+            const fetches = [1, 2, 3, 4, 5].map(i =>
+                fetch(`/api/books?genre=001001&hits=30&page=${startPage + i - 1}&sort=sales`)
+                    .then(r => r.ok ? r.json() : null)
+                    .catch(() => null)
+            );
+            const results = await Promise.all(fetches);
+
+            let apiTotalPages = 1;
+            results.forEach(data => {
+                if (data) {
+                    const adapted = adaptApiResponse(data);
+                    allItems = allItems.concat(adapted.items);
+                    apiTotalPages = adapted.pageCount;
+                }
+            });
+            // 5ページずつ消費するのでページ数を調整
+            totalPages = Math.ceil(apiTotalPages / 5);
+            currentPage = page;
         }
 
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        // シリーズ単位にグループ化
+        const series = groupBySeries(allItems);
 
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
+        // カバーがない作品は追加検索で表紙を取得
+        const needsCover = series.filter(s => s._needsCover);
+        if (needsCover.length > 0) {
+            const coverFetches = needsCover.map(s =>
+                fetch(`/api/books?keyword=${encodeURIComponent(s.displayTitle)}&hits=10`)
+                    .then(r => r.ok ? r.json() : null)
+                    .catch(() => null)
+            );
+            const coverResults = await Promise.all(coverFetches);
+            coverResults.forEach((data, i) => {
+                if (!data || !data.items) return;
+                const adapted = adaptApiResponse(data);
+                // 実カバーがある巻を探す
+                const withCover = adapted.items.filter(v => v.hasRealCover);
+                if (withCover.length > 0) {
+                    const pick = withCover[Math.floor(Math.random() * withCover.length)];
+                    // 元のシリーズ情報を保持してカバーだけ差し替え
+                    needsCover[i].imageUrl = pick.imageUrl;
+                    needsCover[i].hasRealCover = true;
+                    needsCover[i]._needsCover = false;
+                }
+            });
+        }
 
-        totalPages = adapted.pageCount;
-        currentPage = adapted.page;
-
-        displayMangaItems(adapted.items);
+        displayMangaItems(series);
         updatePagination();
     } catch (err) {
         console.warn('API取得失敗、フォールバックデータを使用:', err);
@@ -96,7 +198,6 @@ function fallbackDisplay(keyword = '') {
         );
     }
 
-    // manga-data.jsのデータをadapted形式に合わせる
     const adapted = items.map((m, i) => ({
         ...m,
         imageUrl: '',
@@ -105,6 +206,7 @@ function fallbackDisplay(keyword = '') {
         isbn: '',
         itemUrl: '',
         seriesName: m.label || '',
+        displayTitle: m.title,
     }));
 
     totalPages = 1;
@@ -126,7 +228,6 @@ function updatePagination() {
     container.style.display = 'flex';
     container.innerHTML = '';
 
-    // 前へボタン
     const prevBtn = document.createElement('button');
     prevBtn.className = 'page-btn';
     prevBtn.textContent = '← 前へ';
@@ -140,13 +241,11 @@ function updatePagination() {
     });
     container.appendChild(prevBtn);
 
-    // ページ番号
     const pageInfo = document.createElement('span');
     pageInfo.className = 'page-info';
     pageInfo.textContent = `${currentPage} / ${totalPages}`;
     container.appendChild(pageInfo);
 
-    // 次へボタン
     const nextBtn = document.createElement('button');
     nextBtn.className = 'page-btn';
     nextBtn.textContent = '次へ →';
@@ -190,7 +289,6 @@ function performSearch() {
 
 // ページ読み込み時に実行
 window.addEventListener('DOMContentLoaded', () => {
-    console.log('ページ読み込み開始');
     setupSearch();
     fetchFromApi(1);
 });
