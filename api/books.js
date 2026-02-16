@@ -1,53 +1,35 @@
-export default async function handler(req, res) {
-  const { genre = '001001', hits = '30', page = '1', isbn, sort = 'sales', keyword } = req.query;
+const https = require('https');
 
-  const appId = process.env.RAKUTEN_APP_ID;
-  if (!appId) {
-    return res.status(500).json({ error: 'RAKUTEN_APP_ID not configured' });
-  }
+const RAKUTEN_BASE = 'https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404';
+const APP_ID = 'baf572c9-8b33-407f-84de-79088be6b58a';
+const REFERER = 'https://manga-site-three.vercel.app';
 
-  const params = new URLSearchParams({
-    applicationId: appId,
-    formatVersion: '2',
-    booksGenreId: genre,
-    hits: String(Math.min(parseInt(hits), 30)),
-    page: page,
-    sort: sort,
-  });
-
-  // ISBN指定の場合は直接検索
-  if (isbn) {
-    params.set('isbn', isbn);
-    params.delete('booksGenreId');
-    params.delete('sort');
-  }
-
-  // キーワード指定の場合
-  if (keyword) {
-    params.set('title', keyword);
-  }
-
-  try {
-    const response = await fetch(
-      `https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?${params}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Rakuten API responded with ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    res.status(200).json({
-      items: (data.Items || []).map(mapItem),
-      totalCount: data.count || 0,
-      page: data.page || 1,
-      pageCount: data.pageCount || 1,
+function rakutenFetch(url) {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const options = {
+      hostname: parsed.hostname,
+      port: 443,
+      path: parsed.pathname + parsed.search,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Referer': REFERER,
+        'Origin': REFERER,
+        'Accept': 'application/json',
+      },
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error('JSON parse error')); }
+      });
     });
-  } catch (err) {
-    console.error('Rakuten API error:', err);
-    res.status(502).json({ error: 'Failed to fetch from Rakuten API' });
-  }
+    req.on('error', reject);
+    req.end();
+  });
 }
 
 function mapItem(item) {
@@ -66,3 +48,50 @@ function mapItem(item) {
     seriesName: item.seriesName || '',
   };
 }
+
+module.exports = async function handler(req, res) {
+  const { genre = '001001', hits = '30', page = '1', isbn, sort = 'sales', keyword } = req.query;
+
+  const accessKey = (process.env.RAKUTEN_APP_ID || '').trim();
+  if (!accessKey) {
+    return res.status(500).json({ error: 'RAKUTEN_APP_ID not configured' });
+  }
+
+  const params = new URLSearchParams({
+    applicationId: APP_ID,
+    accessKey: accessKey,
+    formatVersion: '2',
+    booksGenreId: genre,
+    hits: String(Math.min(parseInt(hits), 30)),
+    page: page,
+    sort: sort,
+  });
+
+  if (isbn) {
+    params.set('isbn', isbn);
+    params.delete('booksGenreId');
+    params.delete('sort');
+  }
+
+  if (keyword) {
+    params.set('title', keyword);
+  }
+
+  try {
+    const data = await rakutenFetch(`${RAKUTEN_BASE}?${params}`);
+
+    if (data.errors) {
+      return res.status(502).json({ error: data.errors });
+    }
+
+    res.status(200).json({
+      items: (data.Items || []).map(mapItem),
+      totalCount: data.count || 0,
+      page: data.page || 1,
+      pageCount: data.pageCount || 1,
+    });
+  } catch (err) {
+    console.error('Rakuten API error:', err);
+    res.status(502).json({ error: 'Failed to fetch from Rakuten API' });
+  }
+};
