@@ -37,9 +37,15 @@ function resolveImageUrl(item) {
   if (!raw) return { imageUrl: '', hasRealCover: false };
   const url = raw.replace('http://', 'https://');
   const sized = url.includes('?_ex=') ? url.replace(/\?_ex=\d+x\d+/, '?_ex=800x800') : url + '?_ex=800x800';
-  // .gif でファイル名がISBNだけ（_1_が含まれない）→ 楽天のテキストプレースホルダー
+  // プレースホルダー画像の検出
   const filename = url.split('/').pop().split('?')[0];
-  const hasRealCover = !filename.match(/^\d{10,13}\.gif$/);
+  const isPlaceholder =
+    filename.match(/^\d{10,13}\.(gif|jpg|jpeg|png)$/i) ||  // ISBN番号だけのファイル名
+    url.includes('noimage') ||                               // noimage系
+    url.includes('no_image') ||
+    url.includes('/0000/') ||                                // ダミーパス
+    !raw;                                                    // URL自体が空
+  const hasRealCover = !isPlaceholder;
   return { imageUrl: sized, hasRealCover };
 }
 

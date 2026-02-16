@@ -67,15 +67,65 @@ function adaptApiResponse(response) {
   };
 }
 
-// 画像表示用のHTML要素を生成（実画像 or デザインプレースホルダー）
+// 画像表示用のHTML要素を生成（常にimg要素を生成し、Google Books APIでフォールバック）
 function createImageElement(item, height = 320) {
-  if (item.imageUrl && item.hasRealCover) {
+  const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const safeAuthor = (item.author || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const isbn = item.isbn || '';
+  const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
+  const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
+
+  if (item.imageUrl) {
     return `<img src="${item.imageUrl}" alt="${item.title}"
+              ${dataIsbn} ${needsUpgrade}
               style="width:100%;height:${height}px;object-fit:contain;background:#f5f3f0;"
-              onerror="this.outerHTML=createPlaceholderHtml('${item.title.replace(/'/g, "\\'")}','${item.author.replace(/'/g, "\\'")}','${item.color}',${height})"
+              onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
+              loading="lazy">`;
+  }
+  // imageUrlがない場合でもISBNがあればGoogle Booksから取得を試みる
+  if (isbn) {
+    return `<img src="" alt="${item.title}"
+              ${dataIsbn} data-needs-upgrade="1"
+              style="width:100%;height:${height}px;object-fit:contain;background:#f5f3f0;"
+              onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
               loading="lazy">`;
   }
   return createPlaceholderHtml(item.title, item.author, item.color, height);
+}
+
+// 画像読み込みエラー時のハンドラ（Google Books APIにフォールバック）
+async function handleImageError(img, title, author, color, height) {
+  const isbn = img.dataset.isbn;
+  // Google Booksで既にトライ済みならプレースホルダーに
+  if (img.dataset.gbTried) {
+    img.outerHTML = createPlaceholderHtml(title, author, color, height);
+    return;
+  }
+  if (isbn) {
+    img.dataset.gbTried = '1';
+    // キャッシュチェック
+    if (coverCache[isbn]) {
+      img.src = coverCache[isbn];
+      return;
+    }
+    if (coverCache[isbn] === false) {
+      img.outerHTML = createPlaceholderHtml(title, author, color, height);
+      return;
+    }
+    try {
+      const resp = await fetch(`/api/cover?isbn=${isbn}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.coverUrl) {
+          coverCache[isbn] = data.coverUrl;
+          img.src = data.coverUrl;
+          return;
+        }
+      }
+    } catch {}
+    coverCache[isbn] = false;
+  }
+  img.outerHTML = createPlaceholderHtml(title, author, color, height);
 }
 
 function createPlaceholderHtml(title, author, color, height) {
@@ -98,15 +148,55 @@ function adjustColor(hex, amount) {
 
 // 詳細ページ用の大きい画像要素を生成
 function createDetailImageElement(item) {
-  if (item.imageUrl && item.hasRealCover) {
+  const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  const isbn = item.isbn || '';
+  const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
+  const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
+  const imgStyle = "width:300px;height:420px;object-fit:contain;background:#f5f3f0;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);";
+
+  if (item.imageUrl) {
     return `<img src="${item.imageUrl}" alt="${item.title}"
-              style="width:300px;height:420px;object-fit:contain;background:#f5f3f0;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);"
-              onerror="this.parentElement.innerHTML='<div class=\\'manga-detail-placeholder\\' style=\\'background-color:${item.color};\\' ><span class=\\'manga-placeholder-text\\'>${item.title}</span></div>'"
+              ${dataIsbn} ${needsUpgrade}
+              style="${imgStyle}"
+              onerror="handleDetailImageError(this,'${safeTitle}','${item.color}')"
+              loading="lazy">`;
+  }
+  if (isbn) {
+    return `<img src="" alt="${item.title}"
+              ${dataIsbn} data-needs-upgrade="1"
+              style="${imgStyle}"
+              onerror="handleDetailImageError(this,'${safeTitle}','${item.color}')"
               loading="lazy">`;
   }
   return `<div class="manga-detail-placeholder" style="background-color: ${item.color};">
             <span class="manga-placeholder-text">${item.title}</span>
           </div>`;
+}
+
+// 詳細ページ画像エラー時のハンドラ
+async function handleDetailImageError(img, title, color) {
+  const isbn = img.dataset.isbn;
+  if (img.dataset.gbTried) {
+    img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
+    return;
+  }
+  if (isbn) {
+    img.dataset.gbTried = '1';
+    if (coverCache[isbn]) { img.src = coverCache[isbn]; return; }
+    if (coverCache[isbn] === false) {
+      img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
+      return;
+    }
+    try {
+      const resp = await fetch(`/api/cover?isbn=${isbn}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.coverUrl) { coverCache[isbn] = data.coverUrl; img.src = data.coverUrl; return; }
+      }
+    } catch {}
+    coverCache[isbn] = false;
+  }
+  img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
 }
 
 // タイトルからシリーズ名を抽出（巻数・特装版等を除去）
@@ -141,18 +231,20 @@ function getAmazonBuyUrl(item) {
 // Google Books APIから高品質カバー画像を非同期取得してアップグレード
 const coverCache = {};
 async function upgradeCovers() {
-  const images = document.querySelectorAll('img[data-isbn]');
-  // 5件ずつバッチ処理（レート制限対策）
+  // data-needs-upgrade属性を持つ画像を優先的にアップグレード
+  const images = document.querySelectorAll('img[data-isbn][data-needs-upgrade]');
   const batch = [];
   for (const img of images) {
     const isbn = img.dataset.isbn;
     if (!isbn || coverCache[isbn] === false) continue;
     if (coverCache[isbn]) {
       img.src = coverCache[isbn];
+      img.removeAttribute('data-needs-upgrade');
       continue;
     }
     batch.push(img);
   }
+  // 5件ずつバッチ処理（レート制限対策）
   for (let i = 0; i < batch.length; i += 5) {
     const chunk = batch.slice(i, i + 5);
     await Promise.all(chunk.map(async (img) => {
@@ -164,6 +256,7 @@ async function upgradeCovers() {
           if (data.coverUrl) {
             coverCache[isbn] = data.coverUrl;
             img.src = data.coverUrl;
+            img.removeAttribute('data-needs-upgrade');
           } else {
             coverCache[isbn] = false;
           }
@@ -174,7 +267,6 @@ async function upgradeCovers() {
         coverCache[isbn] = false;
       }
     }));
-    // バッチ間に200ms待機
     if (i + 5 < batch.length) await new Promise(r => setTimeout(r, 200));
   }
 }

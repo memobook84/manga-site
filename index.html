@@ -17,10 +17,11 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
+            <a href="index.html" class="header-logo"><img src="logo.png" alt="Logo" class="header-logo-img"></a>
             <h1>THE MANGA STORE</h1>
             <nav class="header-nav">
-                <a href="new-releases.html" class="nav-link">New Release</a>
-                <a href="follow.html" class="nav-link follow-link">Follow</a>
+                <a href="new-releases.html" class="nav-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>New Release</a>
+                <a href="follow.html" class="nav-link follow-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Follow</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
@@ -35,13 +36,55 @@
     </header>
 
     <!-- メインコンテンツ -->
-    <main>
-        <div class="manga-grid">
-            <!-- JavaScriptで動的に漫画が表示されます -->
-        </div>
-        <div id="pagination" class="pagination" style="display: none;">
-            <!-- JavaScriptで動的に生成 -->
-        </div>
-    </main>
+    <div class="main-layout">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        Publisher
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="集英社"><span class="sidebar-dot" style="--dot-color:#E03131"></span>集英社</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="小学館"><span class="sidebar-dot" style="--dot-color:#1C7ED6"></span>小学館</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="講談社"><span class="sidebar-dot" style="--dot-color:#2F9E44"></span>講談社</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        Genre
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001001">少年漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001002">少女漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001003">青年漫画</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        Discover
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="new-releases.html" class="sidebar-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>新刊</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="ranking" data-value="sales"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>ランキング</a></li>
+                        <li><a href="follow.html" class="sidebar-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>フォロー中</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- メインエリア -->
+        <main>
+            <div class="manga-grid">
+                <!-- JavaScriptで動的に漫画が表示されます -->
+            </div>
+            <div id="pagination" class="pagination" style="display: none;">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+        </main>
+    </div>
 </body>
 </html>

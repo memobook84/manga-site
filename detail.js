@@ -110,6 +110,9 @@ async function displayMangaDetail() {
 
     // --- 巻一覧を表示 ---
     displayVolumesList(volumes);
+
+    // 表紙がない画像をGoogle Books APIでアップグレード
+    upgradeCovers();
 }
 
 // 巻一覧を表示（巻数でソート、volume.htmlへリンク）
