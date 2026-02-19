@@ -1,0 +1,235 @@
+/* 検索ページ専用スタイル */
+
+.search-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* === 雷トグルボタン === */
+.lightning-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    background: none;
+    border: 1.5px solid var(--color-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #bbb;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.lightning-toggle.active {
+    color: #D8052E;
+    border-color: #D8052E;
+}
+
+/* === 雷エフェクト === */
+.lightning-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.search-page.has-results .lightning-canvas {
+    display: none;
+}
+
+/* === 中央エリア（初期状態） === */
+.search-center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    transition: min-height 0.4s ease, padding 0.4s ease;
+}
+
+.search-center .search-logo img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.search-title {
+    font-family: 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #D8052E;
+    margin: 16px 0 28px;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+}
+
+/* === 検索バー === */
+.search-form {
+    width: 100%;
+    max-width: 580px;
+    padding: 0 20px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    padding: 10px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.search-bar:focus-within {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    border-color: #c0b8ae;
+}
+
+.search-icon {
+    color: var(--color-text-sub);
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background: transparent;
+}
+
+.search-bar input::placeholder {
+    color: #bbb;
+}
+
+.search-clear {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: var(--color-text-sub);
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+/* === ナビリンク === */
+.search-nav {
+    margin-top: 24px;
+    display: flex;
+    gap: 20px;
+}
+
+.search-nav a {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    text-decoration: none;
+    font-family: var(--font-heading);
+}
+
+.search-nav a:hover,
+.search-nav a:active,
+.search-nav a:focus {
+    color: var(--color-text-sub);
+    text-decoration: none;
+    background: none;
+    opacity: 1;
+}
+
+/* === 検索後の状態 === */
+.search-page.has-results .search-center {
+    min-height: auto;
+    padding: 32px 0 0;
+}
+
+.search-page.has-results .search-logo img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+}
+
+.search-page.has-results .search-title {
+    font-size: 22px;
+    margin: 8px 0 16px;
+}
+
+.search-page.has-results .search-nav {
+    margin-top: 16px;
+}
+
+/* === 検索結果 === */
+.search-results {
+    width: 100%;
+    max-width: 1200px;
+    padding: 24px 32px 60px;
+    margin: 0 auto;
+}
+
+.results-info {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    margin-bottom: 20px;
+    padding-left: 4px;
+}
+
+/* グリッドはstyle.cssの.manga-gridを流用 */
+
+/* manga-item スタイルはstyle.cssから継承 */
+
+/* === ローディングスピナー === */
+.results-loading {
+    display: flex;
+    justify-content: center;
+    padding: 40px 0;
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-text-sub);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* === レスポンシブ === */
+@media (max-width: 768px) {
+    .search-title {
+        font-size: 28px;
+    }
+
+    .search-results {
+        padding: 16px 12px 40px;
+    }
+
+    .search-page.has-results .search-title {
+        font-size: 18px;
+        margin: 6px 0 12px;
+    }
+
+    .search-page.has-results .search-logo img {
+        width: 36px;
+        height: 36px;
+    }
+}

@@ -3,3 +3,5 @@ node_modules/
 .env
 api-proxy.py
 .vercel
+.env*.local
+.env.production

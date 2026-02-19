@@ -78,7 +78,6 @@ function createImageElement(item, height = 320) {
   if (item.imageUrl) {
     return `<img src="${item.imageUrl}" alt="${item.title}"
               ${dataIsbn} ${needsUpgrade}
-              style="width:100%;height:280px;object-fit:contain;object-position:bottom;"
               onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
               loading="lazy">`;
   }
@@ -86,7 +85,6 @@ function createImageElement(item, height = 320) {
   if (isbn) {
     return `<img src="" alt="${item.title}"
               ${dataIsbn} data-needs-upgrade="1"
-              style="width:100%;height:280px;object-fit:contain;object-position:bottom;"
               onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
               loading="lazy">`;
   }

@@ -38,9 +38,7 @@ function resolveImageUrl(item) {
   const url = raw.replace('http://', 'https://');
   const sized = url.includes('?_ex=') ? url.replace(/\?_ex=\d+x\d+/, '?_ex=800x800') : url + '?_ex=800x800';
   // プレースホルダー画像の検出
-  const filename = url.split('/').pop().split('?')[0];
   const isPlaceholder =
-    filename.match(/^\d{10,13}\.(gif|jpg|jpeg|png)$/i) ||  // ISBN番号だけのファイル名
     url.includes('noimage') ||                               // noimage系
     url.includes('no_image') ||
     url.includes('/0000/') ||                                // ダミーパス

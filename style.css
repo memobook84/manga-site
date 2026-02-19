@@ -13,8 +13,8 @@
 
 /* === CSS Variables === */
 :root {
-    --color-header: #9C2020;
-    --color-bg: #FAF8F5;
+    --color-header: #FFFFFF;
+    --color-bg: #FFFFFF;
     --color-card: #FFFFFF;
     --color-text: #2B2B2B;
     --color-text-sub: #5A5A5A;
@@ -46,7 +46,7 @@ header {
     background-color: var(--color-header);
     padding: 7px 0;
     box-shadow: none;
-    border-bottom: 1px solid #444;
+    border-bottom: none;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -61,6 +61,7 @@ header {
     gap: 20px;
 }
 
+
 .header-logo {
     display: flex;
     align-items: center;
@@ -71,65 +72,66 @@ header {
 /* ヘッダーロゴ（位置調整は.header-container直後で定義） */
 
 .header-logo-img {
-    height: 36px;
-    width: 36px;
+    height: 28px;
+    width: 28px;
     object-fit: contain;
-    border-radius: 6px;
+    border-radius: 0;
 }
 
 header h1 {
-    color: white;
+    color: #D8052E;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 900;
     margin-right: auto;
-    font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
-    letter-spacing: 0.02em;
+    font-family: 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
     position: relative;
     top: -2px;
 }
 
 header h1 a {
-    color: white;
+    color: #D8052E;
     text-decoration: none;
 }
 
 /* ヘッダーナビゲーション */
 .header-nav {
     display: flex;
-    gap: 6px;
+    gap: 4px;
 }
 
 .nav-link {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    color: rgba(255, 255, 255, 0.75);
+    color: #2B2B2B;
     text-decoration: none;
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
     transition: all 0.2s ease;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
     text-transform: uppercase;
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
+    position: relative;
 }
 
 .nav-link:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.3);
+    color: #2B2B2B;
+    background: #F0EEEB;
 }
 
 .nav-link svg {
-    opacity: 0.7;
+    opacity: 0.75;
     transition: opacity 0.2s ease;
 }
 
 .nav-link:hover svg {
-    opacity: 1;
+    opacity: 0.85;
 }
 
 /* 検索ボックス */
@@ -152,7 +154,7 @@ header h1 a {
 
 .search-box input:focus {
     outline: none;
-    border-color: var(--color-header);
+    border-color: var(--color-text);
 }
 
 .search-box .search-icon {
@@ -218,16 +220,16 @@ header h1 a {
     gap: 6px;
     font-size: 10px;
     font-weight: 600;
-    color: #999;
+    color: #2B2B2B;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     margin-bottom: 6px;
     padding: 0 10px;
-    font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
+    font-family: 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
 }
 
 .sidebar-heading svg {
-    opacity: 0.5;
+    display: none;
 }
 
 .sidebar-list {
@@ -242,7 +244,7 @@ header h1 a {
     align-items: center;
     gap: 8px;
     padding: 8px 10px;
-    color: var(--color-text-sub);
+    color: #2B2B2B;
     text-decoration: none;
     font-size: 13px;
     font-weight: 400;
@@ -252,9 +254,7 @@ header h1 a {
 }
 
 .sidebar-link svg {
-    flex-shrink: 0;
-    opacity: 0.45;
-    transition: opacity 0.15s ease;
+    display: none;
 }
 
 .sidebar-link:hover {
@@ -305,7 +305,7 @@ main {
 .manga-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 24px;
+    gap: 40px 24px;
 }
 
 .manga-item {
@@ -326,7 +326,7 @@ main {
 
 .manga-item img {
     width: 100%;
-    height: 280px;
+    height: 240px;
     object-fit: contain;
     object-position: bottom;
     display: block;
@@ -335,7 +335,7 @@ main {
 
 .manga-placeholder {
     width: 100%;
-    height: 320px;
+    height: 280px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -404,11 +404,11 @@ main {
 .manga-item h3 {
     padding: 4px 8px 2px 8px;
     font-size: 14px;
+    font-weight: 400;
     text-align: center;
     color: var(--color-text);
     margin-bottom: 0;
     font-family: var(--font-heading);
-    font-weight: 600;
 }
 
 .manga-item .author {
@@ -439,6 +439,24 @@ main {
 @media (max-width: 768px) {
     .manga-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .manga-item img {
+        height: auto;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .manga-placeholder,
+    .manga-cover-placeholder {
+        height: auto;
+        aspect-ratio: 2 / 3;
+    }
+
+    .skeleton-image {
+        height: auto;
+        aspect-ratio: 2 / 3;
     }
 
     .search-box input {
@@ -455,17 +473,28 @@ main {
 }
 
 @media (max-width: 480px) {
-    .manga-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .header-container {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 0 12px;
     }
 
-    .header-container {
-        flex-direction: column;
-        gap: 15px;
+    header h1 {
+        display: none;
+    }
+
+    .header-nav {
+        margin-left: auto;
+    }
+
+    .nav-link {
+        font-size: 11px;
+        padding: 4px 8px;
     }
 
     .search-box {
         width: 100%;
+        order: 10;
     }
 
     .search-box input {
@@ -480,7 +509,7 @@ main {
 
 .skeleton-image {
     width: 100%;
-    height: 320px;
+    height: 280px;
     background: linear-gradient(90deg, #eee 25%, #e0e0e0 50%, #eee 75%);
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s infinite;
@@ -509,6 +538,135 @@ main {
     100% { background-position: -200% 0; }
 }
 
+/* 売れ筋ランキングセクション */
+.ranking-section {
+    padding: 32px 24px;
+    margin: 16px -24px;
+    background: transparent;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.ranking-header {
+    margin-bottom: 20px;
+}
+
+.ranking-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    letter-spacing: 0.02em;
+}
+
+.ranking-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+
+.ranking-item {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.ranking-item:hover .ranking-card {
+    transform: translateY(-3px);
+}
+
+.ranking-card {
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease;
+}
+
+.ranking-number {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 32px;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1;
+    font-family: 'Bebas Neue', sans-serif;
+    user-select: none;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 4px 8px;
+    border-radius: 4px 0 6px 0;
+    z-index: 1;
+}
+
+.ranking-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+    object-position: bottom;
+    display: block;
+    flex-shrink: 0;
+    border-radius: 4px;
+}
+
+.ranking-card .manga-cover-placeholder {
+    height: 240px;
+    border-radius: 4px;
+}
+
+.ranking-card h3 {
+    padding: 8px 4px 2px 4px;
+    font-size: 13px;
+    font-weight: 400;
+    text-align: center;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    line-height: 1.4;
+}
+
+.ranking-card .author {
+    padding: 0 8px 6px 8px;
+    font-size: 12px;
+    text-align: center;
+    color: var(--color-text-sub);
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .ranking-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* 4位・5位を非表示 */
+    .ranking-item:nth-child(n+4) {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .ranking-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .ranking-card img {
+        height: auto;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .ranking-card .manga-cover-placeholder {
+        height: auto;
+        aspect-ratio: 2 / 3;
+    }
+
+    .ranking-number {
+        font-size: 26px;
+    }
+}
+
 /* ページネーション */
 .pagination {
     display: flex;
@@ -532,9 +690,9 @@ main {
 }
 
 .page-btn:hover:not(:disabled) {
-    background-color: var(--color-header);
+    background-color: var(--color-text);
     color: white;
-    border-color: var(--color-header);
+    border-color: var(--color-text);
 }
 
 .page-btn:disabled {
@@ -546,4 +704,64 @@ main {
     font-size: 14px;
     color: var(--color-text-sub);
     font-weight: 500;
+}
+
+/* ボトムナビゲーション（アプリ用） */
+.bottom-nav {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--color-header);
+        border-top: 1px solid var(--color-border);
+        z-index: 200;
+        padding: 6px 0;
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        text-decoration: none;
+        color: var(--color-text-sub);
+        font-size: 10px;
+        font-family: var(--font-body);
+        padding: 4px 12px;
+        border-radius: 8px;
+        transition: color 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .bottom-nav-item svg {
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+
+    .bottom-nav-item.active {
+        color: var(--color-text);
+    }
+
+    .bottom-nav-item.active svg {
+        opacity: 1;
+    }
+
+    /* ボトムナビ分の余白 */
+    body {
+        padding-bottom: 64px;
+    }
+
+    /* ヘッダーのナビリンクを非表示（ボトムナビに移動） */
+    .header-nav {
+        display: none;
+    }
 }

@@ -6,12 +6,27 @@ function getVolumeParams() {
         volumeNum: params.get('volumeNum') ? parseInt(params.get('volumeNum')) : null,
         isbn: params.get('isbn') || null,
         title: params.get('title') ? decodeURIComponent(params.get('title')) : null,
+        series: params.get('series') ? decodeURIComponent(params.get('series')) : null,
     };
+}
+
+// タイトルから巻数を抽出
+function extractVolumeNum(title) {
+    if (!title) return null;
+    let m = title.match(/[\s\u3000]+(\d+)$/);
+    if (m) return parseInt(m[1]);
+    m = title.match(/[（(](\d+)[）)]$/);
+    if (m) return parseInt(m[1]);
+    m = title.match(/第(\d+)巻?$/);
+    if (m) return parseInt(m[1]);
+    m = title.match(/(\d+)巻$/);
+    if (m) return parseInt(m[1]);
+    return null;
 }
 
 // 巻の詳細を表示（メイン処理）
 async function displayVolumeDetail() {
-    const { seriesId, volumeNum, isbn, title } = getVolumeParams();
+    const { seriesId, volumeNum, isbn, title, series } = getVolumeParams();
 
     let volume = null;
 
@@ -62,11 +77,106 @@ async function displayVolumeDetail() {
     document.getElementById('buy-amazon').href = getAmazonBuyUrl(volume);
 
     // 作品ページに戻るリンクを設定
-    if (volume.isbn) {
-        document.getElementById('back-to-series').href = `detail.html?isbn=${volume.isbn}&title=${encodeURIComponent(volume.seriesName || volume.title)}`;
-    } else if (seriesId !== null) {
-        document.getElementById('back-to-series').href = `detail.html?id=${seriesId}`;
+    const seriesName = series || extractSeriesName(volume.title) || volume.title;
+    document.getElementById('back-to-series').href = `detail.html?title=${encodeURIComponent(seriesName)}`;
+
+    // 前後巻ナビゲーションを設定
+    setupVolumeSlider(seriesName, isbn, title);
+}
+
+// シリーズの全巻を取得して前後ナビゲーションを構築
+async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
+    if (!seriesName) return;
+
+    let allVolumes = [];
+    try {
+        const response = await fetch(`/api/search?keyword=${encodeURIComponent(seriesName)}&hits=30`);
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+        const data = await response.json();
+        const adapted = adaptApiResponse(data);
+        allVolumes = adapted.items;
+    } catch (err) {
+        console.warn('シリーズ取得失敗:', err);
+        return;
     }
+
+    // シリーズ名でフィルタリング
+    const filtered = allVolumes.filter(v => {
+        const vSeries = extractSeriesName(v.title);
+        return vSeries === seriesName;
+    });
+    const volumes = filtered.length > 0 ? filtered : allVolumes;
+
+    if (volumes.length <= 1) return;
+
+    // 巻数を抽出してソート
+    const withVolNum = volumes.map(vol => ({
+        ...vol,
+        volNum: extractVolumeNum(vol.title),
+    }));
+
+    withVolNum.sort((a, b) => {
+        if (a.volNum !== null && b.volNum !== null) return a.volNum - b.volNum;
+        if (a.volNum !== null) return -1;
+        if (b.volNum !== null) return 1;
+        return (a.title || '').localeCompare(b.title || '');
+    });
+
+    // 現在の巻を特定
+    let currentIndex = -1;
+    if (currentIsbn) {
+        currentIndex = withVolNum.findIndex(v => v.isbn === currentIsbn);
+    }
+    if (currentIndex === -1 && currentTitle) {
+        currentIndex = withVolNum.findIndex(v => v.title === currentTitle);
+    }
+    if (currentIndex === -1) return;
+
+    // スライダーUIを表示
+    const slider = document.getElementById('volume-slider');
+    slider.style.display = 'flex';
+
+    const prevBtn = document.getElementById('prev-volume');
+    const nextBtn = document.getElementById('next-volume');
+    const prevLabel = document.getElementById('prev-label');
+    const nextLabel = document.getElementById('next-label');
+    const positionLabel = document.getElementById('volume-position');
+
+    // 位置表示
+    const currentVol = withVolNum[currentIndex];
+    const currentNum = currentVol.volNum;
+    positionLabel.textContent = currentNum !== null
+        ? `${currentNum} / ${withVolNum.length}巻`
+        : `${currentIndex + 1} / ${withVolNum.length}`;
+
+    // 前の巻
+    if (currentIndex > 0) {
+        const prev = withVolNum[currentIndex - 1];
+        prevBtn.disabled = false;
+        prevLabel.textContent = prev.volNum !== null ? `${prev.volNum}巻` : '前の巻';
+        prevBtn.addEventListener('click', () => {
+            navigateToVolume(prev, seriesName);
+        });
+    }
+
+    // 次の巻
+    if (currentIndex < withVolNum.length - 1) {
+        const next = withVolNum[currentIndex + 1];
+        nextBtn.disabled = false;
+        nextLabel.textContent = next.volNum !== null ? `${next.volNum}巻` : '次の巻';
+        nextBtn.addEventListener('click', () => {
+            navigateToVolume(next, seriesName);
+        });
+    }
+}
+
+// 指定した巻のページに遷移
+function navigateToVolume(vol, seriesName) {
+    const params = new URLSearchParams();
+    if (vol.isbn) params.set('isbn', vol.isbn);
+    params.set('title', vol.title);
+    if (seriesName) params.set('series', seriesName);
+    window.location.href = `volume.html?${params.toString()}`;
 }
 
 // ISBNでAPIから取得

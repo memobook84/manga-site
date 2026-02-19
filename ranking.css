@@ -1,0 +1,32 @@
+/* ランキングページ専用のスタイル */
+
+.ranking-main {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.ranking-main .ranking-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* ランキングページではすべてのアイテムを表示 */
+.ranking-main .ranking-item:nth-child(n+4) {
+    display: flex;
+}
+
+@media (max-width: 900px) {
+    .ranking-main .ranking-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .ranking-main .ranking-item:nth-child(n+4) {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .ranking-main .ranking-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

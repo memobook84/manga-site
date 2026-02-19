@@ -155,7 +155,8 @@ function displayVolumesList(volumes) {
 
         volumeItem.addEventListener('click', () => {
             if (vol.isbn) {
-                window.location.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}`;
+                const seriesName = extractSeriesName(vol.title) || '';
+                window.location.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}&series=${encodeURIComponent(seriesName)}`;
             }
         });
 
