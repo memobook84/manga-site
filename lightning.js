@@ -57,7 +57,7 @@
             tapTimes.push(now);
             // 2秒より古いタップを除去
             tapTimes = tapTimes.filter(function (t) { return now - t < 2000; });
-            if (tapTimes.length >= 3) {
+            if (tapTimes.length >= 5) {
                 turnOn();
                 tapTimes = [];
             }
