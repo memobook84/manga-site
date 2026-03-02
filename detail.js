@@ -69,9 +69,17 @@ async function displayMangaDetail() {
 
     // 著者・出版社・レーベル: 最初の巻から取得
     const firstVol = volumes[0];
-    const authorLink = document.getElementById('manga-author');
-    authorLink.textContent = firstVol.author || '-';
-    authorLink.href = `author.html?name=${encodeURIComponent(firstVol.author || '')}`;
+    const authorContainer = document.getElementById('manga-author');
+    const authorStr = firstVol.author || '-';
+    const authors = authorStr.split(/[\/／、,]/).map(a => a.trim()).filter(a => a);
+    if (authors.length > 0 && authorStr !== '-') {
+        authorContainer.innerHTML = authors.map((name, i) => {
+            const link = `<a href="author.html?name=${encodeURIComponent(name)}" class="author-link">${name}</a>`;
+            return (i < authors.length - 1) ? link + '、' : link;
+        }).join('');
+    } else {
+        authorContainer.textContent = '-';
+    }
 
     document.getElementById('manga-publisher').textContent = firstVol.publisher || '-';
     document.getElementById('manga-label').textContent = firstVol.label || firstVol.seriesName || '-';
@@ -83,7 +91,7 @@ async function displayMangaDetail() {
     // あらすじ: descriptionが空でない最初の巻から取得
     const withDescription = volumes.find(v => v.description && v.description.trim() !== '');
     document.getElementById('manga-description').textContent =
-        (withDescription ? withDescription.description : '') || 'あらすじ情報がありません。';
+        (withDescription ? withDescription.description : '') || 'ストーリー情報がありません。';
 
     // 表紙画像: 実カバーがある巻から選択（最新巻除外）
     const sortedByDate = [...volumes].sort((a, b) => {
@@ -97,10 +105,14 @@ async function displayMangaDetail() {
     const coverVol = coverPool[Math.floor(Math.random() * coverPool.length)];
 
     const imageContainer = document.querySelector('.detail-image');
+    const followButtonEl = document.getElementById('follow-button');
     imageContainer.innerHTML = createDetailImageElement({
         ...coverVol,
         title: displaySeriesName,
     });
+    if (followButtonEl) {
+        imageContainer.appendChild(followButtonEl);
+    }
 
     // フォローボタンの設定
     setupFollowButton({
@@ -173,10 +185,18 @@ function setupFollowButton(manga) {
     if (isFollowed) {
         followButton.classList.add('followed');
     }
+    updateFollowButtonText(followButton);
 
     followButton.addEventListener('click', () => {
         toggleFollow(manga, followButton);
     });
+}
+
+function updateFollowButtonText(button) {
+    const textEl = button.querySelector('.follow-button-text');
+    if (textEl) {
+        textEl.textContent = button.classList.contains('followed') ? 'フォロー中' : 'フォロー';
+    }
 }
 
 function toggleFollow(manga, button) {
@@ -198,6 +218,7 @@ function toggleFollow(manga, button) {
         button.classList.add('followed');
     }
 
+    updateFollowButtonText(button);
     localStorage.setItem('followedManga', JSON.stringify(followedManga));
 }
 
