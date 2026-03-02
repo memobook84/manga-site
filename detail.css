@@ -15,13 +15,14 @@
 /* 左側：表紙画像 */
 .detail-image {
     flex-shrink: 0;
+    width: 300px;
 }
 
 .detail-image img,
 .manga-detail-placeholder {
     width: 300px;
     height: 420px;
-    border-radius: 6px;
+    border-radius: 0;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -66,35 +67,38 @@
     font-weight: 700;
 }
 
-/* フォローボタン（ハート） */
+/* フォローボタン（横長テキストボタン） */
 .follow-button {
-    background: transparent;
-    border: none;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 16px;
+    padding: 10px 24px;
+    background-color: #fff;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
     cursor: pointer;
-    padding: 5px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .follow-button:hover {
-    transform: scale(1.15) rotate(15deg);
-    animation: sparkle 0.5s ease-in-out;
+    background-color: #f5f5f5;
 }
 
-@keyframes sparkle {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.2) rotate(15deg); }
+.follow-button.followed {
+    background-color: #222222;
+    color: #fff;
+    border-color: #222222;
 }
 
-.follow-button .heart-icon {
-    stroke: #999;
-    fill: none;
-    transition: fill 0.3s, stroke 0.3s, transform 0.3s;
-}
-
-.follow-button.followed .heart-icon {
-    fill: #e74c3c;
-    stroke: #e74c3c;
+.follow-button.followed:hover {
+    background-color: #000000;
+    border-color: #000000;
 }
 
 /* メタ情報 */
@@ -135,9 +139,10 @@
     text-decoration: underline;
 }
 
-/* あらすじ */
+/* ストーリー */
 .detail-description {
     margin-bottom: 30px;
+    padding: 0 30px;
 }
 
 .detail-description h2 {
@@ -218,7 +223,7 @@
 /* 各巻セクション */
 .volumes-section {
     margin-top: 48px;
-    padding: 20px 0;
+    padding: 20px 30px;
 }
 
 .volumes-title {
@@ -288,11 +293,19 @@
         padding: 20px;
     }
 
-    .detail-image img {
+    .detail-image {
         width: 100%;
-        max-width: 300px;
+    }
+
+    .detail-image img,
+    .detail-image .manga-detail-placeholder {
+        width: 80%;
+        max-width: 240px;
+        height: auto;
         margin: 0 auto;
         display: block;
+        box-shadow: none;
+        border-radius: 0;
     }
 
     .detail-title {
