@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://manga-site-three.vercel.app/sitemap.xml

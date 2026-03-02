@@ -120,6 +120,14 @@ async function displayMangaDetail() {
         title: displaySeriesName,
     });
 
+    // SEO: 動的にmeta/OGPを更新
+    const seoDesc = `${displaySeriesName}（${authorStr}）のあらすじ・巻一覧。${(withDescription ? withDescription.description : '').substring(0, 80)}`;
+    updateSEOMeta({
+        title: `${displaySeriesName} - Book Store`,
+        description: seoDesc,
+        image: coverVol.imageUrl || 'https://manga-site-three.vercel.app/icon-512.png',
+    });
+
     // --- 巻一覧を表示 ---
     displayVolumesList(volumes);
 
@@ -225,6 +233,23 @@ function toggleFollow(manga, button) {
 function getFollowedManga() {
     const stored = localStorage.getItem('followedManga');
     return stored ? JSON.parse(stored) : [];
+}
+
+// SEO: meta description / OGPタグを動的に更新
+function updateSEOMeta(info) {
+    const desc = info.description || '';
+    const title = info.title || '';
+    const image = info.image || 'https://manga-site-three.vercel.app/icon-512.png';
+    const url = window.location.href;
+
+    document.querySelector('meta[name="description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
 }
 
 // ページ読み込み時に実行

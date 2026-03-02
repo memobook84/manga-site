@@ -101,6 +101,14 @@ async function displayAuthorDetail() {
         }));
     }
 
+    // SEO: 動的にmeta/OGPを更新
+    const workTitles = works.slice(0, 3).map(w => w.title).join('、');
+    const seoDesc = `${authorName}の作品一覧。${workTitles}など${works.length}作品を掲載。`;
+    updateSEOMeta({
+        title: `${authorName} - Book Store`,
+        description: seoDesc,
+    });
+
     if (works.length === 0) {
         document.getElementById('author-works-count').textContent = '作品数: 0作品';
         document.getElementById('representative-works').innerHTML = '<li>作品が見つかりませんでした</li>';
@@ -166,6 +174,23 @@ function displayAuthorWorks(works) {
 
         worksGrid.appendChild(workItem);
     });
+}
+
+// SEO: meta description / OGPタグを動的に更新
+function updateSEOMeta(info) {
+    const desc = info.description || '';
+    const title = info.title || '';
+    const image = info.image || 'https://manga-site-three.vercel.app/icon-512.png';
+    const url = window.location.href;
+
+    document.querySelector('meta[name="description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
 }
 
 // ページ読み込み時に実行

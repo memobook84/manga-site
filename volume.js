@@ -72,6 +72,14 @@ async function displayVolumeDetail() {
     document.getElementById('volume-price').textContent = volume.price || '-';
     document.getElementById('volume-synopsis').textContent = volume.description || 'この巻の情報はありません。';
 
+    // SEO: 動的にmeta/OGPを更新
+    const seoDesc = `${volume.title}（${volume.author}）。${(volume.description || '').substring(0, 80)}`;
+    updateSEOMeta({
+        title: `${volume.title} - Book Store`,
+        description: seoDesc,
+        image: volume.imageUrl || 'https://manga-site-three.vercel.app/icon-512.png',
+    });
+
     // 購入ボタンのリンクを設定
     document.getElementById('buy-rakuten').href = getRakutenBuyUrl(volume);
     document.getElementById('buy-amazon').href = getAmazonBuyUrl(volume);
@@ -238,6 +246,23 @@ function buildLocalVolume(manga, volumeNum) {
         itemUrl: '',
         color: manga.color,
     };
+}
+
+// SEO: meta description / OGPタグを動的に更新
+function updateSEOMeta(info) {
+    const desc = info.description || '';
+    const title = info.title || '';
+    const image = info.image || 'https://manga-site-three.vercel.app/icon-512.png';
+    const url = window.location.href;
+
+    document.querySelector('meta[name="description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:title"]').setAttribute('content', title);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', desc);
+    document.querySelector('meta[property="og:image"]').setAttribute('content', image);
+    document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+    document.querySelector('meta[name="twitter:title"]').setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]').setAttribute('content', desc);
+    document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
 }
 
 // ページ読み込み時に実行
