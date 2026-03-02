@@ -69,41 +69,38 @@
     font-weight: 700;
 }
 
-/* フォローボタン（Apple風カプセル） */
+/* フォローボタン（横長テキストボタン） */
 .follow-button {
-    display: inline-block;
+    display: block;
+    width: 100%;
+    max-width: 300px;
     margin-top: 16px;
-    padding: 7px 20px;
-    background-color: #1d1d1f;
-    color: #fff;
-    border: none;
-    border-radius: 980px;
+    padding: 10px 24px;
+    background-color: #fff;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans JP', sans-serif;
-    letter-spacing: 0.01em;
-    transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .follow-button:hover {
-    background-color: #000;
-    transform: scale(1.04);
-}
-
-.follow-button:active {
-    transform: scale(0.96);
+    background-color: #f5f5f5;
 }
 
 .follow-button.followed {
-    background-color: #f5f5f7;
-    color: #1d1d1f;
+    background-color: #222222;
+    color: #fff;
+    border-color: #222222;
 }
 
 .follow-button.followed:hover {
-    background-color: #e8e8ed;
+    background-color: #000000;
+    border-color: #000000;
 }
 
 /* メタ情報 */
