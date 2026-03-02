@@ -24,6 +24,8 @@
     height: 420px;
     border-radius: 0;
     box-shadow: none;
+    border: none;
+    outline: none;
 }
 
 .manga-detail-placeholder {
