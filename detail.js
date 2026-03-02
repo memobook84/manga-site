@@ -195,7 +195,7 @@ function setupFollowButton(manga) {
 function updateFollowButtonText(button) {
     const textEl = button.querySelector('.follow-button-text');
     if (textEl) {
-        textEl.textContent = button.classList.contains('followed') ? '✓ フォロー中' : '+ フォロー';
+        textEl.textContent = button.classList.contains('followed') ? 'フォロー中' : 'フォロー';
     }
 }
 
