@@ -314,6 +314,10 @@
         font-size: 24px;
     }
 
+    .detail-description {
+        padding: 0 20px;
+    }
+
     .detail-buttons {
         flex-direction: column;
     }
