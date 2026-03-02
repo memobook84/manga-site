@@ -133,6 +133,11 @@
     text-align: justify;
 }
 
+/* ボトムセクション */
+.volume-bottom-section {
+    padding: 0 30px;
+}
+
 /* 購入ボタン */
 .volume-buttons {
     display: flex;
@@ -299,6 +304,10 @@
     }
 
     .volume-description {
+        padding: 0 20px;
+    }
+
+    .volume-bottom-section {
         padding: 0 20px;
     }
 }
