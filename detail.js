@@ -75,7 +75,7 @@ async function displayMangaDetail() {
     if (authors.length > 0 && authorStr !== '-') {
         authorContainer.innerHTML = authors.map((name, i) => {
             const link = `<a href="author.html?name=${encodeURIComponent(name)}" class="author-link">${name}</a>`;
-            return (i < authors.length - 1) ? link + '、' : link;
+            return (i < authors.length - 1) ? link + ' / ' : link;
         }).join('');
     } else {
         authorContainer.textContent = '-';
