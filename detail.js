@@ -123,7 +123,7 @@ async function displayMangaDetail() {
     // SEO: 動的にmeta/OGPを更新
     const seoDesc = `${displaySeriesName}（${authorStr}）のあらすじ・巻一覧。${(withDescription ? withDescription.description : '').substring(0, 80)}`;
     updateSEOMeta({
-        title: `${displaySeriesName} - Book Store`,
+        title: `${displaySeriesName} - COMIC STORE`,
         description: seoDesc,
         image: coverVol.imageUrl || 'https://manga-site-three.vercel.app/icon-512.png',
     });

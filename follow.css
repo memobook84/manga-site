@@ -97,8 +97,8 @@
 }
 
 .unfollow-button svg {
-    stroke: var(--color-heart);
-    fill: var(--color-heart);
+    stroke: var(--color-text-sub);
+    fill: none;
 }
 
 /* 空のメッセージ */

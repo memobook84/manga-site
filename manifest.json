@@ -1,6 +1,6 @@
 {
-  "name": "Book Store",
-  "short_name": "Book Store",
+  "name": "COMIC STORE",
+  "short_name": "COMIC STORE",
   "description": "Manga collection from Shueisha, Shogakukan, and Kodansha",
   "start_url": "/",
   "display": "standalone",

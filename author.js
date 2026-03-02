@@ -105,7 +105,7 @@ async function displayAuthorDetail() {
     const workTitles = works.slice(0, 3).map(w => w.title).join('、');
     const seoDesc = `${authorName}の作品一覧。${workTitles}など${works.length}作品を掲載。`;
     updateSEOMeta({
-        title: `${authorName} - Book Store`,
+        title: `${authorName} - COMIC STORE`,
         description: seoDesc,
     });
 
