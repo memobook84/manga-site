@@ -110,9 +110,10 @@
     text-decoration: underline;
 }
 
-/* この巻について */
+/* ストーリー */
 .volume-description {
     margin-bottom: 30px;
+    padding: 0 30px;
 }
 
 .volume-description h2 {
@@ -295,5 +296,9 @@
     .navigation-buttons {
         flex-direction: column;
         gap: 10px;
+    }
+
+    .volume-description {
+        padding: 0 20px;
     }
 }
