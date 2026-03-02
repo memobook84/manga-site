@@ -72,15 +72,15 @@ header {
 /* ヘッダーロゴ（位置調整は.header-container直後で定義） */
 
 .header-logo-img {
-    height: 28px;
-    width: 28px;
+    height: 36px;
+    width: 36px;
     object-fit: contain;
     border-radius: 0;
 }
 
 header h1 {
     color: #D8052E;
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 900;
     margin-right: auto;
     font-family: 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
