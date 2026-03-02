@@ -46,22 +46,40 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    toggle.addEventListener('click', function () {
+    function handleTap() {
         if (enabled) {
             // ONのときは1回で即OFF
             turnOff();
             tapTimes = [];
         } else {
-            // OFFのときは2秒以内に3回タップでON
+            // OFFのときは1秒以内に3回タップでON
             var now = Date.now();
             tapTimes.push(now);
-            // 2秒より古いタップを除去
-            tapTimes = tapTimes.filter(function (t) { return now - t < 2000; });
-            if (tapTimes.length >= 5) {
+            // 1秒より古いタップを除去
+            tapTimes = tapTimes.filter(function (t) { return now - t < 1000; });
+            if (tapTimes.length >= 3) {
                 turnOn();
                 tapTimes = [];
             }
         }
+    }
+
+    // タッチデバイス: ダブルタップズームを防止しつつタップ処理
+    var touchHandled = false;
+    toggle.addEventListener('touchstart', function (e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    toggle.addEventListener('touchend', function (e) {
+        e.preventDefault();
+        touchHandled = true;
+        handleTap();
+        setTimeout(function () { touchHandled = false; }, 300);
+    }, { passive: false });
+
+    // PC: 通常のクリック
+    toggle.addEventListener('click', function () {
+        if (!touchHandled) handleTap();
     });
 
     // 雷の枝を生成
