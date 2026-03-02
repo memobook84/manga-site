@@ -93,14 +93,14 @@
 }
 
 .follow-button.followed {
-    background-color: #222222;
+    background-color: #1a2a4a;
     color: #fff;
-    border-color: #222222;
+    border-color: #1a2a4a;
 }
 
 .follow-button.followed:hover {
-    background-color: #000000;
-    border-color: #000000;
+    background-color: #0f1d36;
+    border-color: #0f1d36;
 }
 
 /* メタ情報 */
