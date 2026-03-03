@@ -20,6 +20,42 @@ body {
 /* 左側：表紙画像 */
 .volume-image {
     flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+/* スワイプ矢印（Apple風） */
+.swipe-arrow {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+    animation: swipeArrowPulse 2s ease-in-out infinite;
+}
+
+.swipe-arrow-prev {
+    margin-right: 10px;
+}
+
+.swipe-arrow-next {
+    margin-left: 10px;
+}
+
+.swipe-arrow.hidden {
+    visibility: hidden;
+}
+
+@keyframes swipeArrowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
 }
 
 .volume-image img,
@@ -284,12 +320,21 @@ body {
         padding: 20px;
     }
 
+    .volume-image {
+        justify-content: center;
+    }
+
     .volume-image img {
-        width: 80%;
+        width: auto;
         max-width: 240px;
+        max-height: 340px;
         height: auto;
-        margin: 0 auto;
+        margin: 0;
         display: block;
+    }
+
+    .swipe-arrow {
+        display: flex;
     }
 
     .volume-title-main {
