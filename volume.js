@@ -177,27 +177,75 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         });
     }
 
-    // スワイプナビゲーション
+    // スワイプナビゲーション（スライド演出付き）
+    const pageEl = document.querySelector('.volume-main');
     let touchStartX = 0;
     let touchStartY = 0;
+    let tracking = false;
+    let swiping = false;
+
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex < withVolNum.length - 1;
+
     document.addEventListener('touchstart', (e) => {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        tracking = true;
+        swiping = false;
+        pageEl.style.transition = 'none';
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!tracking) return;
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+
+        // 最初の動きで方向を判定
+        if (!swiping && Math.abs(dx) > 10) {
+            if (Math.abs(dy) > Math.abs(dx)) {
+                tracking = false;
+                return;
+            }
+            swiping = true;
+        }
+        if (!swiping) return;
+
+        // 移動先がない方向は抵抗感を出す（1/4の距離）
+        let move = dx;
+        if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
+            move = dx * 0.25;
+        }
+        pageEl.style.transform = `translateX(${move}px)`;
+        pageEl.style.opacity = Math.max(0.3, 1 - Math.abs(move) / window.innerWidth * 0.7);
     }, { passive: true });
 
     document.addEventListener('touchend', (e) => {
-        const dx = e.changedTouches[0].screenX - touchStartX;
-        const dy = e.changedTouches[0].screenY - touchStartY;
-        // 水平方向のスワイプのみ反応（縦スクロールを無視）
-        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        if (!tracking) return;
+        tracking = false;
 
-        if (dx < 0 && currentIndex < withVolNum.length - 1) {
-            // 左スワイプ → 次の巻
-            navigateToVolume(withVolNum[currentIndex + 1], seriesName);
-        } else if (dx > 0 && currentIndex > 0) {
-            // 右スワイプ → 前の巻
-            navigateToVolume(withVolNum[currentIndex - 1], seriesName);
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const threshold = 80;
+        const shouldNavigate = swiping && Math.abs(dx) > threshold;
+
+        if (shouldNavigate && dx < 0 && hasNext) {
+            // 左スワイプ → 次の巻（画面外へスライドアウト）
+            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transform = `translateX(${-window.innerWidth}px)`;
+            pageEl.style.opacity = '0';
+            setTimeout(() => navigateToVolume(withVolNum[currentIndex + 1], seriesName), 200);
+        } else if (shouldNavigate && dx > 0 && hasPrev) {
+            // 右スワイプ → 前の巻（画面外へスライドアウト）
+            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transform = `translateX(${window.innerWidth}px)`;
+            pageEl.style.opacity = '0';
+            setTimeout(() => navigateToVolume(withVolNum[currentIndex - 1], seriesName), 200);
+        } else {
+            // 閾値未満 → 元に戻す
+            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transform = '';
+            pageEl.style.opacity = '';
         }
+        swiping = false;
     }, { passive: true });
 }
 

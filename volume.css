@@ -1,9 +1,14 @@
 /* 巻詳細ページ専用のスタイル */
 
+body {
+    overflow-x: hidden;
+}
+
 .volume-main {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
+    will-change: transform, opacity;
 }
 
 .volume-container {
