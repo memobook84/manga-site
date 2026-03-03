@@ -187,13 +187,11 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
     const hasPrev = currentIndex > 0;
     const hasNext = currentIndex < withVolNum.length - 1;
 
-    // スワイプ矢印の表示制御（モバイルのみ）
+    // スワイプ矢印：前後の巻がない方向は非表示
     const arrowPrev = document.getElementById('swipe-arrow-prev');
     const arrowNext = document.getElementById('swipe-arrow-next');
-    if (window.innerWidth <= 768) {
-        if (hasPrev && arrowPrev) arrowPrev.style.display = 'flex';
-        if (hasNext && arrowNext) arrowNext.style.display = 'flex';
-    }
+    if (!hasPrev && arrowPrev) arrowPrev.classList.add('swipe-hidden');
+    if (!hasNext && arrowNext) arrowNext.classList.add('swipe-hidden');
 
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
