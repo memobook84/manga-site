@@ -773,38 +773,38 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
     margin-top: 0;
     padding: 20px 0;
 }
 
 .page-btn {
-    padding: 10px 24px;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-card);
-    color: var(--color-text);
-    border-radius: 4px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-text-sub);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
     font-family: var(--font-body);
-    transition: all 0.3s;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
 }
 
 .page-btn:hover:not(:disabled) {
-    background-color: var(--color-text);
-    color: white;
-    border-color: var(--color-text);
+    color: var(--color-text);
 }
 
 .page-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+    opacity: 0.25;
+    cursor: default;
 }
 
 .page-info {
-    font-size: 14px;
-    color: var(--color-text-sub);
-    font-weight: 500;
+    font-size: 13px;
+    color: var(--color-text);
+    font-weight: 600;
+    letter-spacing: 0.03em;
 }
 
 /* ボトムナビゲーション（アプリ用） */
