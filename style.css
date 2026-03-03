@@ -95,18 +95,26 @@ body {
     color: var(--color-text);
 }
 
-/* ダークモードトグルスイッチ */
-.dark-toggle-wrapper {
+/* ページネーション行 */
+.pagination-row {
     display: flex;
-    justify-content: flex-end;
-    padding: 20px 24px 80px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 40px;
+    position: relative;
 }
 
+.pagination-row .dark-toggle {
+    position: absolute;
+    right: 0;
+}
+
+/* ダークモードトグルスイッチ */
 .dark-toggle {
     position: relative;
-    width: 48px;
-    height: 26px;
-    border-radius: 13px;
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
     border: none;
     background: #ccc;
     cursor: pointer;
@@ -116,10 +124,10 @@ body {
 
 .dark-toggle-knob {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 20px;
-    height: 20px;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -131,7 +139,7 @@ body.dark-mode .dark-toggle {
 }
 
 body.dark-mode .dark-toggle-knob {
-    transform: translateX(22px);
+    transform: translateX(18px);
 }
 
 /* ヘッダー */
@@ -766,7 +774,7 @@ main {
     justify-content: center;
     align-items: center;
     gap: 20px;
-    margin-top: 40px;
+    margin-top: 0;
     padding: 20px 0;
 }
 
