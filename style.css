@@ -42,14 +42,44 @@ body.dark-mode {
     --color-text: #e0e0e0;
     --color-text-sub: #999;
     --color-border: #333;
+    --color-link: #8bb8a0;
+}
+
+body.dark-mode .nav-link {
+    color: #e0e0e0;
+}
+
+body.dark-mode .nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .sidebar-link {
+    color: #ccc;
 }
 
 body.dark-mode .sidebar-link:hover {
     background-color: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+body.dark-mode .sidebar-link.active {
+    background-color: #e0e0e0;
+    color: #1a1a1a;
 }
 
 body.dark-mode .manga-item {
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .search-box input {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .search-box input::placeholder {
+    color: #777;
 }
 
 * {
@@ -65,32 +95,40 @@ body {
     color: var(--color-text);
 }
 
-/* ダークモードトグルボタン */
+/* ダークモードトグルスイッチ */
 .dark-toggle {
     position: fixed;
     bottom: 80px;
     right: 16px;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
+    width: 48px;
+    height: 26px;
+    border-radius: 13px;
     border: none;
-    background: #e8e8e8;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    background: #ccc;
     cursor: pointer;
     z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
     transition: background 0.3s;
 }
 
-body.dark-mode .dark-toggle {
-    background: #333;
+.dark-toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
 }
 
-.dark-toggle-icon {
-    font-size: 20px;
-    line-height: 1;
+body.dark-mode .dark-toggle {
+    background: #4a90d9;
+}
+
+body.dark-mode .dark-toggle-knob {
+    transform: translateX(22px);
 }
 
 /* ヘッダー */

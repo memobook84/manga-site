@@ -114,7 +114,7 @@
     </div>
     <!-- ダークモードトグル -->
     <button id="dark-toggle" class="dark-toggle" aria-label="ダークモード切替">
-        <span class="dark-toggle-icon" id="dark-toggle-icon">🌙</span>
+        <span class="dark-toggle-knob"></span>
     </button>
 
     <!-- ボトムナビ -->
@@ -159,18 +159,12 @@
         var isDark = localStorage.getItem('darkMode') === 'true';
         var body = document.body;
         var btn = document.getElementById('dark-toggle');
-        var icon = document.getElementById('dark-toggle-icon');
 
-        if (isDark) {
-            body.classList.add('dark-mode');
-            icon.textContent = '☀️';
-        }
+        if (isDark) body.classList.add('dark-mode');
 
         btn.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
-            var active = body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', active);
-            icon.textContent = active ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
         });
     })();
     </script>
