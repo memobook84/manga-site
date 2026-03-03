@@ -210,6 +210,9 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         }
         if (!swiping) return;
 
+        // 横スワイプ中は縦スクロールを抑止
+        e.preventDefault();
+
         // 移動先がない方向は抵抗感を出す（1/4の距離）
         let move = dx;
         if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
@@ -217,7 +220,7 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         }
         pageEl.style.transform = `translateX(${move}px)`;
         pageEl.style.opacity = Math.max(0.3, 1 - Math.abs(move) / window.innerWidth * 0.7);
-    }, { passive: true });
+    }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
         if (!tracking) return;
