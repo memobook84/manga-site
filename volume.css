@@ -285,8 +285,9 @@ body {
     }
 
     .volume-image img {
-        width: 100%;
-        max-width: 300px;
+        width: 80%;
+        max-width: 240px;
+        height: auto;
         margin: 0 auto;
         display: block;
     }
