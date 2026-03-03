@@ -176,6 +176,29 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
             navigateToVolume(next, seriesName);
         });
     }
+
+    // スワイプナビゲーション
+    let touchStartX = 0;
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = e.changedTouches[0].screenY - touchStartY;
+        // 水平方向のスワイプのみ反応（縦スクロールを無視）
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+
+        if (dx < 0 && currentIndex < withVolNum.length - 1) {
+            // 左スワイプ → 次の巻
+            navigateToVolume(withVolNum[currentIndex + 1], seriesName);
+        } else if (dx > 0 && currentIndex > 0) {
+            // 右スワイプ → 前の巻
+            navigateToVolume(withVolNum[currentIndex - 1], seriesName);
+        }
+    }, { passive: true });
 }
 
 // 指定した巻のページに遷移
