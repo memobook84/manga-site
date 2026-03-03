@@ -21,51 +21,39 @@ body {
 .volume-image {
     flex-shrink: 0;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
 }
 
-/* スワイプ矢印（Apple風） */
+/* スワイプ矢印（画像の左上・右上に重ねる） */
 .swipe-arrow {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    position: absolute;
+    top: 6px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.06);
-    color: rgba(0, 0, 0, 0.25);
-    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    z-index: 2;
 }
 
 .swipe-arrow svg {
-    animation: swipeArrowBounce 2s ease-in-out infinite;
+    display: block;
 }
 
 .swipe-arrow-prev {
-    margin-right: 8px;
+    left: 6px;
+    animation: swipeArrowBounceLeft 2s ease-in-out infinite;
 }
 
 .swipe-arrow-next {
-    margin-left: 8px;
-}
-
-.swipe-arrow-prev svg {
-    animation-name: swipeArrowBounceLeft;
-}
-
-.swipe-arrow-next svg {
-    animation-name: swipeArrowBounceRight;
-}
-
-.swipe-arrow.hidden {
-    display: none !important;
+    right: 6px;
+    animation: swipeArrowBounceRight 2s ease-in-out infinite;
 }
 
 @keyframes swipeArrowBounceLeft {
-    0%, 100% { transform: translateX(0); opacity: 0.4; }
+    0%, 100% { transform: translateX(0); opacity: 0.6; }
     50% { transform: translateX(-3px); opacity: 1; }
 }
 
@@ -337,7 +325,8 @@ body {
     }
 
     .volume-image {
-        justify-content: center;
+        width: fit-content;
+        margin: 0 auto;
     }
 
     .volume-image img {
@@ -345,7 +334,6 @@ body {
         max-width: 240px;
         max-height: 340px;
         height: auto;
-        margin: 0;
         display: block;
     }
 
