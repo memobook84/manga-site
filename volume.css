@@ -349,10 +349,6 @@ body {
         display: block;
     }
 
-    .swipe-arrow {
-        display: flex;
-    }
-
     .volume-title-main {
         font-size: 22px;
     }
