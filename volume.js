@@ -54,9 +54,11 @@ async function displayVolumeDetail() {
     // ページタイトルを更新
     document.title = `${volume.title} - THE MANGA STORE`;
 
-    // 画像を表示
+    // 画像を表示（スワイプ矢印を保持）
     const volumeImageContainer = document.querySelector('.volume-image');
+    const arrows = volumeImageContainer.querySelectorAll('.swipe-arrow');
     volumeImageContainer.innerHTML = createDetailImageElement(volume);
+    arrows.forEach(arrow => volumeImageContainer.appendChild(arrow));
 
     document.getElementById('volume-title').textContent = volume.title;
     document.getElementById('volume-number').textContent = volume.volumeLabel || '';
