@@ -21,19 +21,20 @@ body {
 .volume-image {
     flex-shrink: 0;
     position: relative;
+    overflow: visible;
 }
 
-/* スワイプ矢印（画像の左上・右上に重ねる） - PC非表示、スマホ表示 */
+/* スワイプ矢印（画像の上に配置） - PC非表示、スマホ表示 */
 .swipe-arrow {
     display: none;
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: 8px;
-    width: 30px;
-    height: 30px;
+    top: -36px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.35);
     color: #fff;
     z-index: 2;
     pointer-events: none;
@@ -53,12 +54,12 @@ body {
 }
 
 .swipe-arrow-prev {
-    left: 8px;
+    left: -8px;
     animation: swipeArrowBounceLeft 2s ease-in-out infinite;
 }
 
 .swipe-arrow-next {
-    right: 8px;
+    right: -8px;
     animation: swipeArrowBounceRight 2s ease-in-out infinite;
 }
 
