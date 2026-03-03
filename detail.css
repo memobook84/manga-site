@@ -69,38 +69,40 @@
     font-weight: 700;
 }
 
-/* フォローボタン（横長テキストボタン） */
+/* フォローボタン */
 .follow-button {
     display: block;
     width: 100%;
     max-width: 300px;
     margin-top: 16px;
-    padding: 10px 24px;
-    background-color: #fff;
-    color: var(--color-text);
-    border: 2px solid var(--color-border);
-    border-radius: 0;
+    padding: 14px 30px;
+    background-color: #e8e8e8;
+    color: #333;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     font-family: var(--font-body);
-    letter-spacing: 0.05em;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    letter-spacing: 0.03em;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .follow-button:hover {
-    background-color: #f5f5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    background-color: #dcdcdc;
 }
 
 .follow-button.followed {
-    background-color: #1a2a4a;
+    background-color: #3a3a3a;
     color: #fff;
-    border-color: #1a2a4a;
 }
 
 .follow-button.followed:hover {
-    background-color: #0f1d36;
-    border-color: #0f1d36;
+    background-color: #2a2a2a;
 }
 
 /* メタ情報 */
