@@ -32,30 +32,46 @@ body {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.08);
-    color: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.06);
+    color: rgba(0, 0, 0, 0.25);
     flex-shrink: 0;
-    animation: swipeArrowPulse 2s ease-in-out infinite;
+}
+
+.swipe-arrow svg {
+    animation: swipeArrowBounce 2s ease-in-out infinite;
 }
 
 .swipe-arrow-prev {
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .swipe-arrow-next {
-    margin-left: 10px;
+    margin-left: 8px;
+}
+
+.swipe-arrow-prev svg {
+    animation-name: swipeArrowBounceLeft;
+}
+
+.swipe-arrow-next svg {
+    animation-name: swipeArrowBounceRight;
 }
 
 .swipe-arrow.hidden {
-    visibility: hidden;
+    display: none !important;
 }
 
-@keyframes swipeArrowPulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.08); }
+@keyframes swipeArrowBounceLeft {
+    0%, 100% { transform: translateX(0); opacity: 0.4; }
+    50% { transform: translateX(-3px); opacity: 1; }
+}
+
+@keyframes swipeArrowBounceRight {
+    0%, 100% { transform: translateX(0); opacity: 0.4; }
+    50% { transform: translateX(3px); opacity: 1; }
 }
 
 .volume-image img,
