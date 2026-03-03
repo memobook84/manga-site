@@ -205,10 +205,11 @@ body {
 
 .buy-button {
     flex: 1;
-    padding: 15px 30px;
-    border-radius: 6px;
+    padding: 14px 30px;
+    border-radius: 8px;
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
+    letter-spacing: 0.03em;
     font-weight: 600;
     text-decoration: none;
     color: white;
@@ -221,21 +222,21 @@ body {
 }
 
 .rakuten-button {
-    background-color: #BF0000;
+    background-color: #e8e8e8;
+    color: #333;
 }
 
 .rakuten-button:hover {
-    background-color: #A00000;
+    background-color: #dcdcdc;
 }
 
 .amazon-button {
-    background-color: #FF9900;
-    color: #111;
+    background-color: #e8e8e8;
+    color: #333;
 }
 
 .amazon-button:hover {
-    background-color: #E68A00;
-    color: #111;
+    background-color: #dcdcdc;
 }
 
 /* 前後巻スライダー */
