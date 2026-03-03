@@ -96,17 +96,20 @@ body {
 }
 
 /* ダークモードトグルスイッチ */
+.dark-toggle-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 24px 80px;
+}
+
 .dark-toggle {
-    position: fixed;
-    bottom: 80px;
-    right: 16px;
+    position: relative;
     width: 48px;
     height: 26px;
     border-radius: 13px;
     border: none;
     background: #ccc;
     cursor: pointer;
-    z-index: 100;
     padding: 0;
     transition: background 0.3s;
 }
