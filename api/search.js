@@ -49,16 +49,20 @@ function resolveImageUrl(item) {
   return { imageUrl: sized, hasRealCover };
 }
 
+function cleanText(str) {
+  return str ? str.replace(/\uFFFD+/g, '') : '';
+}
+
 function mapItem(item) {
   const { imageUrl, hasRealCover } = resolveImageUrl(item);
   return {
-    title: item.title || '',
-    author: item.author || '',
-    publisher: item.publisherName || '',
+    title: cleanText(item.title),
+    author: cleanText(item.author),
+    publisher: cleanText(item.publisherName),
     label: item.seriesName || '',
     genre: item.booksGenreId || '',
     firstReleaseDate: item.salesDate || '',
-    description: item.itemCaption || '',
+    description: cleanText(item.itemCaption),
     imageUrl: imageUrl,
     hasRealCover: hasRealCover,
     price: item.itemPrice || 0,

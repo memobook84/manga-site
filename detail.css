@@ -71,38 +71,57 @@
 
 /* フォローボタン */
 .follow-button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     width: 100%;
     max-width: 300px;
-    margin-top: 16px;
-    padding: 7px 30px;
-    background-color: #e8e8e8;
-    color: #333;
+    margin: 14px auto 0;
+    padding: 0;
+    background: none;
     border: none;
-    border-radius: 8px;
     cursor: pointer;
+    color: #2a6d5a;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     font-family: var(--font-body);
-    letter-spacing: 0.03em;
-    text-align: center;
-    text-decoration: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+}
+
+.follow-button .follow-icon {
+    width: 22px;
+    height: 22px;
+    stroke: #2a6d5a;
+    fill: none;
+    transition: fill 0.25s, stroke 0.25s;
 }
 
 .follow-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    background-color: #dcdcdc;
+    color: #1e5443;
+}
+
+.follow-button:hover .follow-icon {
+    stroke: #1e5443;
 }
 
 .follow-button.followed {
-    background-color: #3a3a3a;
-    color: #fff;
+    color: #2a6d5a;
+}
+
+.follow-button.followed .follow-icon {
+    stroke: #2a6d5a;
+    fill: #2a6d5a;
 }
 
 .follow-button.followed:hover {
-    background-color: #2a2a2a;
+    color: #1e5443;
+}
+
+.follow-button.followed:hover .follow-icon {
+    stroke: #1e5443;
+    fill: #1e5443;
 }
 
 /* メタ情報 */

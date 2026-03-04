@@ -22,16 +22,20 @@ function resolveGenre(genreId) {
 }
 
 // APIレスポンスのアイテムをサイト内形式に変換
+function cleanText(str) {
+  return str ? str.replace(/\uFFFD+/g, '') : '';
+}
+
 function adaptItem(item, index) {
   return {
     id: item.isbn || `api-${index}`,
-    title: item.title || '',
-    author: item.author || '',
-    publisher: item.publisher || '',
-    label: item.label || item.seriesName || '',
+    title: cleanText(item.title),
+    author: cleanText(item.author),
+    publisher: cleanText(item.publisher),
+    label: cleanText(item.label || item.seriesName),
     genre: resolveGenre(item.genre),
     firstReleaseDate: item.firstReleaseDate || '',
-    description: item.description || '',
+    description: cleanText(item.description),
     imageUrl: item.imageUrl || '',
     hasRealCover: item.hasRealCover !== false,
     price: item.price ? `¥${Number(item.price).toLocaleString()}（税込）` : '',

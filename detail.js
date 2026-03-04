@@ -203,7 +203,11 @@ function setupFollowButton(manga) {
 function updateFollowButtonText(button) {
     const textEl = button.querySelector('.follow-button-text');
     if (textEl) {
-        textEl.textContent = button.classList.contains('followed') ? 'フォロー中' : 'フォロー';
+        textEl.textContent = button.classList.contains('followed') ? 'Following' : 'Follow';
+    }
+    const iconEl = button.querySelector('.follow-icon');
+    if (iconEl) {
+        iconEl.style.fill = button.classList.contains('followed') ? '#2a6d5a' : 'none';
     }
 }
 
