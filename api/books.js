@@ -1,7 +1,7 @@
 const https = require('https');
 
 const RAKUTEN_BASE = 'https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404';
-const APP_ID = 'baf572c9-8b33-407f-84de-79088be6b58a';
+const APP_ID = process.env.RAKUTEN_APP_ID || '';
 const REFERER = 'https://manga-site-three.vercel.app';
 
 function rakutenFetch(url) {
