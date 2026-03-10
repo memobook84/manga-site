@@ -77,7 +77,7 @@ async function displayVolumeDetail() {
     // SEO: 動的にmeta/OGPを更新
     const seoDesc = `${volume.title}（${volume.author}）。${(volume.description || '').substring(0, 80)}`;
     updateSEOMeta({
-        title: `${volume.title} - COMIC STORE`,
+        title: `${volume.title} - ATLAS COMIC`,
         description: seoDesc,
         image: volume.imageUrl || 'https://manga-site-three.vercel.app/icon-512.png',
     });

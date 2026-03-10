@@ -3,62 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMIC STORE</title>
+    <title>ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="description" content="漫画を検索・発見できるCOMIC STORE。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <meta name="description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
     <!-- OGP -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COMIC STORE">
-    <meta property="og:title" content="COMIC STORE - 漫画検索サイト">
-    <meta property="og:description" content="漫画を検索・発見できるCOMIC STORE。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <meta property="og:site_name" content="ATLAS COMIC">
+    <meta property="og:title" content="ATLAS COMIC - 漫画検索サイト">
+    <meta property="og:description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
     <meta property="og:url" content="https://manga-site-three.vercel.app/">
     <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="COMIC STORE - 漫画検索サイト">
-    <meta name="twitter:description" content="漫画を検索・発見できるCOMIC STORE。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <meta name="twitter:title" content="ATLAS COMIC - 漫画検索サイト">
+    <meta name="twitter:description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="search.css">
     <script src="rakuten-adapter.js"></script>
     <script src="lightning.js" defer></script>
     <script src="search.js" defer></script>
 
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <!-- スプラッシュオーバーレイ -->
     <div id="splashOverlay">
         <canvas id="splashCanvas"></canvas>
         <img src="logo.png" alt="" class="splash-logo">
-        <div class="splash-title">COMIC STORE</div>
+        <div class="splash-title">ATLAS COMIC</div>
     </div>
     <script src="splash.js"></script>
 
     <div class="search-page" id="searchPage">
         <!-- 雷オンオフボタン -->
         <button id="lightningToggle" class="lightning-toggle" aria-label="雷エフェクト切替">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <i class="ph-bold ph-lightning" style="font-size:20px"></i>
         </button>
         <!-- 雷エフェクト -->
         <canvas id="lightningCanvas" class="lightning-canvas"></canvas>
         <!-- 中央ロゴ・検索エリア -->
         <div class="search-center" id="searchCenter">
             <a href="home.html" class="search-logo">
-                <img src="logo.png" alt="COMIC STORE Logo">
+                <img src="logo.png" alt="ATLAS COMIC Logo">
             </a>
-            <h1 class="search-title">COMIC STORE</h1>
+            <h1 class="search-title">ATLAS COMIC</h1>
             <form class="search-form" id="searchForm" autocomplete="off">
                 <div class="search-bar">
-                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                    </svg>
+                    <i class="ph-bold ph-magnifying-glass search-icon" style="font-size:20px"></i>
                     <input type="text" id="searchInput" placeholder="タイトル・著者名で検索" autofocus>
                     <button type="button" class="search-clear" id="searchClear" hidden>&times;</button>
                 </div>
@@ -66,7 +66,9 @@
             <div class="search-nav">
                 <a href="home.html">Home</a>
                 <a href="new-releases.html">New Release</a>
+
                 <a href="follow.html">Follow</a>
+                <a href="database.html">Database</a>
             </div>
         </div>
 

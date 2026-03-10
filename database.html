@@ -4,36 +4,34 @@
     <meta charset="UTF-8">
     <script>if(localStorage.getItem('darkMode')==='true')document.documentElement.classList.add('dark-mode-pending');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor's Pick - ATLAS COMIC</title>
+    <title>Database - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="description" content="管理人が厳選したおすすめ漫画をジャンル別に紹介。バトル・スポーツ・ファンタジー・ミステリー・恋愛、各ジャンルのベスト10を一言レビュー付きで紹介します。">
+    <meta name="description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
     <!-- OGP -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ATLAS COMIC">
-    <meta property="og:title" content="Editor's Pick - ATLAS COMIC">
-    <meta property="og:description" content="管理人が厳選したおすすめ漫画をジャンル別に紹介。バトル・スポーツ・ファンタジー・ミステリー・恋愛、各ジャンルのベスト10を一言レビュー付きで紹介します。">
-    <meta property="og:url" content="https://manga-site-three.vercel.app/home.html">
+    <meta property="og:title" content="Database - ATLAS COMIC">
+    <meta property="og:description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
+    <meta property="og:url" content="https://manga-site-three.vercel.app/database.html">
     <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Editor's Pick - ATLAS COMIC">
-    <meta name="twitter:description" content="管理人が厳選したおすすめ漫画をジャンル別に紹介。各ジャンルのベスト10を一言レビュー付きで。">
+    <meta name="twitter:title" content="Database - ATLAS COMIC">
+    <meta name="twitter:description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
-    <link rel="stylesheet" href="home-portal.css">
-    <link rel="stylesheet" href="recommend.css">
+    <script src="manga-data.js"></script>
     <script src="rakuten-adapter.js"></script>
-    <script src="recommend.js"></script>
-    <script src="home-portal.js"></script>
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="database.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <!-- ヘッダー -->
@@ -56,36 +54,72 @@
         </div>
     </header>
 
-    <!-- ポータルメインコンテンツ -->
-    <div class="portal-main">
-        <!-- ヒーローバナー -->
-        <section class="hero-banner">
-            <h2>EDITOR'S PICK</h2>
-            <p>管理人が厳選した注目の漫画をお届け<br>さらに独断と偏見で選んだ、ジャンル別おすすめベスト10も紹介します</p>
-        </section>
+    <section class="page-hero">
+        <h2>DATABASE</h2>
+        <p>全作品のカタログを出版社・ジャンル別に検索</p>
+    </section>
+    <!-- メインコンテンツ -->
+    <div class="main-layout">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <i class="ph-bold ph-books" style="font-size:14px"></i>
+                        Publisher
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="集英社">集英社</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="小学館">小学館</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="講談社">講談社</a></li>
+                        <li><span class="sidebar-link">秋田書店</span></li>
+                        <li><span class="sidebar-link">KADOKAWA</span></li>
+                        <li><span class="sidebar-link">スクウェア・エニックス</span></li>
+                        <li><span class="sidebar-link">白泉社</span></li>
+                        <li><span class="sidebar-link">双葉社</span></li>
+                        <li><span class="sidebar-link">徳間書店</span></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <i class="ph-bold ph-star" style="font-size:14px"></i>
+                        Genre
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001001">少年漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001002">少女漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001003">青年漫画</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        <i class="ph-bold ph-smiley" style="font-size:14px"></i>
+                        Discover
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="new-releases.html" class="sidebar-link"><i class="ph-bold ph-calendar-blank" style="font-size:13px"></i>新刊</a></li>
+                        <li><a href="ranking.html" class="sidebar-link"><i class="ph-bold ph-trophy" style="font-size:13px"></i>ランキング</a></li>
+                        <li><a href="recommend.html" class="sidebar-link"><i class="ph-bold ph-thumbs-up" style="font-size:13px"></i>おすすめ</a></li>
+                        <li><a href="follow.html" class="sidebar-link"><i class="ph-bold ph-bookmark-simple" style="font-size:13px"></i>フォロー中</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
 
-        <!-- 今月のピックアップ -->
-        <section class="portal-section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="ph-bold ph-lightning" style="font-size:18px"></i>
-                    ピックアップ
-                </h2>
+        <!-- メインエリア -->
+        <main>
+            <div class="manga-grid">
+                <!-- JavaScriptで動的に漫画が表示されます -->
             </div>
-            <div id="pickup-grid" class="pickup-grid"></div>
-        </section>
-
-        <!-- 管理人のおすすめ漫画（recommend.jsが自動描画） -->
-        <div id="recommend-container">
-            <!-- recommend.jsで動的に生成 -->
-        </div>
-
-        <!-- ダークモードトグル -->
-        <div class="portal-footer">
-            <button id="dark-toggle" class="dark-toggle" aria-label="ダークモード切替">
-                <span class="dark-toggle-knob"></span>
-            </button>
-        </div>
+            <div class="pagination-row">
+                <div id="pagination" class="pagination" style="display: none;">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+                <button id="dark-toggle" class="dark-toggle" aria-label="ダークモード切替">
+                    <span class="dark-toggle-knob"></span>
+                </button>
+            </div>
+        </main>
     </div>
 
 
@@ -122,7 +156,7 @@
         var items = document.querySelectorAll('.bottom-nav-item');
         items.forEach(function(item) {
             var page = item.dataset.page;
-            if ((page === 'home' && (path === '/' || path === '/index.html' || path.includes('home'))) ||
+            if ((page === 'home' && (path === '/' || path === '/index.html')) ||
                 (page === 'database' && path.includes('database')) ||
                 (page === 'ranking' && path.includes('ranking')) ||
                 (page === 'follow' && path.includes('follow'))) {
@@ -144,24 +178,6 @@
         btn.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
-    })();
-    </script>
-
-    <script>
-    // 検索機能（ヘッダー検索ボックス）
-    (function() {
-        var searchInput = document.querySelector('.search-box input');
-        var searchButton = document.querySelector('.search-box button');
-        function doSearch() {
-            var keyword = searchInput.value.trim();
-            if (keyword) {
-                window.location.href = 'database.html?search=' + encodeURIComponent(keyword);
-            }
-        }
-        if (searchButton) searchButton.addEventListener('click', doSearch);
-        if (searchInput) searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') doSearch();
         });
     })();
     </script>

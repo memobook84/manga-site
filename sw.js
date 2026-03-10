@@ -1,9 +1,15 @@
-const CACHE_NAME = 'bookstore-v1';
+const CACHE_NAME = 'bookstore-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/home.html',
+  '/database.html',
   '/style.css',
+  '/home-portal.css',
   '/script.js',
+  '/database.js',
+  '/home-portal.js',
+  '/recommend.js',
   '/rakuten-adapter.js',
   '/manga-data.js',
   '/favicon.png',

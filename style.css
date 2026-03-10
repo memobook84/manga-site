@@ -186,9 +186,9 @@ header {
 header h1 {
     color: #D8052E;
     font-size: 34px;
-    font-weight: 900;
+    font-weight: 700;
     margin-right: auto;
-    font-family: 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
+    font-family: 'Montserrat', 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
     letter-spacing: -0.01em;
     text-transform: uppercase;
     position: relative;
@@ -579,7 +579,7 @@ main {
 
 @media (max-width: 480px) {
     .header-container {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 8px;
         padding: 0 12px;
     }
@@ -589,21 +589,16 @@ main {
     }
 
     .header-nav {
-        margin-left: auto;
-    }
-
-    .nav-link {
-        font-size: 11px;
-        padding: 4px 8px;
+        display: none;
     }
 
     .search-box {
-        width: 100%;
-        order: 10;
+        flex: 0 1 auto;
+        margin-left: auto;
     }
 
     .search-box input {
-        width: 100%;
+        width: 200px;
     }
 }
 
@@ -950,5 +945,40 @@ main {
 
     .splash-title {
         font-size: 26px;
+    }
+}
+
+/* ===== ページヒーローバナー（共通） ===== */
+.page-hero {
+    text-align: center;
+    padding: 60px 20px 48px;
+}
+
+.page-hero h2 {
+    font-family: 'Zilla Slab', 'Noto Sans JP', serif;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+}
+
+.page-hero p {
+    font-size: 15px;
+    color: var(--color-text-sub);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+    .page-hero {
+        padding: 40px 16px 32px;
+    }
+    .page-hero h2 {
+        font-size: 36px;
+    }
+    .page-hero p {
+        font-size: 13px;
     }
 }

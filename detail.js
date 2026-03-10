@@ -123,7 +123,7 @@ async function displayMangaDetail() {
     // SEO: 動的にmeta/OGPを更新
     const seoDesc = `${displaySeriesName}（${authorStr}）のあらすじ・巻一覧。${(withDescription ? withDescription.description : '').substring(0, 80)}`;
     updateSEOMeta({
-        title: `${displaySeriesName} - COMIC STORE`,
+        title: `${displaySeriesName} - ATLAS COMIC`,
         description: seoDesc,
         image: coverVol.imageUrl || 'https://manga-site-three.vercel.app/icon-512.png',
     });
@@ -203,11 +203,17 @@ function setupFollowButton(manga) {
 function updateFollowButtonText(button) {
     const textEl = button.querySelector('.follow-button-text');
     if (textEl) {
-        textEl.textContent = button.classList.contains('followed') ? 'Following' : 'Follow';
+        textEl.textContent = button.classList.contains('followed') ? 'Favorited' : 'Favorite';
     }
     const iconEl = button.querySelector('.follow-icon');
     if (iconEl) {
-        iconEl.style.fill = button.classList.contains('followed') ? '#2a6d5a' : 'none';
+        if (button.classList.contains('followed')) {
+            iconEl.classList.remove('ph-bold');
+            iconEl.classList.add('ph-fill');
+        } else {
+            iconEl.classList.remove('ph-fill');
+            iconEl.classList.add('ph-bold');
+        }
     }
 }
 

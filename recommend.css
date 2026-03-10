@@ -1,0 +1,306 @@
+/* おすすめページ専用スタイル */
+
+.recommend-main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.recommend-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.recommend-header h1 {
+    font-size: 28px;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.recommend-header p {
+    font-size: 14px;
+    color: var(--color-text-sub);
+    line-height: 1.8;
+}
+
+/* ジャンルナビゲーション */
+.genre-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+}
+
+.genre-nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--color-border);
+    text-decoration: none;
+    color: var(--color-text-sub);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+}
+
+.genre-nav-item:hover {
+    background: var(--color-text);
+    color: #fff;
+    border-color: var(--color-text);
+}
+
+.genre-nav-item svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ジャンルセクション */
+.genre-section {
+    margin-bottom: 56px;
+}
+
+.genre-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-text);
+}
+
+.genre-title svg {
+    opacity: 0.7;
+}
+
+/* 作品リスト */
+.works-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.work-item {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.2s;
+}
+
+.work-item:first-child {
+    padding-top: 0;
+}
+
+.work-item:last-child {
+    border-bottom: none;
+}
+
+/* 順位 */
+.work-rank {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text-sub);
+    font-family: 'Inter', sans-serif;
+}
+
+.work-item:nth-child(1) .work-rank {
+    color: #D4AF37;
+    font-size: 20px;
+}
+
+.work-item:nth-child(2) .work-rank {
+    color: #A0A0A0;
+    font-size: 18px;
+}
+
+.work-item:nth-child(3) .work-rank {
+    color: #CD7F32;
+    font-size: 18px;
+}
+
+/* 表紙画像 */
+.work-cover-link {
+    flex-shrink: 0;
+    text-decoration: none;
+}
+
+.work-cover {
+    width: 50px;
+    height: 72px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.work-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 作品コンテンツ */
+.work-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.work-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: var(--font-heading);
+}
+
+.work-title a {
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.work-title a:hover {
+    color: var(--color-link);
+}
+
+.work-review {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.work-recommend {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recommend-label {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--color-border);
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-sub);
+    flex-shrink: 0;
+}
+
+/* 戻るボタン */
+.back-button-container {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.back-button {
+    display: inline-block;
+    color: var(--color-link);
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.3s;
+}
+
+.back-button:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+}
+
+/* ダークモード */
+body.dark-mode .genre-nav-item:hover {
+    background: #e0e0e0;
+    color: #1a1a1a;
+    border-color: #e0e0e0;
+}
+
+body.dark-mode .recommend-label {
+    background: #333;
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .recommend-header h1 {
+        font-size: 24px;
+    }
+
+    .genre-nav {
+        gap: 6px;
+        margin-bottom: 32px;
+    }
+
+    .genre-nav-item {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .genre-title {
+        font-size: 18px;
+    }
+
+    .work-item {
+        gap: 14px;
+        padding: 16px 0;
+    }
+
+    .work-cover {
+        width: 42px;
+        height: 60px;
+    }
+
+    .work-rank {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .work-item:nth-child(1) .work-rank {
+        font-size: 16px;
+    }
+
+    .work-item:nth-child(2) .work-rank,
+    .work-item:nth-child(3) .work-rank {
+        font-size: 15px;
+    }
+
+    .work-title {
+        font-size: 15px;
+    }
+
+    .work-review {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .genre-nav-item span {
+        display: none;
+    }
+
+    .genre-nav-item {
+        padding: 8px;
+        border-radius: 50%;
+    }
+
+    .genre-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+}

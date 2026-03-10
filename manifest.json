@@ -1,6 +1,6 @@
 {
-  "name": "COMIC STORE",
-  "short_name": "COMIC STORE",
+  "name": "ATLAS COMIC",
+  "short_name": "ATLAS COMIC",
   "description": "Manga collection from Shueisha, Shogakukan, and Kodansha",
   "start_url": "/",
   "display": "standalone",

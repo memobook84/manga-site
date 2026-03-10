@@ -3,52 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>フォロー中 - COMIC STORE</title>
+    <title>Favorites - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="description" content="フォロー中の漫画一覧 - COMIC STORE。お気に入り作品の新刊情報を見逃さずチェックできます。">
+    <meta name="description" content="お気に入りの漫画一覧 - ATLAS COMIC。お気に入り作品の新刊情報を見逃さずチェックできます。">
     <!-- OGP -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="COMIC STORE">
-    <meta property="og:title" content="フォロー中 - COMIC STORE">
-    <meta property="og:description" content="フォロー中の漫画一覧 - COMIC STORE。お気に入り作品の新刊情報を見逃さずチェックできます。">
+    <meta property="og:site_name" content="ATLAS COMIC">
+    <meta property="og:title" content="Favorites - ATLAS COMIC">
+    <meta property="og:description" content="お気に入りの漫画一覧 - ATLAS COMIC。お気に入り作品の新刊情報を見逃さずチェックできます。">
     <meta property="og:url" content="https://manga-site-three.vercel.app/follow.html">
     <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="フォロー中 - COMIC STORE">
-    <meta name="twitter:description" content="フォロー中の漫画一覧 - COMIC STORE。お気に入り作品の新刊情報を見逃さずチェックできます。">
+    <meta name="twitter:title" content="Favorites - ATLAS COMIC">
+    <meta name="twitter:description" content="お気に入りの漫画一覧 - ATLAS COMIC。お気に入り作品の新刊情報を見逃さずチェックできます。">
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="follow.css">
     <script src="manga-data.js"></script>
     <script src="follow.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
             <a href="index.html" class="header-logo"><img src="logo.png" alt="Logo" class="header-logo-img"></a>
-            <h1><a href="index.html">COMIC STORE</a></h1>
+            <h1><a href="index.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
-                <a href="home.html" class="nav-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
-                <a href="new-releases.html" class="nav-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>New Release</a>
-                <a href="ranking.html" class="nav-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v14"/><path d="M8 9h8"/><path d="M7 22a5 5 0 0 1 5-5 5 5 0 0 1 5 5"/></svg>Ranking</a>
-                <a href="follow.html" class="nav-link follow-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Follow</a>
+                <a href="home.html" class="nav-link"><i class="ph-bold ph-star" style="font-size:13px"></i>Pickup</a>
+                <a href="database.html" class="nav-link"><i class="ph-bold ph-database" style="font-size:13px"></i>Database</a>
+                <a href="ranking.html" class="nav-link"><i class="ph-bold ph-trophy" style="font-size:13px"></i>Popular</a>
+                <a href="follow.html" class="nav-link follow-link"><i class="ph-bold ph-heart" style="font-size:13px"></i>Favorites</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
                 <button class="search-icon" aria-label="検索">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
+                    <i class="ph-bold ph-magnifying-glass" style="font-size:20px"></i>
                 </button>
             </div>
         </div>
@@ -56,21 +55,20 @@
 
     <!-- フォローページコンテンツ -->
     <main class="follow-main">
-        <div class="follow-header">
-            <h1>フォロー中の作品</h1>
-            <p id="follow-count" class="follow-count">0作品</p>
-        </div>
+        <section class="page-hero">
+            <h2>FAVORITES</h2>
+            <p>お気に入りの作品を管理できます</p>
+            <p id="follow-count" class="follow-count" style="margin-top:8px;">0作品</p>
+        </section>
 
         <div id="followed-manga-grid" class="followed-manga-grid">
             <!-- JavaScriptで動的に生成 -->
         </div>
 
         <div id="empty-message" class="empty-message" style="display: none;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            <h2>フォロー中の作品がありません</h2>
-            <p>気になる作品をフォローして、ここで管理しましょう</p>
+            <i class="ph-bold ph-heart" style="font-size:64px"></i>
+            <h2>お気に入りの作品がありません</h2>
+            <p>気になる作品をお気に入りに追加して、ここで管理しましょう</p>
             <a href="home.html" class="browse-button">作品を探す</a>
         </div>
 
@@ -78,27 +76,31 @@
             <a href="home.html" class="back-button">← トップページに戻る</a>
         </div>
     </main>
+
+    <!-- サイトフッター -->
+    <div class="site-footer">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <span class="footer-sep">|</span>
+        <a href="about.html">運営者情報</a>
+    </div>
+
     <!-- ボトムナビ -->
     <nav class="bottom-nav">
-        <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            <span>Back</span>
-        </a>
         <a href="/home.html" class="bottom-nav-item" data-page="home">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Home</span>
+            <i class="ph-bold ph-star" style="font-size:22px"></i>
+            <span>Pickup</span>
         </a>
-        <a href="/new-releases.html" class="bottom-nav-item" data-page="new-releases">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <span>New</span>
+        <a href="/database.html" class="bottom-nav-item" data-page="database">
+            <i class="ph-bold ph-database" style="font-size:22px"></i>
+            <span>Database</span>
         </a>
         <a href="/ranking.html" class="bottom-nav-item" data-page="ranking">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v14"/><path d="M8 9h8"/><path d="M7 22a5 5 0 0 1 5-5 5 5 0 0 1 5 5"/></svg>
-            <span>Ranking</span>
+            <i class="ph-bold ph-trophy" style="font-size:22px"></i>
+            <span>Popular</span>
         </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-            <span>Follow</span>
+            <i class="ph-bold ph-heart" style="font-size:22px"></i>
+            <span>Favorites</span>
         </a>
     </nav>
 
@@ -109,7 +111,7 @@
         items.forEach(function(item) {
             var page = item.dataset.page;
             if ((page === 'home' && (path === '/' || path === '/index.html')) ||
-                (page === 'new-releases' && path.includes('new-releases')) ||
+                (page === 'database' && path.includes('database')) ||
                 (page === 'ranking' && path.includes('ranking')) ||
                 (page === 'follow' && path.includes('follow'))) {
                 item.classList.add('active');

@@ -69,7 +69,7 @@
     font-weight: 700;
 }
 
-/* フォローボタン */
+/* お気に入りボタン */
 .follow-button {
     display: flex;
     align-items: center;
@@ -82,7 +82,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: #2a6d5a;
+    color: #999;
     font-size: 14px;
     font-weight: 500;
     font-family: var(--font-body);
@@ -93,35 +93,19 @@
 .follow-button .follow-icon {
     width: 22px;
     height: 22px;
-    stroke: #2a6d5a;
-    fill: none;
-    transition: fill 0.25s, stroke 0.25s;
+    transition: color 0.25s;
 }
 
 .follow-button:hover {
-    color: #1e5443;
-}
-
-.follow-button:hover .follow-icon {
-    stroke: #1e5443;
+    color: #e0245e;
 }
 
 .follow-button.followed {
-    color: #2a6d5a;
-}
-
-.follow-button.followed .follow-icon {
-    stroke: #2a6d5a;
-    fill: #2a6d5a;
+    color: #e0245e;
 }
 
 .follow-button.followed:hover {
-    color: #1e5443;
-}
-
-.follow-button.followed:hover .follow-icon {
-    stroke: #1e5443;
-    fill: #1e5443;
+    color: #c81e50;
 }
 
 /* メタ情報 */
