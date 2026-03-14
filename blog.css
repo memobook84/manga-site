@@ -1,0 +1,217 @@
+/* ===== Blog List Page ===== */
+.blog-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.blog-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.blog-card {
+    background: var(--color-card);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+}
+
+.blog-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.blog-card-body {
+    padding: 16px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.blog-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.blog-card-category {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--color-text);
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+}
+
+body.dark-mode .blog-card-category {
+    background: #D8052E;
+}
+
+.blog-card-date {
+    font-size: 12px;
+    color: var(--color-text-sub);
+    font-family: 'Inter', sans-serif;
+}
+
+.blog-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.5;
+    margin-bottom: 8px;
+    font-family: var(--font-heading);
+}
+
+.blog-card-desc {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+}
+
+/* ===== Blog Post Page ===== */
+.blog-post-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+}
+
+.blog-post-header {
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.blog-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.blog-post-category {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--color-text);
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+body.dark-mode .blog-post-category {
+    background: #D8052E;
+}
+
+.blog-post-date {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    font-family: 'Inter', sans-serif;
+}
+
+.blog-post-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.4;
+    margin: 0;
+    font-family: var(--font-heading);
+}
+
+/* 記事本文 */
+.blog-post-body h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 36px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--color-border);
+    font-family: var(--font-heading);
+}
+
+.blog-post-body h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 24px 0 8px;
+    font-family: var(--font-heading);
+}
+
+.blog-post-body p {
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--color-text);
+    margin: 0 0 16px;
+}
+
+.blog-post-body ul,
+.blog-post-body ol {
+    margin: 0 0 16px;
+    padding-left: 24px;
+}
+
+.blog-post-body li {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin-bottom: 4px;
+}
+
+/* 記事一覧へ戻るリンク */
+.blog-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-sub);
+    text-decoration: none;
+    margin-top: 40px;
+    padding: 8px 0;
+    transition: color 0.2s;
+}
+
+.blog-back-link:hover {
+    color: var(--color-text);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    .blog-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .blog-container {
+        padding: 20px 16px 60px;
+    }
+
+    .blog-card-title {
+        font-size: 15px;
+    }
+
+    .blog-post-container {
+        padding: 20px 16px 60px;
+    }
+
+    .blog-post-title {
+        font-size: 22px;
+    }
+
+    .blog-post-body h2 {
+        font-size: 18px;
+    }
+
+    .blog-post-body p {
+        font-size: 14px;
+    }
+}
