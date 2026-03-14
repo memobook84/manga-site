@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookstore-v3';
+const CACHE_NAME = 'bookstore-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,8 +9,10 @@ const STATIC_ASSETS = [
   '/script.js',
   '/database.js',
   '/home-portal.js',
-  '/recommend.js',
   '/rakuten-adapter.js',
+  '/blog.html',
+  '/blog.js',
+  '/blog.css',
   '/manga-data.js',
   '/ranking.html',
   '/ranking.js',
