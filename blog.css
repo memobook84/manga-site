@@ -8,63 +8,63 @@
 .blog-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 20px;
+}
+
+/* Featured（1つ目の記事）を全幅に */
+.blog-card--featured {
+    grid-column: 1 / -1;
 }
 
 .blog-card {
+    position: relative;
     background: var(--color-card);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    transition: transform 0.25s, box-shadow 0.25s;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .blog-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+}
+
+/* 左端カテゴリ色のアクセントライン */
+.blog-card-accent {
+    width: 5px;
+    flex-shrink: 0;
+    background: var(--card-accent, #2B2B2B);
 }
 
 .blog-card-body {
-    padding: 16px 20px 20px;
+    padding: 20px 24px;
     display: flex;
     flex-direction: column;
     flex: 1;
-}
-
-.blog-card-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
+    min-width: 0;
 }
 
 .blog-card-category {
-    font-size: 11px;
-    font-weight: 600;
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
     color: #fff;
-    background: var(--color-text);
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 3px;
-    letter-spacing: 0.03em;
-}
-
-body.dark-mode .blog-card-category {
-    background: #D8052E;
-}
-
-.blog-card-date {
-    font-size: 12px;
-    color: var(--color-text-sub);
-    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    align-self: flex-start;
 }
 
 .blog-card-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--color-text);
     line-height: 1.5;
@@ -76,8 +76,54 @@ body.dark-mode .blog-card-category {
     font-size: 13px;
     color: var(--color-text-sub);
     line-height: 1.6;
-    margin: 0;
+    margin: 0 0 12px;
     flex: 1;
+}
+
+.blog-card-arrow {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--card-accent, #2B2B2B);
+    letter-spacing: 0.03em;
+    font-family: 'Inter', sans-serif;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+}
+
+.blog-card:hover .blog-card-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Featured カード：大きく目立たせる */
+.blog-card--featured .blog-card-accent {
+    width: 6px;
+}
+
+.blog-card--featured .blog-card-body {
+    padding: 28px 32px;
+}
+
+.blog-card--featured .blog-card-category {
+    font-size: 11px;
+    padding: 4px 14px;
+    margin-bottom: 14px;
+}
+
+.blog-card--featured .blog-card-title {
+    font-size: 24px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.blog-card--featured .blog-card-desc {
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.blog-card--featured .blog-card-arrow {
+    font-size: 13px;
 }
 
 /* ===== Blog Post Page ===== */
@@ -111,12 +157,6 @@ body.dark-mode .blog-card-category {
 
 body.dark-mode .blog-post-category {
     background: #D8052E;
-}
-
-.blog-post-date {
-    font-size: 13px;
-    color: var(--color-text-sub);
-    font-family: 'Inter', sans-serif;
 }
 
 .blog-post-title {
@@ -241,15 +281,32 @@ body.dark-mode .blog-post-category {
 @media (max-width: 600px) {
     .blog-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 14px;
     }
 
     .blog-container {
         padding: 20px 16px 60px;
     }
 
+    .blog-card--featured .blog-card-body {
+        padding: 18px 20px;
+    }
+
+    .blog-card--featured .blog-card-title {
+        font-size: 18px;
+    }
+
+    .blog-card--featured .blog-card-desc {
+        font-size: 13px;
+    }
+
     .blog-card-title {
         font-size: 15px;
+    }
+
+    .blog-card-arrow {
+        opacity: 1;
+        transform: translateX(0);
     }
 
     .blog-post-container {
