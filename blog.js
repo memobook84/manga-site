@@ -7,6 +7,9 @@
         .then(function(res) { return res.json(); })
         .then(function(posts) {
             posts.sort(function(a, b) {
+                var aRank = a.category === 'ランキング' ? 0 : 1;
+                var bRank = b.category === 'ランキング' ? 0 : 1;
+                if (aRank !== bRank) return aRank - bRank;
                 return b.date.localeCompare(a.date);
             });
             grid.innerHTML = posts.map(function(post) {
