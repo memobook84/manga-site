@@ -23,8 +23,7 @@
             document.title = post.title + ' - ATLAS COMIC Blog';
             titleEl.textContent = post.title;
             metaEl.innerHTML =
-                '<span class="blog-post-category">' + post.category + '</span>' +
-                '<span class="blog-post-date">' + post.date + '</span>';
+                '<span class="blog-post-category">' + post.category + '</span>';
 
             return fetch('data/blog/' + id + '.html');
         })

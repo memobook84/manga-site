@@ -14,7 +14,6 @@
                     '<div class="blog-card-body">' +
                         '<div class="blog-card-meta">' +
                             '<span class="blog-card-category">' + post.category + '</span>' +
-                            '<span class="blog-card-date">' + post.date + '</span>' +
                         '</div>' +
                         '<h3 class="blog-card-title">' + post.title + '</h3>' +
                         '<p class="blog-card-desc">' + post.description + '</p>' +
