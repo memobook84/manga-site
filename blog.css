@@ -167,6 +167,59 @@ body.dark-mode .blog-post-category {
     margin-bottom: 4px;
 }
 
+/* 漫画アイテム（表紙画像 + テキスト） */
+.blog-manga-item {
+    display: flex;
+    gap: 20px;
+    margin: 24px 0;
+    padding: 20px;
+    background: var(--color-card);
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.blog-manga-cover {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+.blog-manga-cover img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+}
+
+.blog-manga-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.blog-manga-item h2 {
+    margin-top: 0 !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+}
+
+.blog-manga-item h3 {
+    margin-top: 0 !important;
+}
+
+.blog-manga-item p {
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .blog-manga-item {
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .blog-manga-cover {
+        width: 90px;
+    }
+}
+
 /* 記事一覧へ戻るリンク */
 .blog-back-link {
     display: inline-flex;
