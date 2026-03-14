@@ -169,8 +169,8 @@ function displayMangaItems(items) {
         return;
     }
 
-    // 1ページ目かつフィルタ・検索なしの場合、ランキングを挿入
-    const insertRanking = currentPage === 1 && !currentKeyword && !currentFilter;
+    // ランキング埋め込みは一旦無効化（Popularページに独立）
+    const insertRanking = false;
     const insertAt1 = 18; // 3段目の後（1〜5位）
     const insertAt2 = 36; // 6段目の後（6〜10位）
 

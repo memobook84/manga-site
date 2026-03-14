@@ -14,30 +14,34 @@ body.dark-mode .pickup-cover {
 
 /* ===== ヒーローバナー ===== */
 .hero-banner {
-    text-align: center;
-    padding: 60px 20px 48px;
+    padding: 24px 20px;
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
     position: relative;
 }
 
 .hero-banner h2 {
-    font-family: 'Michroma', 'Zilla Slab', 'Noto Sans JP', sans-serif;
-    font-size: 48px;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-size: 24px;
     font-weight: 700;
     color: var(--color-text);
     letter-spacing: 0.02em;
-    margin-bottom: 12px;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .hero-banner p {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--color-text-sub);
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.7;
+    margin: 0;
+    line-height: 1.5;
 }
 
 /* ===== セクション共通 ===== */
 .portal-section {
+    margin-top: 32px;
     margin-bottom: 48px;
 }
 
@@ -46,20 +50,18 @@ body.dark-mode .pickup-cover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--color-border);
 }
 
 .section-title {
-    font-family: var(--font-body);
-    font-size: 22px;
+    font-family: 'Montserrat', var(--font-body);
+    font-size: 13px;
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--color-text-sub);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.12em;
 }
 
 .section-title svg {
@@ -494,15 +496,17 @@ body.dark-mode .pickup-cover {
 
 @media (max-width: 600px) {
     .hero-banner {
-        padding: 40px 16px 32px;
+        padding: 18px 16px;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .hero-banner h2 {
-        font-size: 36px;
+        font-size: 18px;
     }
 
     .hero-banner p {
-        font-size: 13px;
+        font-size: 12px;
     }
 
     .pickup-grid {

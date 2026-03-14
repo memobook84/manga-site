@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookstore-v2';
+const CACHE_NAME = 'bookstore-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -12,6 +12,9 @@ const STATIC_ASSETS = [
   '/recommend.js',
   '/rakuten-adapter.js',
   '/manga-data.js',
+  '/ranking.html',
+  '/ranking.js',
+  '/ranking.css',
   '/favicon.png',
   '/logo.png',
 ];

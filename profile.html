@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Me - ATLAS COMIC</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <meta name="description" content="ATLAS COMIC 管理人「アトラス」のプロフィール。漫画好きの管理人が厳選した作品を紹介するサイトです。">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ATLAS COMIC">
+    <meta property="og:title" content="About Me - ATLAS COMIC">
+    <meta property="og:description" content="ATLAS COMIC 管理人「アトラス」のプロフィール。">
+    <meta property="og:url" content="https://manga-site-three.vercel.app/profile.html">
+    <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="About Me - ATLAS COMIC">
+    <meta name="twitter:description" content="ATLAS COMIC 管理人「アトラス」のプロフィール。">
+    <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="legal.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .profile-main {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* アイコン + 名前 */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--color-header);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+
+        .profile-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin: 0 0 8px;
+        }
+
+        .profile-tagline {
+            font-size: 14px;
+            color: var(--color-text-sub);
+            line-height: 1.6;
+        }
+
+        /* 管理人のコメント */
+        .admin-comment {
+            background: var(--color-card, #fff);
+            border: 1px solid var(--color-border, #e0e0e0);
+            border-radius: 8px;
+            padding: 24px 28px;
+        }
+
+        .admin-comment p {
+            font-size: 14px;
+            color: var(--color-text);
+            line-height: 1.9;
+            margin: 0;
+        }
+
+        /* セクション */
+        .profile-section {
+            margin-bottom: 36px;
+        }
+
+        .profile-section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--color-text-sub);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--color-border, #e0e0e0);
+        }
+
+        /* プロフィール情報 */
+        .profile-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-list li {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--color-border, #f0f0f0);
+            font-size: 14px;
+            color: var(--color-text);
+        }
+
+        .profile-list li:last-child {
+            border-bottom: none;
+        }
+
+        .profile-label {
+            color: var(--color-text-sub);
+            min-width: 120px;
+            flex-shrink: 0;
+        }
+
+        .profile-value {
+            font-weight: 500;
+        }
+
+        /* お気に入り作品 */
+        .favorite-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .favorite-list li {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-border, #f0f0f0);
+            cursor: pointer;
+        }
+
+        .favorite-list li:last-child {
+            border-bottom: none;
+        }
+
+        .favorite-list li:hover {
+            opacity: 0.7;
+        }
+
+        .favorite-rank {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-text-sub);
+            min-width: 24px;
+        }
+
+        .favorite-info {
+            flex: 1;
+        }
+
+        .favorite-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 2px;
+        }
+
+        .favorite-comment {
+            font-size: 13px;
+            color: var(--color-text-sub);
+            line-height: 1.5;
+        }
+
+        /* サイトについて */
+        .profile-text {
+            font-size: 14px;
+            color: var(--color-text);
+            line-height: 1.8;
+        }
+
+        /* ダークモード */
+        body.dark-mode .profile-icon {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="header-logo"><img src="logo.png" alt="Logo" class="header-logo-img"></a>
+            <h1><a href="index.html">ATLAS COMIC</a></h1>
+            <nav class="header-nav">
+                <a href="home.html" class="nav-link"><i class="ph-bold ph-star" style="font-size:13px"></i>Pickup</a>
+                <a href="database.html" class="nav-link"><i class="ph-bold ph-database" style="font-size:13px"></i>Database</a>
+                <a href="ranking.html" class="nav-link"><i class="ph-bold ph-trophy" style="font-size:13px"></i>Popular</a>
+                <a href="follow.html" class="nav-link follow-link"><i class="ph-bold ph-heart" style="font-size:13px"></i>Favorites</a>
+            </nav>
+            <div class="search-box">
+                <input type="text" placeholder="Search manga...">
+                <button class="search-icon" aria-label="Search">
+                    <i class="ph-bold ph-magnifying-glass" style="font-size:20px"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <h2>ABOUT ME</h2>
+        <p>漫画好きの管理人について</p>
+    </section>
+
+    <main class="profile-main">
+        <!-- プロフィールヘッダー -->
+        <div class="profile-header">
+            <div class="profile-icon">
+                <i class="ph-bold ph-user"></i>
+            </div>
+            <h2 class="profile-name">アトラス</h2>
+            <p class="profile-tagline">ATLAS COMIC 管理人</p>
+        </div>
+
+        <!-- プロフィール -->
+        <div class="profile-section">
+            <h3 class="profile-section-title">Profile</h3>
+            <ul class="profile-list">
+                <li><span class="profile-label">漫画歴</span><span class="profile-value">15年以上</span></li>
+                <li><span class="profile-label">月の読書量</span><span class="profile-value">約20冊</span></li>
+                <li><span class="profile-label">好きなジャンル</span><span class="profile-value">バトル・ファンタジー・サスペンス</span></li>
+                <li><span class="profile-label">好きな出版社</span><span class="profile-value">集英社・講談社</span></li>
+                <li><span class="profile-label">読む環境</span><span class="profile-value">紙派（単行本コレクター）</span></li>
+            </ul>
+        </div>
+
+        <!-- 管理人のコメント -->
+        <div class="profile-section">
+            <h3 class="profile-section-title">Comment</h3>
+            <p class="profile-text">
+                漫画が好きすぎて、気づいたらサイトを作っていました。少年漫画を中心に、面白い作品を発掘するのが日課です。<br><br>このサイトでは、自分が実際に読んで「これは面白い！」と思った作品だけを紹介しています。ジャンル別のおすすめや新刊情報など、漫画好きの皆さんの「次の一冊」探しのお手伝いができれば嬉しいです。
+            </p>
+        </div>
+
+        <!-- お気に入り作品 -->
+        <div class="profile-section">
+            <h3 class="profile-section-title">Favorite Manga</h3>
+            <ul class="favorite-list">
+                <li onclick="location.href='detail.html?title=ONE PIECE'">
+                    <span class="favorite-rank">1</span>
+                    <div class="favorite-info">
+                        <div class="favorite-title">ONE PIECE</div>
+                        <div class="favorite-comment">少年漫画の頂点。冒険・仲間・夢、全てが詰まった作品</div>
+                    </div>
+                </li>
+                <li onclick="location.href='detail.html?title=HUNTER×HUNTER'">
+                    <span class="favorite-rank">2</span>
+                    <div class="favorite-info">
+                        <div class="favorite-title">HUNTER×HUNTER</div>
+                        <div class="favorite-comment">冨樫義博の天才的な頭脳戦と世界観に何度読んでも鳥肌が立つ</div>
+                    </div>
+                </li>
+                <li onclick="location.href='detail.html?title=チェンソーマン'">
+                    <span class="favorite-rank">3</span>
+                    <div class="favorite-info">
+                        <div class="favorite-title">チェンソーマン</div>
+                        <div class="favorite-comment">藤本タツキの破壊的なセンスが光る、新世代の代表作</div>
+                    </div>
+                </li>
+                <li onclick="location.href='detail.html?title=呪術廻戦'">
+                    <span class="favorite-rank">4</span>
+                    <div class="favorite-info">
+                        <div class="favorite-title">呪術廻戦</div>
+                        <div class="favorite-comment">バトルの緊張感と予想を裏切る展開が最高</div>
+                    </div>
+                </li>
+                <li onclick="location.href='detail.html?title=SPY×FAMILY'">
+                    <span class="favorite-rank">5</span>
+                    <div class="favorite-info">
+                        <div class="favorite-title">SPY×FAMILY</div>
+                        <div class="favorite-comment">笑いとシリアスの絶妙なバランス。家族の温かさに癒される</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- このサイトについて -->
+        <div class="profile-section">
+            <h3 class="profile-section-title">About This Site</h3>
+            <p class="profile-text">
+                ATLAS COMICは、漫画好きの管理人が運営する漫画情報サイトです。集英社・講談社・小学館の作品を中心に、新刊情報やランキング、管理人が独断と偏見で選んだおすすめ作品を紹介しています。<br><br>
+                「次に読む漫画」を探している人の参考になれば嬉しいです。
+            </p>
+        </div>
+
+    </main>
+
+    <!-- サイトフッター -->
+    <div class="site-footer">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <span class="footer-sep">|</span>
+        <a href="about.html">運営者情報</a>
+        <span class="footer-sep">|</span>
+        <a href="profile.html">管理人紹介</a>
+    </div>
+
+    <!-- ボトムナビ -->
+    <nav class="bottom-nav">
+        <a href="/home.html" class="bottom-nav-item" data-page="home">
+            <i class="ph-bold ph-star" style="font-size:22px"></i>
+            <span>Pickup</span>
+        </a>
+        <a href="/database.html" class="bottom-nav-item" data-page="database">
+            <i class="ph-bold ph-database" style="font-size:22px"></i>
+            <span>Database</span>
+        </a>
+        <a href="/ranking.html" class="bottom-nav-item" data-page="ranking">
+            <i class="ph-bold ph-trophy" style="font-size:22px"></i>
+            <span>Popular</span>
+        </a>
+        <a href="/follow.html" class="bottom-nav-item" data-page="follow">
+            <i class="ph-bold ph-heart" style="font-size:22px"></i>
+            <span>Favorites</span>
+        </a>
+    </nav>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
+<!-- トップへ戻るボタン -->
+<button class="scroll-top-btn" id="scrollTopBtn" aria-label="トップへ戻る">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function(){
+    var btn=document.getElementById('scrollTopBtn');
+    if(!btn)return;
+    window.addEventListener('scroll',function(){
+        btn.classList.toggle('visible',window.scrollY>300);
+    });
+    btn.addEventListener('click',function(){
+        window.scrollTo({top:0,behavior:'smooth'});
+    });
+})();
+</script>
+</body>
+</html>

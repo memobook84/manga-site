@@ -61,17 +61,11 @@
         <!-- ヒーローバナー -->
         <section class="hero-banner">
             <h2>EDITOR'S PICK</h2>
-            <p>管理人が厳選した注目の漫画をお届け<br>さらに独断と偏見で選んだ、ジャンル別おすすめベスト10も紹介します</p>
+            <p>漫画好きの管理人が厳選した注目作品とジャンル別ベスト10</p>
         </section>
 
-        <!-- 今月のピックアップ -->
+        <!-- ピックアップ -->
         <section class="portal-section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="ph-bold ph-lightning" style="font-size:18px"></i>
-                    ピックアップ
-                </h2>
-            </div>
             <div id="pickup-grid" class="pickup-grid"></div>
         </section>
 
@@ -94,6 +88,8 @@
         <a href="privacy.html">プライバシーポリシー</a>
         <span class="footer-sep">|</span>
         <a href="about.html">運営者情報</a>
+        <span class="footer-sep">|</span>
+        <a href="profile.html">管理人紹介</a>
     </div>
 
     <!-- ボトムナビ -->
@@ -171,5 +167,21 @@
         navigator.serviceWorker.register('/sw.js');
     }
     </script>
+<!-- トップへ戻るボタン -->
+<button class="scroll-top-btn" id="scrollTopBtn" aria-label="トップへ戻る">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function(){
+    var btn=document.getElementById('scrollTopBtn');
+    if(!btn)return;
+    window.addEventListener('scroll',function(){
+        btn.classList.toggle('visible',window.scrollY>300);
+    });
+    btn.addEventListener('click',function(){
+        window.scrollTo({top:0,behavior:'smooth'});
+    });
+})();
+</script>
 </body>
 </html>
