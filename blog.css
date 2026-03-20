@@ -27,11 +27,13 @@
     overflow: hidden;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: box-shadow 0.15s ease;
+    border: 2.5px solid transparent;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .blog-card:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 2.5px solid #1d1d1f;
 }
 
 /* カードヘッダー（非表示） */
@@ -98,6 +100,7 @@ body.dark-mode .blog-card {
 
 body.dark-mode .blog-card:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    border-color: #f5f5f7;
 }
 
 body.dark-mode .blog-card-title {
