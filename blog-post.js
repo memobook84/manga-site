@@ -11,7 +11,7 @@
     var metaEl = document.getElementById('blogPostMeta');
     var bodyEl = document.getElementById('blogPostBody');
 
-    fetch('data/blog/posts.json')
+    fetch('data/blog/posts.json?_=' + Date.now())
         .then(function(res) { return res.json(); })
         .then(function(posts) {
             var post = posts.find(function(p) { return p.id === id; });
@@ -25,7 +25,7 @@
             metaEl.innerHTML =
                 '<span class="blog-post-category">' + post.category + '</span>';
 
-            return fetch('data/blog/' + id + '.html');
+            return fetch('data/blog/' + id + '.html?_=' + Date.now());
         })
         .then(function(res) {
             if (!res || !res.ok) throw new Error('not found');
