@@ -37,6 +37,7 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
+            <a href="index.html" class="header-logo"><img src="favicon.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="index.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
@@ -192,21 +193,5 @@
         navigator.serviceWorker.register('/sw.js');
     }
     </script>
-<!-- トップへ戻るボタン -->
-<button class="scroll-top-btn" id="scrollTopBtn" aria-label="トップへ戻る">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-</button>
-<script>
-(function(){
-    var btn=document.getElementById('scrollTopBtn');
-    if(!btn)return;
-    window.addEventListener('scroll',function(){
-        btn.classList.toggle('visible',window.scrollY>300);
-    });
-    btn.addEventListener('click',function(){
-        window.scrollTo({top:0,behavior:'smooth'});
-    });
-})();
-</script>
 </body>
 </html>

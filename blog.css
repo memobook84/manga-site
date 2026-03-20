@@ -35,33 +35,40 @@
     background: linear-gradient(135deg, #fff 0%, #f0f0f0 50%, #e8e8e8 100%);
 }
 
-/* カードヘッダー（非表示） */
-.blog-card-header {
-    display: none;
+/* カードタグエリア */
+.blog-card-tag-area {
+    padding: 20px 24px 0;
 }
 
-/* カード本体 */
-.blog-card-body {
-    padding: 28px 24px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.blog-card-cat {
+.blog-card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.3px;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    margin-bottom: 14px;
+    color: #fff;
+    background: #222;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+/* カード本体 */
+.blog-card-body {
+    padding: 16px 24px 36px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
 }
 
 .blog-card-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: #1d1d1f;
-    line-height: 1.5;
-    margin: 0 0 12px;
+    line-height: 1.6;
+    margin: 0 0 16px;
     font-family: 'Noto Sans JP', sans-serif;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -70,13 +77,13 @@
 }
 
 .blog-card-desc {
-    font-size: 13px;
+    font-size: 13.5px;
     color: #6e6e73;
-    line-height: 1.7;
+    line-height: 1.8;
     margin: 0;
     flex: 1;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-family: 'Noto Sans JP', sans-serif;
