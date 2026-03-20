@@ -43,13 +43,18 @@
         return segments;
     }
 
-    function drawBolt(segments, alpha, lineWidth) {
+    var boltColors = [
+        { r: 220, g: 40, b: 40 }
+    ];
+
+    function drawBolt(segments, alpha, lineWidth, color) {
+        var r = color.r, g = color.g, b = color.b;
         ctx.save();
-        ctx.strokeStyle = 'rgba(216, 5, 46, ' + (alpha * 0.3) + ')';
+        ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha * 0.3) + ')';
         ctx.lineWidth = lineWidth + 6;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(216, 5, 46, ' + (alpha * 0.5) + ')';
+        ctx.shadowColor = 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha * 0.5) + ')';
         ctx.shadowBlur = 20;
         ctx.beginPath();
         for (var i = 0; i < segments.length; i++) {
@@ -60,11 +65,11 @@
         ctx.restore();
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(216, 5, 46, ' + alpha + ')';
+        ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
         ctx.lineWidth = lineWidth;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowColor = 'rgba(255, 80, 80, ' + alpha + ')';
+        ctx.shadowColor = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
         ctx.shadowBlur = 10;
         ctx.beginPath();
         for (var j = 0; j < segments.length; j++) {
@@ -75,7 +80,8 @@
         ctx.restore();
 
         ctx.save();
-        ctx.strokeStyle = 'rgba(255, 200, 200, ' + (alpha * 0.7) + ')';
+        var hr = Math.min(255, r + 80), hg = Math.min(255, g + 80), hb = Math.min(255, b + 80);
+        ctx.strokeStyle = 'rgba(' + hr + ',' + hg + ',' + hb + ',' + (alpha * 0.7) + ')';
         ctx.lineWidth = Math.max(1, lineWidth - 1);
         ctx.lineCap = 'round';
         ctx.beginPath();
@@ -90,17 +96,19 @@
     // --- 雷連射アニメーション ---
     var bolts = [];
     var boltCount = 0;
-    var maxBolts = 4;
-    var spawnDelay = 80;
+    var maxBolts = 6;
+    var spawnDelay = 60;
     var startTime = performance.now();
 
     function spawnSplashBolt() {
-        var x = canvas.width * 0.2 + Math.random() * canvas.width * 0.6;
+        var x = canvas.width * 0.1 + Math.random() * canvas.width * 0.8;
+        var color = boltColors[Math.floor(Math.random() * boltColors.length)];
         bolts.push({
             segments: createBolt(x, -10, 0, canvas.height * 0.8, 0),
             life: 1.0,
             decay: 0.015 + Math.random() * 0.01,
-            lineWidth: 2 + Math.random() * 1.5
+            lineWidth: 2 + Math.random() * 1.5,
+            color: color
         });
         boltCount++;
     }
@@ -126,7 +134,7 @@
             if (bolt.life > 0.5) {
                 alpha *= (Math.random() > 0.3) ? 1 : 0.3;
             }
-            drawBolt(bolt.segments, alpha, bolt.lineWidth);
+            drawBolt(bolt.segments, alpha, bolt.lineWidth, bolt.color);
             bolt.life -= bolt.decay;
             if (bolt.life <= 0) {
                 bolts.splice(i, 1);
