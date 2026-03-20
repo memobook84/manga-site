@@ -157,6 +157,32 @@ header {
     z-index: 100;
 }
 
+@media (min-width: 769px) {
+    header {
+        background-color: #111;
+    }
+    header h1, header h1 a {
+        color: #F7F7F7 !important;
+    }
+    header .nav-link {
+        color: #fff !important;
+    }
+    header .nav-link:hover {
+        color: #fff !important;
+    }
+    header .nav-link::after {
+        background: #fff;
+    }
+    header .search-box input {
+        background-color: #fff;
+        color: #2B2B2B;
+        border-color: #ddd;
+    }
+    header .search-box input::placeholder {
+        color: #999;
+    }
+}
+
 .header-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -203,7 +229,7 @@ header h1 a {
 /* ヘッダーナビゲーション */
 .header-nav {
     display: flex;
-    gap: 4px;
+    gap: 0px;
 }
 
 .nav-link {
@@ -216,7 +242,7 @@ header h1 a {
     border-radius: 6px;
     border: none;
     transition: all 0.2s ease;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.02em;
     font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
@@ -225,9 +251,25 @@ header h1 a {
     position: relative;
 }
 
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: #D8052E;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
 .nav-link:hover {
     color: #2B2B2B;
-    background: #F0EEEB;
+    background: transparent;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+    left: 0;
 }
 
 .nav-link svg {
@@ -897,39 +939,24 @@ main {
 }
 
 .splash-logo {
-    position: relative;
-    z-index: 2;
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-    filter: drop-shadow(0 0 0px rgba(216, 5, 46, 0));
-}
-
-.splash-logo-visible .splash-logo {
-    opacity: 1;
-    transform: scale(1);
-    filter: drop-shadow(0 0 30px rgba(216, 5, 46, 0.8))
-           drop-shadow(0 0 60px rgba(216, 5, 46, 0.4));
+    display: none;
 }
 
 .splash-title {
     position: relative;
     z-index: 2;
-    color: #D8052E;
-    font-family: 'Archivo Black', 'Inter', sans-serif;
+    color: #FFFFFF;
+    font-family: 'Montserrat', 'Archivo Black', 'Inter', 'Noto Sans JP', sans-serif;
     font-size: 36px;
-    font-weight: 900;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 16px;
+    letter-spacing: -0.01em;
+    margin-top: 0;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.5s ease, transform 0.5s ease;
-    text-shadow: 0 0 20px rgba(216, 5, 46, 0.6),
-                 0 0 40px rgba(216, 5, 46, 0.3);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6),
+                 0 0 40px rgba(255, 255, 255, 0.3);
 }
 
 .splash-text-visible .splash-title {

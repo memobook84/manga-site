@@ -12,7 +12,7 @@ const today = new Date().toISOString().split('T')[0];
 // 静的ページ
 const staticPages = [
     { loc: '/', priority: '1.0', changefreq: 'daily' },
-    { loc: '/home.html', priority: '0.9', changefreq: 'daily' },
+    { loc: '/index.html', priority: '0.9', changefreq: 'daily' },
     { loc: '/new-releases.html', priority: '0.8', changefreq: 'daily' },
     { loc: '/ranking.html', priority: '0.8', changefreq: 'daily' },
     { loc: '/follow.html', priority: '0.5', changefreq: 'weekly' },

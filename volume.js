@@ -54,11 +54,13 @@ async function displayVolumeDetail() {
     // ページタイトルを更新
     document.title = `${volume.title} - THE MANGA STORE`;
 
-    // 画像を表示（スワイプ矢印を保持）
+    // 画像を表示（スワイプ矢印・購入ボタンを保持）
     const volumeImageContainer = document.querySelector('.volume-image');
     const arrows = volumeImageContainer.querySelectorAll('.swipe-arrow');
+    const buyBtn = document.getElementById('buy-amazon');
     volumeImageContainer.innerHTML = createDetailImageElement(volume);
     arrows.forEach(arrow => volumeImageContainer.appendChild(arrow));
+    if (buyBtn) volumeImageContainer.appendChild(buyBtn);
 
     document.getElementById('volume-title').textContent = volume.title;
     document.getElementById('volume-number').textContent = volume.volumeLabel || '';
@@ -83,7 +85,6 @@ async function displayVolumeDetail() {
     });
 
     // 購入ボタンのリンクを設定
-    document.getElementById('buy-rakuten').href = getRakutenBuyUrl(volume);
     document.getElementById('buy-amazon').href = getAmazonBuyUrl(volume);
 
     // 作品ページに戻るリンクを設定

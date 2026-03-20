@@ -489,5 +489,16 @@ function setupSidebar() {
 window.addEventListener('DOMContentLoaded', () => {
     setupSearch();
     setupSidebar();
-    fetchFromApi(1);
+
+    // URLの?search=パラメータから検索を実行
+    const params = new URLSearchParams(window.location.search);
+    const searchParam = params.get('search');
+    if (searchParam) {
+        const searchInput = document.querySelector('.search-box input');
+        if (searchInput) searchInput.value = searchParam;
+        currentKeyword = searchParam;
+        fetchFromApi(1, searchParam);
+    } else {
+        fetchFromApi(1);
+    }
 });

@@ -22,6 +22,7 @@ body {
     flex-shrink: 0;
     position: relative;
     overflow: visible;
+    width: 300px;
 }
 
 /* スワイプ矢印（画像と画面端の中間） - PC非表示、スマホ表示 */
@@ -197,46 +198,71 @@ body {
 }
 
 /* 購入ボタン */
-.volume-buttons {
-    display: flex;
-    gap: 15px;
+.volume-buy-area {
+    padding: 0 30px;
     margin-bottom: 30px;
+    display: flex;
 }
 
 .buy-button {
-    flex: 1;
-    padding: 14px 30px;
-    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 0;
+    border-radius: 4px;
     text-align: center;
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 0.03em;
-    font-weight: 600;
+    font-weight: 500;
     text-decoration: none;
-    color: white;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
+    font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
+    margin-top: 10px;
 }
 
-.buy-button:hover {
+.amazon-button {
+    background-color: #f0f0f0;
+    color: #555;
+    border: 1px solid #e0e0e0;
+}
+
+.amazon-button:hover {
+    background-color: #FF9900;
+    color: #111;
+    border-color: #FF9900;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.rakuten-button {
-    background-color: #e8e8e8;
-    color: #333;
+.amazon-button svg {
+    stroke: currentColor;
 }
 
-.rakuten-button:hover {
-    background-color: #dcdcdc;
-}
-
-.amazon-button {
-    background-color: #e8e8e8;
-    color: #333;
-}
-
-.amazon-button:hover {
-    background-color: #dcdcdc;
+@media (max-width: 768px) {
+    .volume-main {
+        display: flex;
+        flex-direction: column;
+    }
+    .volume-container {
+        order: 1;
+    }
+    .volume-buy-area {
+        order: 2;
+        padding: 0 20px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .volume-buy-area .buy-button {
+        width: 240px;
+    }
+    .volume-description {
+        order: 3;
+    }
+    .volume-bottom-section {
+        order: 4;
+    }
 }
 
 /* 前後巻スライダー */

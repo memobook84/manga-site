@@ -37,14 +37,14 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
-            <a href="index.html" class="header-logo"><img src="logo.png" alt="Logo" class="header-logo-img"></a>
             <h1><a href="index.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
-                <a href="home.html" class="nav-link"><i class="ph-bold ph-star" style="font-size:13px"></i>Pickup</a>
-                <a href="blog.html" class="nav-link"><i class="ph-bold ph-article" style="font-size:13px"></i>Blog</a>
-                <a href="database.html" class="nav-link"><i class="ph-bold ph-database" style="font-size:13px"></i>Database</a>
-                <a href="ranking.html" class="nav-link"><i class="ph-bold ph-trophy" style="font-size:13px"></i>Popular</a>
-                <a href="follow.html" class="nav-link follow-link"><i class="ph-bold ph-heart" style="font-size:13px"></i>Favorites</a>
+                <a href="index.html" class="nav-link">Pickup</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="database.html" class="nav-link">DB</a>
+                <a href="ranking.html" class="nav-link">Popular</a>
+                <a href="follow.html" class="nav-link follow-link">Favs</a>
+                <a href="profile.html" class="nav-link profile-link">About Me</a>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
@@ -67,6 +67,10 @@
                 <span id="swipe-arrow-next" class="swipe-arrow swipe-arrow-next">
                     <i class="ph-bold ph-caret-right" style="font-size:16px"></i>
                 </span>
+                <a href="#" id="buy-amazon" class="buy-button amazon-button" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    Amazonで購入
+                </a>
             </div>
 
             <!-- 右側：詳細情報 -->
@@ -113,15 +117,6 @@
         </div>
 
         <div class="volume-bottom-section">
-            <div class="volume-buttons">
-                <a href="#" id="buy-rakuten" class="buy-button rakuten-button" target="_blank">
-                    楽天で購入
-                </a>
-                <a href="#" id="buy-amazon" class="buy-button amazon-button" target="_blank">
-                    Amazonで購入
-                </a>
-            </div>
-
             <!-- 前後の巻ナビゲーション -->
             <div id="volume-slider" class="volume-slider" style="display:none;">
                 <button id="prev-volume" class="slider-btn slider-prev" disabled>

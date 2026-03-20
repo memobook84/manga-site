@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <script>if(localStorage.getItem('darkMode')==='true')document.documentElement.classList.add('dark-mode-pending');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
@@ -9,79 +10,169 @@
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <meta name="description" content="漫画を検索・発見できるATLAS COMIC。管理人が厳選したおすすめ漫画をジャンル別に紹介。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
     <!-- OGP -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="ATLAS COMIC">
-    <meta property="og:title" content="ATLAS COMIC - 漫画検索サイト">
-    <meta property="og:description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <meta property="og:title" content="ATLAS COMIC">
+    <meta property="og:description" content="漫画を検索・発見できるATLAS COMIC。管理人が厳選したおすすめ漫画をジャンル別に紹介。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
     <meta property="og:url" content="https://manga-site-three.vercel.app/">
     <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="ATLAS COMIC - 漫画検索サイト">
-    <meta name="twitter:description" content="漫画を検索・発見できるATLAS COMIC。人気作品や新刊情報、売れ筋ランキングをチェックしよう。">
+    <meta name="twitter:title" content="ATLAS COMIC">
+    <meta name="twitter:description" content="漫画を検索・発見できるATLAS COMIC。管理人が厳選したおすすめ漫画をジャンル別に紹介。">
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
-    <link rel="stylesheet" href="search.css">
+    <link rel="stylesheet" href="home-portal.css">
     <script src="rakuten-adapter.js"></script>
-    <script src="lightning.js" defer></script>
-    <script src="search.js" defer></script>
-
+    <script src="home-portal.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
     <!-- スプラッシュオーバーレイ -->
     <div id="splashOverlay">
         <canvas id="splashCanvas"></canvas>
-        <img src="logo.png" alt="" class="splash-logo">
         <div class="splash-title">ATLAS COMIC</div>
     </div>
     <script src="splash.js"></script>
 
-    <div class="search-page" id="searchPage">
-        <!-- 雷オンオフボタン -->
-        <button id="lightningToggle" class="lightning-toggle" aria-label="雷エフェクト切替">
-            <i class="ph-bold ph-lightning" style="font-size:20px"></i>
-        </button>
-        <!-- 雷エフェクト -->
-        <canvas id="lightningCanvas" class="lightning-canvas"></canvas>
-        <!-- 中央ロゴ・検索エリア -->
-        <div class="search-center" id="searchCenter">
-            <a href="home.html" class="search-logo">
-                <img src="logo.png" alt="ATLAS COMIC Logo">
-            </a>
-            <h1 class="search-title">ATLAS COMIC</h1>
-            <form class="search-form" id="searchForm" autocomplete="off">
-                <div class="search-bar">
-                    <i class="ph-bold ph-magnifying-glass search-icon" style="font-size:20px"></i>
-                    <input type="text" id="searchInput" placeholder="タイトル・著者名で検索" autofocus>
-                    <button type="button" class="search-clear" id="searchClear" hidden>&times;</button>
-                </div>
-            </form>
-            <div class="search-nav">
-                <a href="home.html">Home</a>
-                <a href="new-releases.html">New Release</a>
-
-                <a href="blog.html">Blog</a>
-                <a href="follow.html">Follow</a>
-                <a href="database.html">Database</a>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-container">
+            <h1><a href="index.html">ATLAS COMIC</a></h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Pickup</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="database.html" class="nav-link">DB</a>
+                <a href="ranking.html" class="nav-link">Popular</a>
+                <a href="follow.html" class="nav-link follow-link">Favs</a>
+                <a href="profile.html" class="nav-link profile-link">About Me</a>
+            </nav>
+            <div class="search-box">
+                <input type="text" placeholder="Search manga...">
+                <button class="search-icon" aria-label="検索">
+                    <i class="ph-bold ph-magnifying-glass" style="font-size:20px"></i>
+                </button>
             </div>
         </div>
+    </header>
 
-        <!-- 検索結果エリア -->
-        <div class="search-results" id="searchResults" hidden>
-            <div class="results-info" id="resultsInfo"></div>
-            <div class="manga-grid" id="resultsGrid"></div>
-            <div class="results-loading" id="resultsLoading" hidden>
-                <div class="spinner"></div>
-            </div>
+    <!-- ポータルメインコンテンツ -->
+    <div class="portal-main">
+        <!-- ヒーローバナー -->
+        <section class="hero-banner"></section>
+
+        <!-- Editor's Pickセクション -->
+        <section class="page-hero">
+            <h2>EDITOR'S PICK</h2>
+            <p>漫画好きの管理人が厳選した今注目の作品</p>
+        </section>
+
+        <div class="main-layout">
+            <main>
+                <div id="pickup-grid" class="pickup-grid">
+                    <!-- home-portal.jsで動的に生成 -->
+                </div>
+            </main>
         </div>
     </div>
+
+    <!-- サイトフッター -->
+    <div class="site-footer">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <span class="footer-sep">|</span>
+        <a href="about.html">運営者情報</a>
+        <span class="footer-sep">|</span>
+        <a href="profile.html">管理人紹介</a>
+    </div>
+
+    <!-- ボトムナビ -->
+    <nav class="bottom-nav">
+        <a href="/index.html" class="bottom-nav-item" data-page="home">
+            <i class="ph-bold ph-star" style="font-size:22px"></i>
+            <span>Pickup</span>
+        </a>
+        <a href="/blog.html" class="bottom-nav-item" data-page="blog">
+            <i class="ph-bold ph-article" style="font-size:22px"></i>
+            <span>Blog</span>
+        </a>
+        <a href="/database.html" class="bottom-nav-item" data-page="database">
+            <i class="ph-bold ph-database" style="font-size:22px"></i>
+            <span>Database</span>
+        </a>
+        <a href="/ranking.html" class="bottom-nav-item" data-page="ranking">
+            <i class="ph-bold ph-trophy" style="font-size:22px"></i>
+            <span>Popular</span>
+        </a>
+        <a href="/follow.html" class="bottom-nav-item" data-page="follow">
+            <i class="ph-bold ph-heart" style="font-size:22px"></i>
+            <span>Favorites</span>
+        </a>
+    </nav>
+
+    <script>
+    (function() {
+        var path = location.pathname;
+        var items = document.querySelectorAll('.bottom-nav-item');
+        items.forEach(function(item) {
+            var page = item.dataset.page;
+            if ((page === 'home' && (path === '/' || path === '/index.html')) ||
+                (page === 'database' && path.includes('database')) ||
+                (page === 'ranking' && path.includes('ranking')) ||
+                (page === 'blog' && path.includes('blog')) ||
+                (page === 'follow' && path.includes('follow'))) {
+                item.classList.add('active');
+            }
+        });
+    })();
+    </script>
+
+    <script>
+    // ダークモード
+    (function() {
+        var isDark = localStorage.getItem('darkMode') === 'true';
+        var body = document.body;
+        var btn = document.getElementById('dark-toggle');
+
+        if (isDark) body.classList.add('dark-mode');
+
+        if (btn) {
+            btn.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+            });
+        }
+    })();
+    </script>
+
+    <script>
+    // 検索機能（ヘッダー検索ボックス）
+    (function() {
+        var searchInput = document.querySelector('.search-box input');
+        var searchButton = document.querySelector('.search-box button');
+        function doSearch() {
+            var keyword = searchInput.value.trim();
+            if (keyword) {
+                window.location.href = 'database.html?search=' + encodeURIComponent(keyword);
+            }
+        }
+        if (searchButton) searchButton.addEventListener('click', doSearch);
+        if (searchInput) searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doSearch();
+        });
+    })();
+    </script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
 <!-- トップへ戻るボタン -->
 <button class="scroll-top-btn" id="scrollTopBtn" aria-label="トップへ戻る">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
