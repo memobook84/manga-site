@@ -226,8 +226,9 @@ function getRakutenBuyUrl(item) {
 }
 
 function getAmazonBuyUrl(item) {
-  if (item.isbn) return `https://www.amazon.co.jp/dp/${item.isbn}`;
-  return `https://www.amazon.co.jp/s?k=${encodeURIComponent(item.title)}`;
+  const tag = 'atlascomic-22';
+  if (item.isbn) return `https://www.amazon.co.jp/dp/${item.isbn}?tag=${tag}`;
+  return `https://www.amazon.co.jp/s?k=${encodeURIComponent(item.title)}&tag=${tag}`;
 }
 
 // Google Books APIから高品質カバー画像を非同期取得してアップグレード
