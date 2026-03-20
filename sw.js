@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookstore-v9';
+const CACHE_NAME = 'bookstore-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -48,22 +48,7 @@ self.addEventListener('fetch', (event) => {
   // API呼び出しはキャッシュしない
   if (url.pathname.startsWith('/api/')) return;
 
-  // データJSONはキャッシュ優先（大きいため）
-  if (url.pathname.startsWith('/data/')) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
-        return fetch(event.request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        });
-      })
-    );
-    return;
-  }
+  // データJSONもネットワーク優先（新しい記事がすぐ反映されるように）
 
   // その他はネットワーク優先
   event.respondWith(
