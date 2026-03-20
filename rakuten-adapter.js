@@ -227,7 +227,7 @@ function getRakutenBuyUrl(item) {
 
 function getAmazonBuyUrl(item) {
   const tag = 'atlascomic-22';
-  if (item.isbn) return `https://www.amazon.co.jp/dp/${item.isbn}?tag=${tag}`;
+  if (item.isbn) return `https://www.amazon.co.jp/s?k=${item.isbn}&tag=${tag}`;
   return `https://www.amazon.co.jp/s?k=${encodeURIComponent(item.title)}&tag=${tag}`;
 }
 
