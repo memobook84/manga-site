@@ -34,6 +34,7 @@
         .then(function(html) {
             bodyEl.innerHTML = html;
             loadMangaCovers(bodyEl);
+            loadEmbeddedCovers(bodyEl);
         })
         .catch(function() {
             bodyEl.innerHTML = '<p>記事の読み込みに失敗しました。</p>';
@@ -90,6 +91,18 @@
                 setTimeout(function() { processNext(i + 1); }, 300);
             });
         })(0);
+    }
+
+    // レビュー記事末尾の埋め込みカード（innerHTML経由でscriptが実行されないため）
+    function loadEmbeddedCovers(container) {
+        var cards = container.querySelectorAll('.blog-manga-item img[src=""]');
+        cards.forEach(function(img) {
+            var alt = img.alt;
+            if (!alt) return;
+            fetchCover(alt).then(function(url) {
+                if (url) img.src = url;
+            });
+        });
     }
 
     function fetchCover(title) {
