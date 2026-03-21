@@ -65,6 +65,16 @@
                 // 右カードグリッド
                 html += '<div class="blog-category-cards">';
                 catPosts.forEach(function(post) {
+                    var descHtml = '';
+                    if (post.bullets && post.bullets.length) {
+                        descHtml = '<ul class="blog-card-bullets">';
+                        post.bullets.forEach(function(b) {
+                            descHtml += '<li>' + b + '</li>';
+                        });
+                        descHtml += '</ul>';
+                    } else {
+                        descHtml = '<p class="blog-card-desc">' + post.description + '</p>';
+                    }
                     html += '<a href="blog-post.html?id=' + post.id + '" class="blog-card">' +
                         '<div class="blog-card-tag-area">' +
                             '<span class="blog-card-tag" style="color: ' + color + ';">' +
@@ -73,7 +83,7 @@
                         '</div>' +
                         '<div class="blog-card-body">' +
                             '<h3 class="blog-card-title">' + post.title.replace(/\n/g, '<br>') + '</h3>' +
-                            '<p class="blog-card-desc">' + post.description + '</p>' +
+                            descHtml +
                         '</div>' +
                     '</a>';
                 });
