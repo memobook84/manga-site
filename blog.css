@@ -25,6 +25,8 @@
     flex-direction: column;
     gap: 8px;
     padding-left: 14px;
+    border-left: 3px solid #1d1d1f;
+    color: #1d1d1f;
 }
 
 .blog-category-name {
@@ -51,6 +53,11 @@
 }
 
 /* ダークモード: カテゴリーラベル */
+body.dark-mode .blog-category-label-inner {
+    border-left-color: #f5f5f7;
+    color: #f5f5f7;
+}
+
 body.dark-mode .blog-category-name {
     color: #f5f5f7;
 }
@@ -96,10 +103,15 @@ body.dark-mode .blog-category-count {
     font-weight: 600;
     letter-spacing: 0.5px;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    color: #1d1d1f;
 }
 
 .blog-card-tag i {
     font-size: 12px;
+}
+
+body.dark-mode .blog-card-tag {
+    color: #f5f5f7;
 }
 
 /* カード本体 */

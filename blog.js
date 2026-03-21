@@ -4,11 +4,11 @@
     if (!container) return;
 
     var categoryColors = {
-        'ランキング': '#D8052E',
-        'おすすめ': '#2E7D32',
-        'まとめ': '#1565C0',
-        '特集': '#6A1B9A',
-        'レビュー': '#E65100'
+        'ランキング': '#1d1d1f',
+        'おすすめ': '#1d1d1f',
+        'まとめ': '#1d1d1f',
+        '特集': '#1d1d1f',
+        'レビュー': '#1d1d1f'
     };
 
     var categoryIcons = {
@@ -55,8 +55,8 @@
 
                 // 左ラベル
                 html += '<div class="blog-category-label">' +
-                    '<div class="blog-category-label-inner" style="border-left: 3px solid ' + color + ';">' +
-                        '<i class="ph-bold ' + icon + '" style="font-size: 20px; color: ' + color + ';"></i>' +
+                    '<div class="blog-category-label-inner">' +
+                        '<i class="ph-bold ' + icon + '" style="font-size: 20px;"></i>' +
                         '<span class="blog-category-name">' + cat + '</span>' +
                         '<span class="blog-category-count">' + catPosts.length + '件</span>' +
                     '</div>' +
@@ -77,7 +77,7 @@
                     }
                     html += '<a href="blog-post.html?id=' + post.id + '" class="blog-card">' +
                         '<div class="blog-card-tag-area">' +
-                            '<span class="blog-card-tag" style="color: ' + color + ';">' +
+                            '<span class="blog-card-tag">' +
                                 '<i class="ph-bold ' + icon + '"></i> ' + post.category +
                             '</span>' +
                         '</div>' +
