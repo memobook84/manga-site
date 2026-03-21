@@ -82,7 +82,7 @@
                             '</span>' +
                         '</div>' +
                         '<div class="blog-card-body">' +
-                            '<h3 class="blog-card-title">' + post.title.replace(/\n/g, '<br>') + '</h3>' +
+                            '<h3 class="blog-card-title">' + post.title.replace(/\n/g, '<br>').split('｜')[0] + '</h3>' +
                             descHtml +
                         '</div>' +
                     '</a>';
