@@ -67,7 +67,9 @@
                 catPosts.forEach(function(post) {
                     html += '<a href="blog-post.html?id=' + post.id + '" class="blog-card">' +
                         '<div class="blog-card-tag-area">' +
-                            '<span class="blog-card-tag">' + post.category + ' <i class="ph-bold ' + icon + '"></i></span>' +
+                            '<span class="blog-card-tag" style="color: ' + color + ';">' +
+                                '<i class="ph-bold ' + icon + '"></i> ' + post.category +
+                            '</span>' +
                         '</div>' +
                         '<div class="blog-card-body">' +
                             '<h3 class="blog-card-title">' + post.title.replace(/\n/g, '<br>') + '</h3>' +
