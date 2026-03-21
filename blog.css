@@ -165,27 +165,10 @@ body.dark-mode .blog-card-tag {
     line-height: 1.5;
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 400;
-    padding-left: 16px;
-    position: relative;
-}
-
-.blog-card-bullets li::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 6px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #ccc;
 }
 
 body.dark-mode .blog-card-bullets li {
     color: #888;
-}
-
-body.dark-mode .blog-card-bullets li::before {
-    background: #555;
 }
 
 .blog-card-date {
