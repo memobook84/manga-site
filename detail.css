@@ -21,9 +21,9 @@
 .detail-image img,
 .manga-detail-placeholder {
     width: 300px;
-    height: 420px;
-    border-radius: 0;
-    box-shadow: none;
+    height: auto;
+    border-radius: 1px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     border: none;
     outline: none;
 }
@@ -66,7 +66,7 @@
     line-height: 1.4;
     flex: 1;
     font-family: var(--font-heading);
-    font-weight: 700;
+    font-weight: 400;
 }
 
 /* お気に入りボタン */
@@ -159,7 +159,7 @@
     border-left: 3px solid var(--color-text);
     padding-left: 12px;
     font-family: var(--font-heading);
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .detail-description p {
@@ -240,13 +240,14 @@
     border-left: 3px solid var(--color-text);
     padding-left: 12px;
     font-family: var(--font-heading);
-    font-weight: 600;
+    font-weight: 400;
 }
 
 .volumes-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
+    column-gap: 28px;
+    row-gap: 32px;
 }
 
 .volume-item {
@@ -311,7 +312,7 @@
         height: auto;
         margin: 0 auto;
         display: block;
-        box-shadow: none;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.18);
         border-radius: 0;
     }
 

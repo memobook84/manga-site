@@ -134,26 +134,45 @@ async function displayAuthorDetail() {
 // APIから著者の作品を検索
 async function fetchAuthorWorks(authorName) {
     try {
-        const response = await fetch(`/api/search?keyword=${encodeURIComponent(authorName)}&hits=30`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
+        const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(authorName)}&hits=30`);
         const adapted = adaptApiResponse(data);
         // 著者名でフィルタリング（API結果が著者名以外にもマッチする可能性があるため）
-        return adapted.items.filter(item =>
-            item.author && item.author.includes(authorName)
-        );
+        return adapted.items.filter(item => {
+            if (!item.author || !item.author.includes(authorName)) return false;
+            const t = item.title || '';
+            if (/セット|全巻|BOX|ボックス|合本|一括/i.test(t)) return false;
+            return true;
+        });
     } catch (err) {
         console.warn('著者検索失敗:', err);
         return null;
     }
 }
 
-// 著者の作品一覧を表示
+// 著者の作品一覧を表示（シリーズ単位でグループ化）
 function displayAuthorWorks(works) {
     const worksGrid = document.getElementById('author-works-grid');
     worksGrid.innerHTML = '';
 
+    // シリーズ名でグループ化し、代表（1巻目 or 先頭）を取得
+    const seriesMap = new Map();
     works.forEach(item => {
+        const seriesName = extractSeriesName(item.title) || item.title;
+        if (!seriesMap.has(seriesName)) {
+            seriesMap.set(seriesName, item);
+        } else {
+            // より小さい巻数のものを代表にする
+            const extractNum = t => { const m = t.match(/(\d+)[巻\s　）)]/); return m ? parseInt(m[1]) : null; };
+            const current = seriesMap.get(seriesName);
+            const currentNum = extractNum(current.title);
+            const itemNum = extractNum(item.title);
+            if (itemNum !== null && (currentNum === null || itemNum < currentNum)) {
+                seriesMap.set(seriesName, item);
+            }
+        }
+    });
+
+    seriesMap.forEach((item, seriesName) => {
         const workItem = document.createElement('div');
         workItem.className = 'work-item';
 
@@ -161,15 +180,11 @@ function displayAuthorWorks(works) {
 
         workItem.innerHTML = `
             ${imageHtml}
-            <h3>${item.title}</h3>
+            <h3>${seriesName}</h3>
         `;
 
         workItem.addEventListener('click', () => {
-            if (item.isbn) {
-                window.location.href = `detail.html?isbn=${item.isbn}&title=${encodeURIComponent(item.title)}`;
-            } else {
-                window.location.href = `detail.html?id=${item.id}`;
-            }
+            window.location.href = `detail.html?title=${encodeURIComponent(seriesName)}`;
         });
 
         worksGrid.appendChild(workItem);

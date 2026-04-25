@@ -2,10 +2,132 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=index.html">
-    <title>Redirecting...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - ATLAS COMIC</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FFFFFF">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background: #fff;
+            min-height: 100vh;
+        }
+        .menu-main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px 0 100px;
+        }
+        .menu-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 24px 20px 8px;
+        }
+        .menu-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .menu-list a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            color: #111;
+            text-decoration: none;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.15s;
+        }
+        .menu-list a:first-child {
+            border-top: 1px solid #f0f0f0;
+        }
+        .menu-list a:active {
+            background: #f7f7f7;
+        }
+        .menu-arrow {
+            color: #bbb;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <script>location.replace('index.html');</script>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="header-logo"><img src="favicon.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <h1><a href="index.html">ATLAS COMIC</a></h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Pickup</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="database.html" class="nav-link">DB</a>
+                <a href="ranking.html" class="nav-link">Popular</a>
+                <a href="follow.html" class="nav-link follow-link">Favs</a>
+                <a href="profile.html" class="nav-link profile-link">About Me</a>
+            </nav>
+            <div class="search-box">
+                <input type="text" placeholder="Search manga...">
+                <button class="search-icon" aria-label="検索">
+                    <i class="ph-bold ph-magnifying-glass" style="font-size:20px"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="menu-main">
+        <div class="menu-section-title">Browse</div>
+        <ul class="menu-list">
+            <li><a href="index.html">Pickup <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="database.html">Database <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="ranking.html">Popular <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="new-releases.html">New Releases <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="blog.html">Blog <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="follow.html">Favorites <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+        </ul>
+
+        <div class="menu-section-title">Info</div>
+        <ul class="menu-list">
+            <li><a href="profile.html">About Me <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="about.html">運営者情報 <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+            <li><a href="privacy.html">プライバシーポリシー <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
+        </ul>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
+            <i class="ph-bold ph-arrow-left" style="font-size:22px"></i>
+            <span>Back</span>
+        </a>
+        <a href="/index.html" class="bottom-nav-item" data-page="home">
+            <i class="ph-bold ph-fire" style="font-size:22px"></i>
+            <span>Pickup</span>
+        </a>
+        <a href="/database.html" class="bottom-nav-item" data-page="database">
+            <i class="ph-bold ph-database" style="font-size:22px"></i>
+            <span>Database</span>
+        </a>
+        <a href="/follow.html" class="bottom-nav-item" data-page="follow">
+            <i class="ph-bold ph-butterfly" style="font-size:22px"></i>
+            <span>Favorites</span>
+        </a>
+        <a href="/home.html" class="bottom-nav-item active" data-page="menu">
+            <i class="ph-bold ph-list" style="font-size:22px"></i>
+            <span>Menu</span>
+        </a>
+    </nav>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
 </body>
 </html>

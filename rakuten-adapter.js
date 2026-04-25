@@ -1,5 +1,39 @@
 // 楽天APIレスポンスをサイト内データ形式に変換するアダプター
 
+// APIレスポンスのlocalStorageキャッシュ（7日間有効）
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+
+async function cachedFetch(url) {
+    const key = 'api_cache_' + url;
+    try {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+            const { data, ts } = JSON.parse(cached);
+            if (Date.now() - ts < CACHE_TTL) return data;
+            localStorage.removeItem(key);
+        }
+    } catch(e) {}
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    try {
+        localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+    } catch(e) {
+        // localStorageが満杯の場合は古いキャッシュを削除して再試行
+        clearOldCache();
+        try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })); } catch(e2) {}
+    }
+    return data;
+}
+
+function clearOldCache() {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('api_cache_'));
+    keys.sort((a, b) => {
+        try { return JSON.parse(localStorage.getItem(a)).ts - JSON.parse(localStorage.getItem(b)).ts; } catch(e) { return 0; }
+    });
+    keys.slice(0, Math.ceil(keys.length / 2)).forEach(k => localStorage.removeItem(k));
+}
+
 // ジャンルIDからジャンル名へのマッピング
 const genreMap = {
   '001001001': '少年漫画',
@@ -154,7 +188,7 @@ function createDetailImageElement(item) {
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
   const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
-  const imgStyle = "object-fit:contain;background:#f5f3f0;";
+  const imgStyle = "width:100%;height:auto;";
 
   if (item.imageUrl) {
     return `<img src="${item.imageUrl}" alt="${item.title}"
@@ -253,23 +287,46 @@ async function upgradeCovers() {
     await Promise.all(chunk.map(async (img) => {
       const isbn = img.dataset.isbn;
       try {
-        const resp = await fetch(`/api/cover?isbn=${isbn}`);
-        if (resp.ok) {
-          const data = await resp.json();
+        const data = await cachedFetch(`/api/cover?isbn=${isbn}`);
           if (data.coverUrl) {
-            coverCache[isbn] = data.coverUrl;
-            img.src = data.coverUrl;
-            img.removeAttribute('data-needs-upgrade');
+            // 画像URLが実際に読み込めるか事前確認してからsrcを差し替える
+            await new Promise(resolve => {
+              const tester = new Image();
+              tester.onload = () => {
+                coverCache[isbn] = data.coverUrl;
+                img.src = data.coverUrl;
+                img.removeAttribute('data-needs-upgrade');
+                resolve();
+              };
+              tester.onerror = () => {
+                coverCache[isbn] = false;
+                resolve();
+              };
+              tester.src = data.coverUrl;
+            });
           } else {
             coverCache[isbn] = false;
           }
-        } else {
-          coverCache[isbn] = false;
-        }
       } catch {
         coverCache[isbn] = false;
       }
     }));
-    if (i + 5 < batch.length) await new Promise(r => setTimeout(r, 200));
+    if (i + 5 < batch.length) await new Promise(r => setTimeout(r, 400));
   }
 }
+
+// ヘッダー：下スクロールで隠れ、上スクロールで再表示
+(function() {
+  let lastY = 0;
+  window.addEventListener('scroll', () => {
+    const header = document.querySelector('header');
+    if (!header) return;
+    const currentY = window.scrollY;
+    if (currentY > lastY && currentY > 80) {
+      header.classList.add('header-hidden');
+    } else {
+      header.classList.remove('header-hidden');
+    }
+    lastY = currentY;
+  }, { passive: true });
+})();

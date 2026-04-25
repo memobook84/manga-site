@@ -60,14 +60,16 @@
     <main class="volume-main">
         <div class="volume-container">
             <!-- 左側：表紙画像 -->
-            <div class="volume-image">
-                <img id="volume-cover" src="" alt="巻の表紙">
-                <span id="swipe-arrow-prev" class="swipe-arrow swipe-arrow-prev">
-                    <i class="ph-bold ph-caret-left" style="font-size:16px"></i>
-                </span>
-                <span id="swipe-arrow-next" class="swipe-arrow swipe-arrow-next">
-                    <i class="ph-bold ph-caret-right" style="font-size:16px"></i>
-                </span>
+            <div class="volume-image-wrap">
+                <div class="volume-image">
+                    <img id="volume-cover" src="" alt="巻の表紙">
+                    <span id="swipe-arrow-prev" class="swipe-arrow swipe-arrow-prev">
+                        <i class="ph-bold ph-caret-left" style="font-size:16px"></i>
+                    </span>
+                    <span id="swipe-arrow-next" class="swipe-arrow swipe-arrow-next">
+                        <i class="ph-bold ph-caret-right" style="font-size:16px"></i>
+                    </span>
+                </div>
                 <a href="#" id="buy-amazon" class="buy-button amazon-button" target="_blank">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     Amazonで購入
@@ -98,14 +100,34 @@
                     </div>
 
                     <div class="meta-item">
+                        <span class="meta-label">ジャンル：</span>
+                        <span id="volume-genre" class="meta-value">-</span>
+                    </div>
+
+                    <div class="meta-item">
                         <span class="meta-label">発売日：</span>
                         <span id="volume-date" class="meta-value">-</span>
+                    </div>
+
+                    <div class="meta-item">
+                        <span class="meta-label">ISBN：</span>
+                        <span id="volume-isbn" class="meta-value">-</span>
                     </div>
 
                     <div class="meta-item">
                         <span class="meta-label">価格：</span>
                         <span id="volume-price" class="meta-value">-</span>
                     </div>
+                </div>
+
+                <!-- PC用前後ナビ -->
+                <div class="pc-nav-arrows" style="display:none;">
+                    <button id="pc-prev-volume" class="pc-nav-arrow" disabled title="前の巻">
+                        <i class="ph-bold ph-caret-left"></i>
+                    </button>
+                    <button id="pc-next-volume" class="pc-nav-arrow" disabled title="次の巻">
+                        <i class="ph-bold ph-caret-right"></i>
+                    </button>
                 </div>
 
             </div>
@@ -117,23 +139,17 @@
             <p id="volume-synopsis">読み込み中...</p>
         </div>
 
+        <!-- シリーズ一覧 -->
+        <div id="series-list-section" class="series-list-section" style="display:none;">
+            <h2 class="series-list-title">シリーズ一覧</h2>
+            <div id="series-list-grid" class="series-list-grid"></div>
+        </div>
+
         <div class="volume-bottom-section">
-            <!-- 前後の巻ナビゲーション -->
-            <div id="volume-slider" class="volume-slider" style="display:none;">
-                <button id="prev-volume" class="slider-btn slider-prev" disabled>
-                    <i class="ph-bold ph-caret-left" style="font-size:18px"></i>
-                    <span id="prev-label">前の巻</span>
-                </button>
-                <span id="volume-position" class="volume-position"></span>
-                <button id="next-volume" class="slider-btn slider-next" disabled>
-                    <span id="next-label">次の巻</span>
-                    <i class="ph-bold ph-caret-right" style="font-size:18px"></i>
-                </button>
-            </div>
 
             <div class="navigation-buttons">
                 <a href="#" id="back-to-series" class="nav-button">← 作品ページに戻る</a>
-                <a href="home.html" class="nav-button">トップページに戻る</a>
+
             </div>
         </div>
     </main>
@@ -149,25 +165,25 @@
 
     <!-- ボトムナビ -->
     <nav class="bottom-nav">
-        <a href="/home.html" class="bottom-nav-item" data-page="home">
-            <i class="ph-bold ph-star" style="font-size:22px"></i>
-            <span>Pickup</span>
+        <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
+            <i class="ph-bold ph-arrow-left" style="font-size:22px"></i>
+            <span>Back</span>
         </a>
-        <a href="/blog.html" class="bottom-nav-item" data-page="blog">
-            <i class="ph-bold ph-article" style="font-size:22px"></i>
-            <span>Blog</span>
+        <a href="/index.html" class="bottom-nav-item" data-page="home">
+            <i class="ph-bold ph-fire" style="font-size:22px"></i>
+            <span>Pickup</span>
         </a>
         <a href="/database.html" class="bottom-nav-item" data-page="database">
             <i class="ph-bold ph-database" style="font-size:22px"></i>
             <span>Database</span>
         </a>
-        <a href="/ranking.html" class="bottom-nav-item" data-page="ranking">
-            <i class="ph-bold ph-trophy" style="font-size:22px"></i>
-            <span>Popular</span>
-        </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
-            <i class="ph-bold ph-heart" style="font-size:22px"></i>
+            <i class="ph-bold ph-butterfly" style="font-size:22px"></i>
             <span>Favorites</span>
+        </a>
+        <a href="/home.html" class="bottom-nav-item" data-page="menu">
+            <i class="ph-bold ph-list" style="font-size:22px"></i>
+            <span>Menu</span>
         </a>
     </nav>
 

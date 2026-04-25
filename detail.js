@@ -33,14 +33,18 @@ async function displayMangaDetail() {
         return;
     }
 
-    // タイトルで全巻を検索
+    // タイトルで全巻を検索（複数ページ対応）
     let allVolumes = [];
     try {
-        const response = await fetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-        allVolumes = adapted.items;
+        let page = 1;
+        while (true) {
+            const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30&page=${page}`);
+            const adapted = adaptApiResponse(data);
+            allVolumes = allVolumes.concat(adapted.items);
+            if (page >= (data.pageCount || 1) || page >= 5) break;
+            page++;
+            await new Promise(r => setTimeout(r, 400));
+        }
     } catch (err) {
         console.warn('シリーズ検索失敗:', err);
         document.getElementById('manga-title').textContent = '漫画が見つかりません';

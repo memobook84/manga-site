@@ -96,12 +96,12 @@
     // --- 雷連射アニメーション ---
     var bolts = [];
     var boltCount = 0;
-    var maxBolts = 6;
+    var maxBolts = 1;
     var spawnDelay = 60;
     var startTime = performance.now();
 
     function spawnSplashBolt() {
-        var x = canvas.width * 0.1 + Math.random() * canvas.width * 0.8;
+        var x = canvas.width * 0.5;
         var color = boltColors[Math.floor(Math.random() * boltColors.length)];
         bolts.push({
             segments: createBolt(x, -10, 0, canvas.height * 0.8, 0),

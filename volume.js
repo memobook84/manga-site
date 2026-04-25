@@ -72,8 +72,10 @@ async function displayVolumeDetail() {
 
     document.getElementById('volume-publisher').textContent = volume.publisher || '-';
     document.getElementById('volume-label').textContent = volume.label || volume.seriesName || '-';
+    document.getElementById('volume-genre').textContent = volume.genre || '-';
     document.getElementById('volume-date').textContent = volume.firstReleaseDate || '-';
     document.getElementById('volume-price').textContent = volume.price || '-';
+    document.getElementById('volume-isbn').textContent = volume.isbn || '-';
     document.getElementById('volume-synopsis').textContent = volume.description || 'この巻の情報はありません。';
 
     // SEO: 動的にmeta/OGPを更新
@@ -101,11 +103,15 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
 
     let allVolumes = [];
     try {
-        const response = await fetch(`/api/search?keyword=${encodeURIComponent(seriesName)}&hits=30`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-        allVolumes = adapted.items;
+        let page = 1;
+        while (true) {
+            const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(seriesName)}&hits=30&page=${page}`);
+            const adapted = adaptApiResponse(data);
+            allVolumes = allVolumes.concat(adapted.items);
+            if (page >= (data.pageCount || 1) || page >= 5) break;
+            page++;
+            await new Promise(r => setTimeout(r, 400));
+        }
     } catch (err) {
         console.warn('シリーズ取得失敗:', err);
         return;
@@ -118,9 +124,7 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
     });
     const volumes = filtered.length > 0 ? filtered : allVolumes;
 
-    if (volumes.length <= 1) return;
-
-    // 巻数を抽出してソート
+    // 巻数を抽出してソート（シリーズ一覧用に1巻でも処理）
     const withVolNum = volumes.map(vol => ({
         ...vol,
         volNum: extractVolumeNum(vol.title),
@@ -142,6 +146,29 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         currentIndex = withVolNum.findIndex(v => v.title === currentTitle);
     }
     if (currentIndex === -1) return;
+
+    // シリーズ一覧を描画
+    renderSeriesList(withVolNum, currentIndex, seriesName);
+
+    // PC用前後ナビ
+    const pcNavWrap = document.querySelector('.pc-nav-arrows');
+    const pcPrev = document.getElementById('pc-prev-volume');
+    const pcNext = document.getElementById('pc-next-volume');
+    if (pcNavWrap) pcNavWrap.style.display = 'flex';
+    if (pcPrev) {
+        pcPrev.disabled = currentIndex === 0;
+        pcPrev.addEventListener('click', () => {
+            if (currentIndex > 0) navigateToVolume(withVolNum[currentIndex - 1], seriesName);
+        });
+    }
+    if (pcNext) {
+        pcNext.disabled = currentIndex === withVolNum.length - 1;
+        pcNext.addEventListener('click', () => {
+            if (currentIndex < withVolNum.length - 1) navigateToVolume(withVolNum[currentIndex + 1], seriesName);
+        });
+    }
+
+    if (withVolNum.length <= 1) return;
 
     // スライダーUIを表示
     const slider = document.getElementById('volume-slider');
@@ -196,9 +223,33 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
     if (!hasPrev && arrowPrev) arrowPrev.classList.add('swipe-hidden');
     if (!hasNext && arrowNext) arrowNext.classList.add('swipe-hidden');
 
+    let lastTouchX = 0;
+    let lastTouchTime = 0;
+    let velocityX = 0;
+
+    // ページ入場アニメーション
+    const swipeDir = sessionStorage.getItem('swipeDir');
+    if (swipeDir) {
+        sessionStorage.removeItem('swipeDir');
+        const fromX = swipeDir === 'next' ? window.innerWidth : -window.innerWidth;
+        pageEl.style.transition = 'none';
+        pageEl.style.transform = `translateX(${fromX}px)`;
+        pageEl.style.opacity = '0';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                pageEl.style.transition = 'transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.32s ease';
+                pageEl.style.transform = '';
+                pageEl.style.opacity = '';
+            });
+        });
+    }
+
     document.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        lastTouchX = touchStartX;
+        lastTouchTime = Date.now();
+        velocityX = 0;
         tracking = true;
         swiping = false;
         pageEl.style.transition = 'none';
@@ -209,9 +260,8 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         const dx = e.touches[0].clientX - touchStartX;
         const dy = e.touches[0].clientY - touchStartY;
 
-        // 最初の動きで方向を判定
-        if (!swiping && Math.abs(dx) > 10) {
-            if (Math.abs(dy) > Math.abs(dx)) {
+        if (!swiping && Math.abs(dx) > 8) {
+            if (Math.abs(dy) > Math.abs(dx) * 1.2) {
                 tracking = false;
                 return;
             }
@@ -219,16 +269,20 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         }
         if (!swiping) return;
 
-        // 横スワイプ中は縦スクロールを抑止
         e.preventDefault();
 
-        // 移動先がない方向は抵抗感を出す（1/4の距離）
+        const now = Date.now();
+        const dt = now - lastTouchTime;
+        if (dt > 0) velocityX = (e.touches[0].clientX - lastTouchX) / dt;
+        lastTouchX = e.touches[0].clientX;
+        lastTouchTime = now;
+
         let move = dx;
         if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
-            move = dx * 0.25;
+            move = dx * 0.2;
         }
         pageEl.style.transform = `translateX(${move}px)`;
-        pageEl.style.opacity = Math.max(0.3, 1 - Math.abs(move) / window.innerWidth * 0.7);
+        pageEl.style.opacity = Math.max(0.4, 1 - Math.abs(move) / window.innerWidth * 0.6);
     }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
@@ -236,24 +290,25 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         tracking = false;
 
         const dx = e.changedTouches[0].clientX - touchStartX;
-        const threshold = 80;
-        const shouldNavigate = swiping && Math.abs(dx) > threshold;
+        const isFlick = Math.abs(velocityX) > 0.4;
+        const shouldNavigate = swiping && (Math.abs(dx) > 60 || isFlick);
+
+        const ease = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
         if (shouldNavigate && dx < 0 && hasNext) {
-            // 左スワイプ → 次の巻（画面外へスライドアウト）
-            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
             pageEl.style.transform = `translateX(${-window.innerWidth}px)`;
             pageEl.style.opacity = '0';
-            setTimeout(() => navigateToVolume(withVolNum[currentIndex + 1], seriesName), 200);
+            sessionStorage.setItem('swipeDir', 'next');
+            setTimeout(() => navigateToVolume(withVolNum[currentIndex + 1], seriesName), 250);
         } else if (shouldNavigate && dx > 0 && hasPrev) {
-            // 右スワイプ → 前の巻（画面外へスライドアウト）
-            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
             pageEl.style.transform = `translateX(${window.innerWidth}px)`;
             pageEl.style.opacity = '0';
-            setTimeout(() => navigateToVolume(withVolNum[currentIndex - 1], seriesName), 200);
+            sessionStorage.setItem('swipeDir', 'prev');
+            setTimeout(() => navigateToVolume(withVolNum[currentIndex - 1], seriesName), 250);
         } else {
-            // 閾値未満 → 元に戻す
-            pageEl.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+            pageEl.style.transition = `transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease`;
             pageEl.style.transform = '';
             pageEl.style.opacity = '';
         }
@@ -270,12 +325,48 @@ function navigateToVolume(vol, seriesName) {
     window.location.href = `volume.html?${params.toString()}`;
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const m = dateStr.match(/(\d{4})[年\-\/](\d{1,2})[月\-\/](\d{1,2})/);
+    if (!m) return dateStr;
+    return `${m[1]}/${String(m[2]).padStart(2,'0')}/${String(m[3]).padStart(2,'0')}`;
+}
+
+function renderSeriesList(volumes, currentIndex, seriesName) {
+    const section = document.getElementById('series-list-section');
+    const grid = document.getElementById('series-list-grid');
+    if (!section || !grid) return;
+
+    grid.innerHTML = '';
+    volumes.forEach((vol, i) => {
+        const item = document.createElement('div');
+        item.className = 'volume-item' + (i === currentIndex ? ' current-volume' : '');
+
+        const imageHtml = createImageElement(vol, 280);
+        const volLabel = vol.volNum !== null ? `${vol.volNum}巻` : vol.title;
+
+        item.innerHTML = `
+            ${imageHtml}
+            <div class="volume-info">
+                <div class="volume-number">${volLabel}</div>
+                <div class="volume-date">${formatDate(vol.firstReleaseDate)}</div>
+            </div>
+        `;
+
+        if (i !== currentIndex) {
+            item.addEventListener('click', () => navigateToVolume(vol, seriesName));
+        }
+
+        grid.appendChild(item);
+    });
+
+    section.style.display = 'block';
+}
+
 // ISBNでAPIから取得
 async function fetchVolumeByIsbn(isbn) {
     try {
-        const response = await fetch(`/api/books?isbn=${isbn}`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
+        const data = await cachedFetch(`/api/books?isbn=${isbn}`);
         const adapted = adaptApiResponse(data);
         return adapted.items[0] || null;
     } catch (err) {
@@ -287,9 +378,7 @@ async function fetchVolumeByIsbn(isbn) {
 // タイトルでAPIから取得
 async function fetchVolumeByTitle(title) {
     try {
-        const response = await fetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=1`);
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
+        const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=1`);
         const adapted = adaptApiResponse(data);
         return adapted.items[0] || null;
     } catch (err) {
