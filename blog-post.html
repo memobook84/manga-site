@@ -35,15 +35,14 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
-            <a href="index.html" class="header-logo"><img src="favicon.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <a href="index.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="index.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
                 <a href="blog.html" class="nav-link">Blog</a>
                 <a href="database.html" class="nav-link">DB</a>
-                <a href="ranking.html" class="nav-link">Popular</a>
                 <a href="follow.html" class="nav-link follow-link">Favs</a>
-                <a href="profile.html" class="nav-link profile-link">About Me</a>
+                <button class="nav-menu-btn" id="navMenuBtn"><i class="ph-bold ph-list"></i></button>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
@@ -152,5 +151,6 @@
         navigator.serviceWorker.register('/sw.js');
     }
     </script>
+    <script src="nav-menu.js"></script>
 </body>
 </html>

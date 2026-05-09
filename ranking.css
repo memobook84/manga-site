@@ -82,6 +82,9 @@
     font-family: var(--font-heading);
     line-height: 1.4;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .ranking-top3-author {
@@ -165,6 +168,9 @@
     font-family: var(--font-heading);
     line-height: 1.4;
     margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .ranking-list-author {
@@ -189,65 +195,159 @@
     text-decoration: underline;
 }
 
-/* レスポンシブ */
+/* レスポンシブ - Apple風デザイン */
 @media (max-width: 768px) {
+    /* Top3 - リスト形式 */
     .ranking-top3 {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-bottom: 14px;
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .ranking-top3-item {
+        display: grid;
+        grid-template-columns: 36px 64px 1fr;
+        grid-template-rows: auto auto;
+        column-gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        text-align: left;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        position: relative;
+    }
+
+    .ranking-top3-item + .ranking-top3-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 16px;
+        right: 16px;
+        height: 0.5px;
+        background: rgba(60, 60, 67, 0.12);
+    }
+
+    .ranking-top3-item:hover {
+        background: rgba(0, 0, 0, 0.02);
+        box-shadow: none;
     }
 
     .ranking-top3-number {
-        font-size: 36px;
+        font-size: 22px;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 0;
+        text-align: center;
+        grid-row: 1 / span 2;
+        grid-column: 1;
     }
 
     .ranking-top3-cover {
-        width: 100px;
+        width: 64px;
+        margin: 0;
+        grid-row: 1 / span 2;
+        grid-column: 2;
     }
 
-    .ranking-top3-cover img {
-        width: 100px;
-        height: 140px;
-    }
-
+    .ranking-top3-cover img,
     .ranking-top3-cover .manga-cover-placeholder {
-        width: 100px;
-        height: 140px;
+        width: 64px;
+        height: 90px;
+        border-radius: 6px;
     }
 
     .ranking-top3-title {
-        font-size: 13px;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 2px;
+        grid-row: 1;
+        grid-column: 3;
+        align-self: end;
+        min-width: 0;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        letter-spacing: -0.01em;
     }
 
     .ranking-top3-author {
-        font-size: 12px;
+        font-size: 13px;
+        color: #86868b;
+        grid-row: 2;
+        grid-column: 3;
+        align-self: start;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    }
+
+    /* 4位以降 - 同じデザイン */
+    .ranking-list {
+        background: #ffffff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .ranking-list-item {
-        gap: 12px;
-        padding: 16px 12px;
+        gap: 14px;
+        padding: 14px 16px;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        position: relative;
+    }
+
+    .ranking-list-item + .ranking-list-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 16px;
+        right: 16px;
+        height: 0.5px;
+        background: rgba(60, 60, 67, 0.12);
+    }
+
+    .ranking-list-item:first-child,
+    .ranking-list-item:last-child,
+    .ranking-list-item:first-child:last-child {
+        border-radius: 0;
+        border: none;
+    }
+
+    .ranking-list-item:hover {
+        background: rgba(0, 0, 0, 0.02);
     }
 
     .ranking-list-number {
-        font-size: 32px;
+        font-size: 22px;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        font-weight: 600;
+        color: #1d1d1f;
         min-width: 36px;
     }
 
-    .ranking-list-cover img {
-        width: 80px;
-        height: 112px;
-    }
-
+    .ranking-list-cover img,
     .ranking-list-cover .manga-cover-placeholder {
-        width: 80px;
-        height: 112px;
+        width: 64px;
+        height: 90px;
+        border-radius: 6px;
     }
 
     .ranking-list-title {
         font-size: 15px;
+        font-weight: 600;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        letter-spacing: -0.01em;
     }
 
     .ranking-list-author {
         font-size: 13px;
+        color: #86868b;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
     }
 
     .page-header h1 {

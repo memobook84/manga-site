@@ -102,6 +102,8 @@ body {
 /* 右側：詳細情報 */
 .volume-info-detail {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .volume-title-row {
@@ -209,9 +211,9 @@ body {
 
 .series-list-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    column-gap: 28px;
-    row-gap: 32px;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 40px;
+    row-gap: 36px;
 }
 
 .series-list-grid .volume-info {
@@ -248,7 +250,7 @@ body {
 
 @media (max-width: 1024px) {
     .series-list-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 
@@ -278,9 +280,9 @@ body {
 /* PC用前後ナビアロー */
 .pc-nav-arrows {
     display: flex;
-    gap: 8px;
-    margin-top: 20px;
-    justify-content: flex-start;
+    gap: 6px;
+    margin-top: auto;
+    justify-content: flex-end;
 }
 
 .pc-nav-arrow {
@@ -289,23 +291,22 @@ body {
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--color-border);
-    background: var(--color-card);
-    color: var(--color-text);
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #555;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.15s;
-    font-size: 16px;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 14px;
 }
 
 .pc-nav-arrow:hover:not(:disabled) {
-    background: var(--color-text);
-    color: var(--color-bg, #fff);
-    transform: scale(1.08);
+    background: #e8e8e8;
+    border-color: #bbb;
 }
 
 .pc-nav-arrow:disabled {
-    opacity: 0.25;
+    opacity: 0.35;
     cursor: default;
 }
 

@@ -156,7 +156,7 @@
     font-size: 20px;
     color: var(--color-text);
     margin-bottom: 15px;
-    border-left: 3px solid var(--color-text);
+    border-left: 4px solid #522F90;
     padding-left: 12px;
     font-family: var(--font-heading);
     font-weight: 400;
@@ -237,7 +237,7 @@
     font-size: 22px;
     color: var(--color-text);
     margin-bottom: 30px;
-    border-left: 3px solid var(--color-text);
+    border-left: 4px solid #522F90;
     padding-left: 12px;
     font-family: var(--font-heading);
     font-weight: 400;
@@ -245,9 +245,9 @@
 
 .volumes-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    column-gap: 28px;
-    row-gap: 32px;
+    grid-template-columns: repeat(6, 1fr);
+    column-gap: 40px;
+    row-gap: 24px;
 }
 
 .volume-item {
@@ -255,7 +255,7 @@
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
     background-color: var(--color-card);
-    border-radius: 6px;
+    border-radius: 3px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
@@ -291,7 +291,7 @@
 /* レスポンシブデザイン */
 @media (max-width: 1024px) {
     .volumes-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 

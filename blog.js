@@ -56,7 +56,6 @@
                 // 左ラベル
                 html += '<div class="blog-category-label">' +
                     '<div class="blog-category-label-inner">' +
-                        '<i class="ph-bold ' + icon + '" style="font-size: 20px;"></i>' +
                         '<span class="blog-category-name">' + cat + '</span>' +
                         '<span class="blog-category-count">' + catPosts.length + '件</span>' +
                     '</div>' +
@@ -78,7 +77,7 @@
                     html += '<a href="blog-post.html?id=' + post.id + '" class="blog-card">' +
                         '<div class="blog-card-tag-area">' +
                             '<span class="blog-card-tag">' +
-                                '<i class="ph-bold ' + icon + '"></i> ' + post.category +
+                                post.category +
                             '</span>' +
                         '</div>' +
                         '<div class="blog-card-body">' +

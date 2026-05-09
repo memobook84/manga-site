@@ -13,7 +13,7 @@
 
 /* === CSS Variables === */
 :root {
-    --color-header: #2c2c2c;
+    --color-header: #522F90;
     --color-bg: #FFFFFF;
     --color-card: #FFFFFF;
     --color-text: #2B2B2B;
@@ -149,7 +149,7 @@ body.dark-mode .dark-toggle-knob {
 /* ヘッダー */
 header {
     background-color: var(--color-header);
-    padding: 14px 0;
+    padding: 8px 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-bottom: none;
     position: sticky;
@@ -178,6 +178,12 @@ header.header-hidden {
     header .nav-link::after {
         background: #fff;
     }
+    header .nav-menu-btn {
+        color: #fff;
+    }
+    header .nav-menu-btn:hover {
+        background: rgba(255,255,255,0.15);
+    }
     header .search-box input {
         background-color: #fff;
         color: #2B2B2B;
@@ -189,7 +195,7 @@ header.header-hidden {
 }
 
 .header-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
@@ -294,7 +300,7 @@ header h1 a {
 }
 
 .search-box input {
-    padding: 7px 45px 7px 20px;
+    padding: 3px 45px 3px 20px;
     width: 300px;
     border: 1px solid var(--color-border);
     border-radius: 2px;
@@ -333,7 +339,7 @@ header h1 a {
 
 /* メインレイアウト（サイドバー + コンテンツ） */
 .main-layout {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 32px 20px;
     display: flex;
@@ -344,12 +350,9 @@ header h1 a {
 .sidebar {
     width: 192px;
     flex-shrink: 0;
-    position: sticky;
-    top: 64px;
-    align-self: flex-start;
-    max-height: calc(100vh - 80px);
-    overflow-y: auto;
     padding: 8px 0;
+    border-right: 1px solid rgba(0,0,0,0.1);
+    padding-right: 16px;
 }
 
 .sidebar-nav {
@@ -364,7 +367,6 @@ header h1 a {
 
 .sidebar-section + .sidebar-section {
     padding-top: 8px;
-    border-top: 1px solid var(--color-border);
 }
 
 .sidebar-heading {
@@ -556,9 +558,9 @@ main {
 
 .manga-item h3 {
     padding: 4px 8px 2px 8px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
-    text-align: center;
+    text-align: left;
     color: var(--color-text);
     margin-bottom: 0;
     font-family: var(--font-heading);
@@ -865,14 +867,14 @@ main {
 
 @media (max-width: 768px) {
     header {
-        background-color: #ffffff;
+        background-color: #522F90;
         box-shadow: none;
     }
     header h1, header h1 a {
-        color: #D8052E !important;
+        color: #ffffff !important;
     }
     header .nav-link {
-        color: #333 !important;
+        color: #ffffff !important;
     }
 }
 
@@ -883,11 +885,11 @@ main {
         bottom: 0;
         left: 0;
         right: 0;
-        background: #f0efe8;
-        border-top: none;
+        background: #ffffff;
+        border-top: 1px solid #e5e5e5;
         z-index: 200;
-        padding: 10px 16px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding: 5px 16px;
+        padding-bottom: max(5px, env(safe-area-inset-bottom));
         justify-content: space-around;
         align-items: center;
     }
@@ -909,8 +911,8 @@ main {
     }
 
     .bottom-nav-item.active {
-        background: #d8d5c8;
-        color: #222;
+        background: rgba(82, 47, 144, 0.12);
+        color: #522F90;
     }
 
     /* ボトムナビ分の余白 */
@@ -1010,13 +1012,12 @@ main {
     letter-spacing: 0.02em;
     margin: 0;
     white-space: nowrap;
+    border-left: 4px solid #522F90;
+    padding-left: 12px;
 }
 
 .page-hero p {
-    font-size: 14px;
-    color: var(--color-text-sub);
-    margin: 0;
-    line-height: 1.5;
+    display: none;
 }
 
 @media (max-width: 600px) {
@@ -1031,4 +1032,113 @@ main {
     .page-hero p {
         font-size: 12px;
     }
+}
+
+/* ---- Nav Menu Button & Popup ---- */
+.nav-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: #2B2B2B;
+    font-size: 20px;
+    transition: background 0.2s;
+    line-height: 1;
+}
+.nav-menu-btn:hover {
+    background: rgba(0,0,0,0.06);
+}
+body.dark-mode .nav-menu-btn {
+    color: #e0e0e0;
+}
+body.dark-mode .nav-menu-btn:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+#navMenuOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 9999;
+    align-items: flex-start;
+    justify-content: flex-end;
+}
+#navMenuOverlay.active {
+    display: flex;
+}
+
+#navMenuPopup {
+    background: #fff;
+    width: 280px;
+    min-height: 100vh;
+    padding: 48px 24px 32px;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    position: relative;
+    overflow-y: auto;
+    animation: slideInRight 0.22s ease;
+}
+@keyframes slideInRight {
+    from { transform: translateX(40px); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+}
+
+#navMenuClose {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+    padding: 4px 8px;
+    border-radius: 4px;
+    line-height: 1;
+}
+#navMenuClose:hover {
+    background: rgba(0,0,0,0.06);
+}
+
+.nav-popup-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #999;
+    margin: 20px 0 8px;
+}
+.nav-popup-section-title:first-of-type {
+    margin-top: 0;
+}
+
+.nav-popup-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.nav-popup-list li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    color: #2B2B2B;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+.nav-popup-list li a:hover {
+    background: #f4f4f4;
+    color: #D8052E;
+}
+.nav-popup-list li a i {
+    font-size: 17px;
+    opacity: 0.7;
+}
 }

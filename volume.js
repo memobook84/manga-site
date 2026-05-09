@@ -62,7 +62,10 @@ async function displayVolumeDetail() {
     arrows.forEach(arrow => volumeImageContainer.appendChild(arrow));
     if (buyBtn) volumeImageContainer.appendChild(buyBtn);
 
-    document.getElementById('volume-title').textContent = volume.title;
+    const seriesTitle = extractSeriesName(volume.title) || volume.title;
+    const volNum = extractVolumeNum(volume.title);
+    const formattedTitle = volNum !== null ? `${seriesTitle}（${volNum}）` : seriesTitle;
+    document.getElementById('volume-title').textContent = formattedTitle;
     document.getElementById('volume-number').textContent = volume.volumeLabel || '';
 
     // 著者名をリンクとして設定
