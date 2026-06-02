@@ -63,26 +63,14 @@
 
                 // 右カードグリッド
                 html += '<div class="blog-category-cards">';
-                catPosts.forEach(function(post) {
-                    var descHtml = '';
-                    if (post.bullets && post.bullets.length) {
-                        descHtml = '<ul class="blog-card-bullets">';
-                        post.bullets.forEach(function(b) {
-                            descHtml += '<li>' + b + '</li>';
-                        });
-                        descHtml += '</ul>';
-                    } else {
-                        descHtml = '<p class="blog-card-desc">' + post.description + '</p>';
-                    }
+                catPosts.forEach(function(post, i) {
+                    var num = String(catPosts.length - i).padStart(2, '0');
                     html += '<a href="blog-post.html?id=' + post.id + '" class="blog-card">' +
-                        '<div class="blog-card-tag-area">' +
-                            '<span class="blog-card-tag">' +
-                                post.category +
-                            '</span>' +
-                        '</div>' +
+                        '<div class="blog-card-num">' + num + '</div>' +
+                        '<div class="blog-card-divider"></div>' +
                         '<div class="blog-card-body">' +
+                            '<span class="blog-card-tag">' + post.category + '</span>' +
                             '<h3 class="blog-card-title">' + (post.cardTitle || post.title.replace(/\n/g, '<br>').split('｜')[0]) + '</h3>' +
-                            descHtml +
                         '</div>' +
                     '</a>';
                 });

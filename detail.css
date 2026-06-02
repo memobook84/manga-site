@@ -8,8 +8,8 @@
 
 .detail-container {
     display: flex;
-    gap: 40px;
-    padding: 30px;
+    gap: 48px;
+    padding: 30px 30px 36px;
 }
 
 /* 左側：表紙画像 */
@@ -49,24 +49,22 @@
     flex: 1;
 }
 
-/* タイトルとフォローボタン */
-.title-with-follow {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border);
-}
-
+/* タイトルエリア */
 .detail-title {
     font-size: 30px;
     color: var(--color-text);
-    margin-bottom: 0;
+    margin: 0 0 8px;
     line-height: 1.4;
-    flex: 1;
     font-family: var(--font-heading);
     font-weight: 400;
+}
+
+.detail-author-line {
+    font-size: 15px;
+    color: #888;
+    margin: 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
 }
 
 /* お気に入りボタン */
@@ -76,90 +74,127 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    max-width: 300px;
-    margin: 14px auto 0;
-    padding: 0;
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1.5px solid #522F90;
+    border-radius: 999px;
     cursor: pointer;
-    color: #999;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: var(--font-body);
-    letter-spacing: 0.02em;
-    transition: color 0.2s;
-}
-
-.follow-button .follow-icon {
-    width: 22px;
-    height: 22px;
-    transition: color 0.25s;
+    color: #522F90;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .follow-button:hover {
-    color: #e0245e;
+    background: rgba(82, 47, 144, 0.08);
+    color: #522F90;
 }
 
 .follow-button.followed {
-    color: #e0245e;
+    background: #522F90;
+    color: #fff;
+    border-color: #522F90;
 }
 
 .follow-button.followed:hover {
-    color: #c81e50;
+    background: #3f2470;
+    border-color: #3f2470;
+    color: #fff;
 }
 
-/* メタ情報 */
+/* 横ライン区切り */
+.detail-divider {
+    border: none;
+    border-top: 1px solid #e5e5e5;
+    margin: 0 30px;
+}
+
+body.dark-mode .detail-divider {
+    border-top-color: #333;
+}
+
+/* メタ情報グリッド */
 .detail-meta {
-    margin-bottom: 30px;
-    padding: 10px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin: 24px 30px;
 }
 
 .meta-item {
-    margin-bottom: 12px;
-    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 4px 20px;
+    min-width: 0;
+    border-left: 1px solid var(--color-border, #e5e1dc);
 }
 
-.meta-item:last-child {
-    margin-bottom: 0;
+.meta-item:first-child {
+    border-left: none;
+    padding-left: 0;
 }
 
 .meta-label {
-    font-weight: 500;
-    color: var(--color-text-sub);
-    min-width: 100px;
-    display: inline-block;
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+}
+
+.meta-dots {
+    display: none;
 }
 
 .meta-value {
+    font-size: 16px;
+    font-weight: 400;
     color: var(--color-text);
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+body.dark-mode .meta-item {
+    border-left-color: #333;
 }
 
 .author-link {
-    color: #6cb4ee;
+    color: #2563eb;
     text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s;
+    font-weight: 400;
+    transition: color 0.2s;
 }
 
 .author-link:hover {
-    color: #4a9de0;
+    color: #1e40af;
     text-decoration: underline;
 }
 
 /* ストーリー */
 .detail-description {
     margin-bottom: 30px;
-    padding: 0 30px;
+    padding: 24px 30px 0;
 }
 
 .detail-description h2 {
-    font-size: 20px;
-    color: var(--color-text);
-    margin-bottom: 15px;
-    border-left: 4px solid #522F90;
-    padding-left: 12px;
-    font-family: var(--font-heading);
-    font-weight: 400;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 14px;
+    border: none;
+    padding: 0;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
 }
 
 .detail-description p {
@@ -234,13 +269,14 @@
 }
 
 .volumes-title {
-    font-size: 22px;
-    color: var(--color-text);
-    margin-bottom: 30px;
-    border-left: 4px solid #522F90;
-    padding-left: 12px;
-    font-family: var(--font-heading);
-    font-weight: 400;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: 24px;
+    border: none;
+    padding: 0;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.06em;
 }
 
 .volumes-grid {
@@ -277,7 +313,7 @@
 
 .volume-number {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--color-text);
     margin-bottom: 5px;
     font-family: var(--font-heading);
@@ -316,12 +352,46 @@
         border-radius: 0;
     }
 
+    .follow-button {
+        width: 80%;
+        max-width: 240px;
+        margin: 14px auto 0;
+    }
+
     .detail-title {
         font-size: 24px;
     }
 
+    .detail-meta {
+        grid-template-columns: repeat(2, 1fr);
+        margin: 20px;
+        gap: 16px 0;
+    }
+
+    .meta-item {
+        padding: 4px 16px;
+        border-left: 1px solid var(--color-border, #e5e1dc);
+    }
+
+    .meta-item:first-child {
+        padding-left: 0;
+    }
+
+    .meta-item:nth-child(odd) {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .meta-value {
+        font-size: 15px;
+    }
+
+    .detail-divider {
+        margin: 0 20px;
+    }
+
     .detail-description {
-        padding: 0 20px;
+        padding: 20px 20px 0;
     }
 
     .detail-buttons {
@@ -338,7 +408,22 @@
 }
 
 @media (max-width: 480px) {
+    .volumes-section {
+        padding: 12px 8px;
+    }
+
     .volumes-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: 6px;
+        row-gap: 8px;
+    }
+
+    .volume-info {
+        padding: 0;
+    }
+
+    .volume-number,
+    .volume-date {
+        display: none;
     }
 }

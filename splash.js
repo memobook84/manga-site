@@ -96,7 +96,7 @@
     // --- 雷連射アニメーション ---
     var bolts = [];
     var boltCount = 0;
-    var maxBolts = 1;
+    var maxBolts = 0;
     var spawnDelay = 60;
     var startTime = performance.now();
 

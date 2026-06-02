@@ -109,14 +109,12 @@ async function displayMangaDetail() {
     const coverVol = coverPool[Math.floor(Math.random() * coverPool.length)];
 
     const imageContainer = document.querySelector('.detail-image');
-    const followButtonEl = document.getElementById('follow-button');
+    const followBtn = imageContainer.querySelector('#follow-button');
     imageContainer.innerHTML = createDetailImageElement({
         ...coverVol,
         title: displaySeriesName,
     });
-    if (followButtonEl) {
-        imageContainer.appendChild(followButtonEl);
-    }
+    if (followBtn) imageContainer.appendChild(followBtn);
 
     // フォローボタンの設定
     setupFollowButton({
@@ -168,12 +166,17 @@ function displayVolumesList(volumes) {
 
         const imageHtml = createImageElement(vol, 280);
         const volumeLabel = vol.volumeNum !== null ? `${vol.volumeNum}巻` : vol.title;
+        const formatDate = (d) => {
+            if (!d) return '';
+            const m = d.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+            return m ? `${m[1]}/${parseInt(m[2],10)}/${parseInt(m[3],10)}` : d;
+        };
 
         volumeItem.innerHTML = `
             ${imageHtml}
             <div class="volume-info">
                 <div class="volume-number">${volumeLabel}</div>
-                <div class="volume-date">${vol.firstReleaseDate || ''}</div>
+                <div class="volume-date">${formatDate(vol.firstReleaseDate)}</div>
             </div>
         `;
 

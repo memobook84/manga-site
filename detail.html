@@ -62,46 +62,45 @@
             <div class="detail-image">
                 <img id="manga-image" src="" alt="漫画の表紙">
                 <button id="follow-button" class="follow-button" aria-label="Favorite">
-                    <i class="ph-bold ph-butterfly follow-icon" style="font-size:22px"></i>
+                    <i class="ph-bold ph-heart follow-icon" style="font-size:16px"></i>
                     <span class="follow-button-text">Favorite</span>
                 </button>
             </div>
 
             <!-- 右側：詳細情報 -->
             <div class="detail-info">
-                <div class="title-with-follow">
-                    <h1 id="manga-title" class="detail-title">読み込み中...</h1>
-                </div>
-
-                <div class="detail-meta">
-                    <div class="meta-item">
-                        <span class="meta-label">著者：</span>
-                        <span id="manga-author" class="meta-value">-</span>
-                    </div>
-
-                    <div class="meta-item">
-                        <span class="meta-label">出版社：</span>
-                        <span id="manga-publisher" class="meta-value">-</span>
-                    </div>
-
-                    <div class="meta-item">
-                        <span class="meta-label">レーベル：</span>
-                        <span id="manga-label" class="meta-value">-</span>
-                    </div>
-
-                    <div class="meta-item">
-                        <span class="meta-label">ジャンル：</span>
-                        <span id="manga-genre" class="meta-value">-</span>
-                    </div>
-
-                    <div class="meta-item">
-                        <span class="meta-label">全巻数：</span>
-                        <span id="manga-date" class="meta-value">-</span>
-                    </div>
-                </div>
-
+                <h1 id="manga-title" class="detail-title">読み込み中...</h1>
+                <div class="detail-author-line">by <span id="manga-author">-</span></div>
             </div>
         </div>
+
+        <hr class="detail-divider">
+
+        <!-- メタ情報 -->
+        <div class="detail-meta">
+            <div class="meta-item">
+                <span class="meta-label">出版社</span>
+                <span class="meta-dots"></span>
+                <span id="manga-publisher" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">レーベル</span>
+                <span class="meta-dots"></span>
+                <span id="manga-label" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">ジャンル</span>
+                <span class="meta-dots"></span>
+                <span id="manga-genre" class="meta-value">-</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">全巻数</span>
+                <span class="meta-dots"></span>
+                <span id="manga-date" class="meta-value">-</span>
+            </div>
+        </div>
+
+        <hr class="detail-divider">
 
         <!-- ストーリー -->
         <div class="detail-description">
