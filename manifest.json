@@ -4,8 +4,8 @@
   "description": "Manga collection from Shueisha, Shogakukan, and Kodansha",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#FFFFFF",
+  "background_color": "#522F90",
+  "theme_color": "#522F90",
   "orientation": "any",
   "icons": [
     {

@@ -1,4 +1,22 @@
 (function () {
+  // 現在のページに対応するヘッダーナビにactiveクラスを付与
+  const path = location.pathname.toLowerCase();
+  const file = path.split('/').pop() || 'index.html';
+  document.querySelectorAll('.header-nav .nav-link').forEach((link) => {
+    const href = (link.getAttribute('href') || '').toLowerCase().split('/').pop();
+    if (!href) return;
+    if (href === file || (file === '' && href === 'index.html')) {
+      link.classList.add('active');
+    }
+    // 詳細系ページもDBナビをアクティブに
+    if (href === 'database.html' && /^(detail|volume|author|new-releases|ranking|recommend)\.html$/.test(file)) {
+      link.classList.add('active');
+    }
+    if (href === 'blog.html' && file === 'blog-post.html') {
+      link.classList.add('active');
+    }
+  });
+
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
   overlay.innerHTML = `
@@ -45,4 +63,5 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') close();
   });
+
 })();

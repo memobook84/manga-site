@@ -109,12 +109,35 @@ async function displayMangaDetail() {
     const coverVol = coverPool[Math.floor(Math.random() * coverPool.length)];
 
     const imageContainer = document.querySelector('.detail-image');
-    const followBtn = imageContainer.querySelector('#follow-button');
-    imageContainer.innerHTML = createDetailImageElement({
+    const frame = imageContainer.querySelector('.detail-cover-frame');
+    const badge = imageContainer.querySelector('.detail-image-badge');
+    const imageHtml = createDetailImageElement({
         ...coverVol,
         title: displaySeriesName,
     });
-    if (followBtn) imageContainer.appendChild(followBtn);
+    if (frame) {
+        frame.innerHTML = imageHtml;
+        if (badge) frame.appendChild(badge);
+    }
+
+    // シリーズ別の動画リンク（正規化: 記号・スペースを除去して比較）
+    const normalize = (s) => (s || '').toLowerCase().replace(/[\s　×x*✕✖_\-－―]/g, '');
+    const videoLinks = [
+        { match: 'spyfamily', url: 'https://www.youtube.com/watch?v=U_rWZK_8vUY' },
+        { match: 'スパイファミリー', url: 'https://www.youtube.com/watch?v=U_rWZK_8vUY' },
+    ];
+    if (badge) {
+        const key = normalize(displaySeriesName);
+        const hit = videoLinks.find(v => normalize(v.match) === key);
+        if (hit) {
+            badge.dataset.videoUrl = hit.url;
+            badge.hidden = false;
+            badge.onclick = () => openVideoModal(hit.url);
+        } else {
+            badge.hidden = true;
+            badge.onclick = null;
+        }
+    }
 
     // フォローボタンの設定
     setupFollowButton({
@@ -131,7 +154,10 @@ async function displayMangaDetail() {
     });
 
     // --- 巻一覧を表示 ---
-    displayVolumesList(volumes);
+    const sortedVolumes = displayVolumesList(volumes);
+
+    // カートボタンの設定
+    setupCartButtons(sortedVolumes, displaySeriesName);
 
     // 表紙がない画像をGoogle Books APIでアップグレード
     upgradeCovers();
@@ -189,6 +215,122 @@ function displayVolumesList(volumes) {
 
         volumesGrid.appendChild(volumeItem);
     });
+
+    return withVolNum;
+}
+
+// ISBN-13 → ASIN(ISBN-10) 変換（978始まりのみ）
+function isbn13ToAsin(isbn13) {
+    if (!isbn13) return null;
+    const s = String(isbn13).replace(/[^0-9X]/gi, '');
+    if (s.length === 10) return s;
+    if (s.length !== 13 || !s.startsWith('978')) return null;
+    const core = s.substring(3, 12);
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(core[i], 10) * (10 - i);
+    const check = (11 - (sum % 11)) % 11;
+    return core + (check === 10 ? 'X' : String(check));
+}
+
+// Amazon カート追加URL生成
+function buildAmazonCartUrl(volumes) {
+    const tag = 'atlascomic-22';
+    const params = [`AssociateTag=${tag}`];
+    let idx = 1;
+    for (const v of volumes) {
+        const asin = isbn13ToAsin(v.isbn);
+        if (!asin) continue;
+        params.push(`ASIN.${idx}=${asin}`);
+        params.push(`Quantity.${idx}=1`);
+        idx++;
+        if (idx > 10) break; // Amazonの上限
+    }
+    if (idx === 1) return null;
+    return `https://www.amazon.co.jp/gp/aws/cart/add.html?${params.join('&')}`;
+}
+
+function openAmazonCart(volumes, label) {
+    const url = buildAmazonCartUrl(volumes);
+    if (!url) {
+        alert('カートに入れられる巻が見つかりませんでした。');
+        return;
+    }
+    window.open(url, '_blank', 'noopener');
+}
+
+function setupCartButtons(sortedVolumes, seriesName) {
+    const toggleBtn = document.getElementById('cart-toggle-btn');
+    const actions = document.getElementById('volumes-actions');
+    const allBtn = document.getElementById('cart-all-btn');
+    const rangeBtn = document.getElementById('cart-range-btn');
+
+    if (toggleBtn && actions) {
+        toggleBtn.onclick = () => {
+            const open = actions.hasAttribute('hidden');
+            if (open) {
+                actions.removeAttribute('hidden');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            } else {
+                actions.setAttribute('hidden', '');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+        };
+    }
+    const modal = document.getElementById('range-modal');
+    const closeBtn = document.getElementById('range-modal-close');
+    const fromInput = document.getElementById('range-from');
+    const toInput = document.getElementById('range-to');
+    const submitBtn = document.getElementById('range-submit');
+    const sub = document.getElementById('range-modal-sub');
+
+    const numbered = sortedVolumes.filter(v => v.volumeNum !== null && v.isbn);
+    const minVol = numbered.length ? numbered[0].volumeNum : 1;
+    const maxVol = numbered.length ? numbered[numbered.length - 1].volumeNum : 1;
+
+    if (allBtn) {
+        allBtn.onclick = () => openAmazonCart(sortedVolumes.filter(v => v.isbn), seriesName);
+    }
+
+    if (rangeBtn && modal && fromInput && toInput) {
+        rangeBtn.onclick = () => {
+            fromInput.min = minVol;
+            fromInput.max = maxVol;
+            toInput.min = minVol;
+            toInput.max = maxVol;
+            fromInput.value = minVol;
+            toInput.value = maxVol;
+            if (sub) sub.textContent = `${seriesName}（${minVol}〜${maxVol}巻）`;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+    }
+
+    function closeRangeModal() {
+        if (!modal) return;
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    if (closeBtn) closeBtn.onclick = closeRangeModal;
+    if (modal) modal.onclick = (e) => { if (e.target === modal) closeRangeModal(); };
+
+    if (submitBtn) {
+        submitBtn.onclick = () => {
+            const from = parseInt(fromInput.value, 10);
+            const to = parseInt(toInput.value, 10);
+            if (isNaN(from) || isNaN(to) || from > to) {
+                alert('正しい範囲を入力してください。');
+                return;
+            }
+            const picked = numbered.filter(v => v.volumeNum >= from && v.volumeNum <= to);
+            if (picked.length === 0) {
+                alert('指定範囲に該当する巻がありません。');
+                return;
+            }
+            openAmazonCart(picked, seriesName);
+            closeRangeModal();
+        };
+    }
 }
 
 // フォロー機能
@@ -269,5 +411,45 @@ function updateSEOMeta(info) {
     document.querySelector('meta[name="twitter:image"]').setAttribute('content', image);
 }
 
-// ページ読み込み時に実行
-window.addEventListener('DOMContentLoaded', displayMangaDetail);
+// YouTube動画モーダル
+function extractYouTubeId(url) {
+    if (!url) return '';
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
+    return m ? m[1] : '';
+}
+
+function openVideoModal(url) {
+    const modal = document.getElementById('video-modal');
+    const iframe = document.getElementById('video-modal-iframe');
+    const id = extractYouTubeId(url);
+    if (!modal || !iframe || !id) return;
+    iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('video-modal');
+    const iframe = document.getElementById('video-modal-iframe');
+    if (!modal || !iframe) return;
+    iframe.src = '';
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    displayMangaDetail();
+    const modal = document.getElementById('video-modal');
+    const closeBtn = document.getElementById('video-modal-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeVideoModal);
+    if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeVideoModal(); });
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        closeVideoModal();
+        const rangeModal = document.getElementById('range-modal');
+        if (rangeModal && rangeModal.classList.contains('active')) {
+            rangeModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+});

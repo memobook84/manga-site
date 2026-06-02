@@ -40,14 +40,7 @@ body {
     pointer-events: none;
 }
 
-@media (max-width: 768px) {
-    .swipe-arrow {
-        display: flex;
-    }
-    .swipe-arrow.swipe-hidden {
-        display: none;
-    }
-}
+/* スワイプ矢印はスマホでも非表示（スワイプジェスチャーのみで遷移） */
 
 .swipe-arrow svg {
     display: block;
@@ -283,6 +276,12 @@ body {
     gap: 6px;
     margin-top: auto;
     justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+    .pc-nav-arrows {
+        display: none !important;
+    }
 }
 
 .pc-nav-arrow {

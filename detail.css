@@ -18,6 +18,97 @@
     width: 300px;
 }
 
+.detail-cover-frame {
+    position: relative;
+    width: 100%;
+}
+
+.detail-image-badge {
+    position: absolute;
+    left: calc(100% + 48px);
+    bottom: 0;
+    color: #522F90;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    line-height: 1;
+    z-index: 2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.detail-image-badge:hover {
+    color: #3f2470;
+    transform: scale(1.1);
+}
+
+.detail-image-badge[hidden] {
+    display: none;
+}
+
+/* 動画モーダル */
+.video-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.video-modal-overlay.active {
+    display: flex;
+}
+
+.video-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.video-modal-content iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.video-modal-close {
+    position: absolute;
+    top: -44px;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.video-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 .detail-image img,
 .manga-detail-placeholder {
     width: 300px;
@@ -271,12 +362,221 @@ body.dark-mode .meta-item {
 .volumes-title {
     font-size: 13px;
     color: #333;
-    margin-bottom: 24px;
+    margin: 0;
     border: none;
     padding: 0;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
+}
+
+.volumes-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.volumes-actions-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cart-toggle-btn {
+    border: none;
+    background: transparent;
+    color: #522F90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s, transform 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.cart-toggle-btn:hover {
+    color: #3f2470;
+}
+
+.cart-toggle-btn:active {
+    transform: scale(0.92);
+}
+
+.volumes-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.volumes-actions[hidden] {
+    display: none;
+}
+
+.cart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    line-height: 1;
+    border: 1.5px solid #522F90;
+    background: #522F90;
+    color: #fff;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.cart-btn:hover { background: #3f2470; border-color: #3f2470; }
+.cart-btn:active { transform: scale(0.97); }
+
+.cart-btn-ghost {
+    background: transparent;
+    color: #522F90;
+}
+
+.cart-btn-ghost:hover {
+    background: rgba(82, 47, 144, 0.08);
+    color: #522F90;
+    border-color: #522F90;
+}
+
+/* 巻指定モーダル */
+.range-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.range-modal-overlay.active {
+    display: flex;
+}
+
+.range-modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.range-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    color: #666;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.range-modal-close:hover {
+    background: #f0f0f0;
+}
+
+.range-modal-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.range-modal-sub {
+    margin: 0 0 18px;
+    font-size: 12px;
+    color: #888;
+}
+
+.range-modal-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.range-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.range-field span {
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+.range-field input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #1a1a1a;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.range-field input:focus {
+    outline: none;
+    border-color: #522F90;
+}
+
+.range-sep {
+    padding-bottom: 12px;
+    color: #999;
+    font-size: 14px;
+}
+
+.range-submit {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 13px;
+}
+
+body.dark-mode .range-modal-content {
+    background: #1f1f1f;
+}
+
+body.dark-mode .range-modal-title { color: #f0f0f0; }
+body.dark-mode .range-field input {
+    background: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #f0f0f0;
 }
 
 .volumes-grid {
@@ -339,6 +639,13 @@ body.dark-mode .meta-item {
 
     .detail-image {
         width: 100%;
+    }
+
+    .detail-image-badge {
+        left: auto;
+        right: 8px;
+        bottom: 8px;
+        font-size: 26px;
     }
 
     .detail-image img,
@@ -404,6 +711,16 @@ body.dark-mode .meta-item {
 
     .volumes-section {
         padding: 20px;
+    }
+
+    .volumes-header {
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .cart-btn {
+        padding: 7px 12px;
+        font-size: 11px;
     }
 }
 

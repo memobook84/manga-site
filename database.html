@@ -25,7 +25,7 @@
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
     <script src="manga-data.js"></script>
@@ -56,7 +56,10 @@
     </header>
 
     <section class="page-hero">
-        <h2>DATABASE</h2>
+        <h2 id="sidebar-toggle" class="page-hero-toggle">
+            <span>DATABASE</span>
+            <i class="ph-bold ph-caret-left page-hero-caret" style="font-size:18px"></i>
+        </h2>
         <p>全作品のカタログを出版社・ジャンル別に検索</p>
     </section>
     <!-- メインコンテンツ -->
@@ -183,6 +186,25 @@
         btn.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+    })();
+    </script>
+
+    <script>
+    // サイドバー開閉
+    (function() {
+        var layout = document.querySelector('.main-layout');
+        var btn = document.getElementById('sidebar-toggle');
+        if (!btn || !layout) return;
+        var collapsed = localStorage.getItem('dbSidebarCollapsed') === 'true';
+        if (collapsed) {
+            layout.classList.add('sidebar-collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+        btn.addEventListener('click', function() {
+            var on = layout.classList.toggle('sidebar-collapsed');
+            document.body.classList.toggle('sidebar-collapsed', on);
+            localStorage.setItem('dbSidebarCollapsed', on);
         });
     })();
     </script>

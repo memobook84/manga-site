@@ -24,7 +24,7 @@
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="detail.css">
@@ -32,6 +32,8 @@
     <script src="rakuten-adapter.js"></script>
     <script src="detail.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
     <!-- ヘッダー -->
@@ -60,7 +62,10 @@
         <div class="detail-container">
             <!-- 左側：表紙画像 -->
             <div class="detail-image">
-                <img id="manga-image" src="" alt="漫画の表紙">
+                <div class="detail-cover-frame">
+                    <img id="manga-image" src="" alt="漫画の表紙">
+                    <button type="button" id="detail-image-badge" class="detail-image-badge" aria-label="動画を見る" hidden><i class="bi bi-collection-play-fill"></i></button>
+                </div>
                 <button id="follow-button" class="follow-button" aria-label="Favorite">
                     <i class="ph-bold ph-heart follow-icon" style="font-size:16px"></i>
                     <span class="follow-button-text">Favorite</span>
@@ -70,7 +75,7 @@
             <!-- 右側：詳細情報 -->
             <div class="detail-info">
                 <h1 id="manga-title" class="detail-title">読み込み中...</h1>
-                <div class="detail-author-line">by <span id="manga-author">-</span></div>
+                <div class="detail-author-line"><span id="manga-author">-</span></div>
             </div>
         </div>
 
@@ -110,12 +115,61 @@
 
         <!-- 各巻セクション -->
         <div class="volumes-section">
-            <h2 class="volumes-title">シリーズ一覧</h2>
+            <div class="volumes-header">
+                <h2 class="volumes-title">シリーズ一覧</h2>
+                <div class="volumes-actions-wrap">
+                    <button type="button" id="cart-toggle-btn" class="cart-toggle-btn" aria-label="カートメニューを開く" aria-expanded="false">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </button>
+                    <div class="volumes-actions" id="volumes-actions" hidden>
+                        <button type="button" id="cart-all-btn" class="cart-btn cart-btn-primary">
+                            <i class="ph-bold ph-shopping-cart" style="font-size:14px"></i>
+                            <span>全巻カートに入れる</span>
+                        </button>
+                        <button type="button" id="cart-range-btn" class="cart-btn cart-btn-ghost">
+                            <i class="ph-bold ph-funnel" style="font-size:14px"></i>
+                            <span>巻を指定</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
             <div id="volumes-grid" class="volumes-grid">
                 <!-- JavaScriptで動的に生成 -->
             </div>
         </div>
+
+        <!-- 巻指定モーダル -->
+        <div id="range-modal" class="range-modal-overlay" role="dialog" aria-modal="true" aria-label="巻を指定">
+            <div class="range-modal-content">
+                <button type="button" class="range-modal-close" id="range-modal-close" aria-label="閉じる"><i class="ph-bold ph-x"></i></button>
+                <h3 class="range-modal-title">巻を指定してカートに入れる</h3>
+                <p class="range-modal-sub" id="range-modal-sub"></p>
+                <div class="range-modal-row">
+                    <label class="range-field">
+                        <span>From</span>
+                        <input type="number" id="range-from" min="1" value="1">
+                    </label>
+                    <span class="range-sep">〜</span>
+                    <label class="range-field">
+                        <span>To</span>
+                        <input type="number" id="range-to" min="1" value="1">
+                    </label>
+                </div>
+                <button type="button" id="range-submit" class="cart-btn cart-btn-primary range-submit">
+                    <i class="ph-bold ph-shopping-cart" style="font-size:14px"></i>
+                    <span>この範囲をカートに入れる</span>
+                </button>
+            </div>
+        </div>
     </main>
+
+    <!-- 動画モーダル -->
+    <div id="video-modal" class="video-modal-overlay" role="dialog" aria-modal="true" aria-label="動画プレビュー">
+        <div class="video-modal-content">
+            <button type="button" class="video-modal-close" id="video-modal-close" aria-label="閉じる"><i class="ph-bold ph-x"></i></button>
+            <iframe id="video-modal-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
 
     <!-- サイトフッター -->
     <div class="site-footer">
