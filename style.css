@@ -102,6 +102,7 @@ body {
 
 html {
     overflow-x: hidden;
+    scrollbar-gutter: stable;
 }
 
 /* ページネーション行 */
@@ -284,19 +285,16 @@ header h1 a {
     background: transparent;
 }
 
-/* アクティブ: 左サイドの縦バー */
-.nav-link.active {
-    padding-left: 18px;
+/* アクティブ: 下線（アンダーバー） */
+.nav-link.active::after {
+    left: 14px;
+    width: calc(100% - 28px);
 }
-.nav-link.active::before {
-    content: '';
-    position: absolute;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 2px;
-    height: 60%;
-    background: currentColor;
+
+/* 初回ロード時はnav-linkのトランジションを無効化（active付与時のチラつき防止） */
+body:not(.nav-ready) .nav-link,
+body:not(.nav-ready) .nav-link::after {
+    transition: none !important;
 }
 
 

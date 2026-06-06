@@ -10,6 +10,11 @@
     }
   });
 
+  // activeを当てた後の次フレームでトランジションを解禁（初回チラつき防止）
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => document.body.classList.add('nav-ready'));
+  });
+
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
   overlay.innerHTML = `
