@@ -92,7 +92,7 @@ body.dark-mode .pickup-cover {
 
 .pickup-card {
     background: var(--color-card);
-    border-radius: 8px;
+    border-radius: 2px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.2s, box-shadow 0.2s;
@@ -109,19 +109,62 @@ body.dark-mode .pickup-cover {
 
 .pickup-cover {
     width: 100%;
-    height: 280px;
-    overflow: hidden;
+    height: 300px;
+    overflow: visible;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
+    background: transparent;
+    padding: 26px 36px 38px 28px;
+    perspective: 1400px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+body.dark-mode .pickup-cover {
+    background: transparent;
 }
 
 .pickup-cover img {
-    width: 100%;
-    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
-    object-position: bottom;
+    object-position: center;
+    transform: rotateY(-7deg) rotateX(1deg);
+    transform-origin: center center;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow:
+        /* ページ束（右側の厚み） */
+        1px 0 0 #e8e2d6,
+        2px 0 0 #d6cfc0,
+        3px 0 0 #ece6da,
+        4px 0 0 #d6cfc0,
+        5px 0 0 #ece6da,
+        6px 0 0 #c8c1b1,
+        /* 自然なドロップシャドウ */
+        16px 22px 36px rgba(0, 0, 0, 0.28),
+        6px 8px 14px rgba(0, 0, 0, 0.18),
+        2px 3px 6px rgba(0, 0, 0, 0.12);
+    border-radius: 1px;
+    will-change: transform;
+}
+
+.pickup-card:hover .pickup-cover img {
+    transform: rotateY(-3deg) rotateX(0deg) translateY(-3px);
+}
+
+body.dark-mode .pickup-cover img {
+    box-shadow:
+        1px 0 0 #2a2a2a,
+        2px 0 0 #1c1c1c,
+        3px 0 0 #2a2a2a,
+        4px 0 0 #1c1c1c,
+        5px 0 0 #2a2a2a,
+        6px 0 0 #141414,
+        16px 22px 36px rgba(0, 0, 0, 0.6),
+        6px 8px 14px rgba(0, 0, 0, 0.4);
 }
 
 .pickup-info {
@@ -130,7 +173,7 @@ body.dark-mode .pickup-cover {
 
 .pickup-info h3 {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
     margin-bottom: 6px;
     color: var(--color-text);
     font-family: var(--font-heading);
@@ -147,72 +190,103 @@ body.dark-mode .pickup-cover {
 }
 
 .pickup-badge {
-    display: inline-block;
-    background: #D8052E;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 3px;
-    margin-bottom: 8px;
-    font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: #888;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 10px;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.3em;
+    line-height: 1.3;
+}
+.pickup-badge::before {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: #888;
+    flex-shrink: 0;
+    border-radius: 0;
+}
+body.dark-mode .pickup-badge {
+    color: #777;
+}
+body.dark-mode .pickup-badge::before {
+    background: #777;
 }
 
-/* ===== 管理人コメント ===== */
+/* ===== 管理人コメント（無機質） ===== */
 .admin-comment {
-    margin-top: 10px;
-    padding: 0;
-    background: none;
+    margin-top: 14px;
+    padding: 12px 0 0;
+    background: transparent;
+    border: none;
+    border-top: 1px solid #e5e5e5;
+    border-radius: 0;
+    position: relative;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+}
+
+body.dark-mode .admin-comment {
+    background: transparent;
+    border-top-color: #2a2a2a;
 }
 
 .admin-header {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: 6px;
 }
 
 .admin-icon {
-    width: 20px;
-    height: 20px;
-    background: var(--color-text-sub);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.admin-icon svg {
-    width: 12px;
-    height: 12px;
-    fill: var(--color-card, #fff);
+    display: none;
 }
 
 .admin-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-text-sub);
-    letter-spacing: 0.03em;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    color: #888;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+body.dark-mode .admin-label {
+    color: #777;
 }
 
 .admin-divider {
-    height: 1px;
-    background: var(--color-border, #e0e0e0);
-    margin-bottom: 6px;
+    display: none;
 }
 
 .admin-comment p {
-    font-size: 12px;
-    color: var(--color-text-sub);
-    line-height: 1.7;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-size: 12.5px;
+    color: #555;
+    line-height: 1.6;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    font-style: normal;
+    padding-left: 0;
+    letter-spacing: 0.01em;
+}
+
+body.dark-mode .admin-comment p {
+    color: #aaa;
+}
+
+.admin-comment p::before {
+    content: none;
 }
 
 /* ===== ジャンル別おすすめ ===== */
@@ -567,12 +641,58 @@ body.dark-mode .pickup-cover {
     }
 
     .pickup-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .pickup-card {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
     }
 
     .pickup-cover {
+        flex: 0 0 130px;
+        width: 130px;
         height: 180px;
+        padding: 12px 18px 16px 14px;
+    }
+    .pickup-cover img {
+        box-shadow:
+            1px 0 0 #e8e2d6,
+            2px 0 0 #d6cfc0,
+            3px 0 0 #ece6da,
+            4px 0 0 #c8c1b1,
+            8px 12px 18px rgba(0, 0, 0, 0.22),
+            3px 5px 8px rgba(0, 0, 0, 0.14);
+    }
+
+    .pickup-info {
+        flex: 1 1 auto;
+        padding: 12px 14px 12px 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    .pickup-info h3 {
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .pickup-info p {
+        font-size: 12.5px;
+        -webkit-line-clamp: 2;
+    }
+    .pickup-cover img {
+        box-shadow:
+            1px 0 0 #e8e2d6,
+            2px 0 0 #d6cfc0,
+            3px 0 0 #ece6da,
+            4px 0 0 #c8c1b1,
+            10px 14px 22px rgba(0, 0, 0, 0.22),
+            4px 6px 10px rgba(0, 0, 0, 0.14);
     }
 
     .pickup-info {

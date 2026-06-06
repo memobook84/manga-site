@@ -13,7 +13,7 @@
 
 /* === CSS Variables === */
 :root {
-    --color-header: #522F90;
+    --color-header: #422476;
     --color-bg: #FFFFFF;
     --color-card: #FFFFFF;
     --color-text: #2B2B2B;
@@ -154,7 +154,7 @@ body.dark-mode .dark-toggle-knob {
 /* ヘッダー */
 header {
     background-color: var(--color-header);
-    padding: 8px 0;
+    padding: 14px 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-bottom: none;
     position: sticky;
@@ -169,7 +169,7 @@ header.header-hidden {
 
 @media (min-width: 769px) {
     header {
-        background-color: #522F90;
+        background-color: #4B2C82;
     }
     header h1, header h1 a {
         color: #F7F7F7 !important;
@@ -284,11 +284,21 @@ header h1 a {
     background: transparent;
 }
 
-.nav-link:hover::after,
-.nav-link.active::after {
-    width: 40%;
-    left: 30%;
+/* アクティブ: 左サイドの縦バー */
+.nav-link.active {
+    padding-left: 18px;
 }
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 60%;
+    background: currentColor;
+}
+
 
 .nav-link svg {
     opacity: 0.75;
@@ -307,8 +317,8 @@ header h1 a {
 }
 
 .search-box input {
-    padding: 3px 45px 3px 20px;
-    width: 300px;
+    padding: 3px 40px 3px 16px;
+    width: 220px;
     border: 1px solid var(--color-border);
     border-radius: 2px;
     font-size: 15px;
@@ -369,7 +379,7 @@ header h1 a {
 }
 
 .page-hero-toggle:hover .page-hero-caret {
-    color: #522F90;
+    color: #4B2C82;
 }
 
 body.sidebar-collapsed .page-hero-caret {
@@ -501,6 +511,95 @@ main {
     gap: 40px 24px;
 }
 
+body.page-database .manga-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+body.page-database .manga-item {
+    background-color: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
+}
+
+body.page-database .manga-item:hover {
+    box-shadow: none;
+}
+
+body.dark-mode.page-database .manga-item {
+    box-shadow: none;
+}
+
+body.page-database .manga-item img {
+    height: 280px;
+    filter:
+        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
+        drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18))
+        drop-shadow(0 22px 30px rgba(0, 0, 0, 0.10));
+    transition: filter 0.3s ease, transform 0.3s ease;
+    margin-bottom: 18px;
+}
+
+body.page-database .manga-item:hover img {
+    transform: translateY(-3px);
+    filter:
+        drop-shadow(0 4px 5px rgba(0, 0, 0, 0.10))
+        drop-shadow(0 16px 24px rgba(0, 0, 0, 0.22))
+        drop-shadow(0 28px 36px rgba(0, 0, 0, 0.10));
+}
+
+body.dark-mode.page-database .manga-item img {
+    filter:
+        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35))
+        drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45))
+        drop-shadow(0 22px 30px rgba(0, 0, 0, 0.30));
+}
+
+body.page-database .manga-item h3,
+body.page-database .manga-item .author {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+}
+
+/* スマホ用 データベース調整 */
+@media (max-width: 768px) {
+    body.page-database .manga-item img {
+        object-fit: contain;
+        object-position: bottom;
+        height: auto;
+        aspect-ratio: 2 / 3;
+        margin-bottom: 10px;
+        filter:
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
+            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15))
+            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.08));
+    }
+    body.page-database .manga-item:hover img {
+        transform: none;
+        filter:
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
+            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15))
+            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.08));
+    }
+    body.dark-mode.page-database .manga-item img {
+        filter:
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35))
+            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45))
+            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.25));
+    }
+    body.page-database .manga-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px 14px;
+    }
+    body.page-database .manga-item h3 {
+        font-size: 11px;
+        white-space: normal;
+        text-overflow: clip;
+        line-height: 1.35;
+    }
+}
+
 .manga-item {
     overflow: hidden;
     transition: transform 0.3s, box-shadow 0.3s;
@@ -614,13 +713,15 @@ main {
 
 /* レスポンシブデザイン */
 @media (max-width: 1200px) {
-    .manga-grid {
+    .manga-grid,
+    body.page-database .manga-grid {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
 @media (max-width: 900px) {
-    .manga-grid {
+    .manga-grid,
+    body.page-database .manga-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 
@@ -919,7 +1020,7 @@ main {
 
 @media (max-width: 768px) {
     header {
-        background-color: #522F90;
+        background-color: #4B2C82;
         box-shadow: none;
         position: fixed;
         top: 0;
@@ -990,7 +1091,7 @@ main {
     }
 
     .bottom-nav-item.active {
-        color: #522F90;
+        color: #4B2C82;
     }
 
     .bottom-nav-item.active i {
@@ -1015,7 +1116,7 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #522F90;
+    background: #4B2C82;
     z-index: 10000;
     display: flex;
     flex-direction: column;
@@ -1051,6 +1152,82 @@ main {
     transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
+.splash-title {
+    margin: 0;
+    padding: 0 16px;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    font-size: clamp(40px, 9vw, 110px);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+.splash-title.splash-glitch {
+    position: relative;
+    color: #ffffff;
+    text-shadow: none;
+    animation: splashGlitchJitter 1.6s steps(1) 0.2s forwards;
+}
+
+.splash-title.splash-glitch::before,
+.splash-title.splash-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #ffffff;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.splash-title.splash-glitch::before {
+    color: #ff3b3b;
+    animation: splashGlitchRed 1.6s steps(1) 0.2s forwards;
+}
+
+.splash-title.splash-glitch::after {
+    color: #2bd9ff;
+    animation: splashGlitchCyan 1.6s steps(1) 0.2s forwards;
+}
+
+@keyframes splashGlitchJitter {
+    0%   { transform: translate(0, 0); }
+    8%   { transform: translate(-3px, 1px); }
+    16%  { transform: translate(2px, -2px); }
+    24%  { transform: translate(-1px, 2px); }
+    32%  { transform: translate(3px, 0); }
+    40%  { transform: translate(-2px, -1px); }
+    55%  { transform: translate(1px, 1px); }
+    70%  { transform: translate(0, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+@keyframes splashGlitchRed {
+    0%   { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+    10%  { transform: translate(-6px, 2px); clip-path: inset(15% 0 55% 0); }
+    20%  { transform: translate(-4px, -3px); clip-path: inset(60% 0 10% 0); }
+    30%  { transform: translate(-7px, 1px); clip-path: inset(30% 0 35% 0); }
+    45%  { transform: translate(-3px, 2px); clip-path: inset(5% 0 70% 0); }
+    60%  { transform: translate(-2px, 0); clip-path: inset(0 0 0 0); }
+    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); opacity: 0; }
+}
+
+@keyframes splashGlitchCyan {
+    0%   { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
+    10%  { transform: translate(6px, -2px); clip-path: inset(50% 0 20% 0); }
+    20%  { transform: translate(4px, 3px); clip-path: inset(10% 0 60% 0); }
+    30%  { transform: translate(7px, -1px); clip-path: inset(40% 0 25% 0); }
+    45%  { transform: translate(3px, -2px); clip-path: inset(65% 0 5% 0); }
+    60%  { transform: translate(2px, 0); clip-path: inset(0 0 0 0); }
+    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); opacity: 0; }
+}
+
 .splash-title-img {
     width: min(78vw, 720px);
     height: auto;
@@ -1067,6 +1244,11 @@ main {
     .splash-logo {
         width: 90px;
         height: 90px;
+    }
+
+    .splash-title {
+        font-size: clamp(32px, 9vw, 60px);
+        letter-spacing: 0.03em;
     }
 
     .splash-title-img {
@@ -1093,7 +1275,7 @@ main {
     letter-spacing: 0.02em;
     margin: 0;
     white-space: nowrap;
-    border-left: 4px solid #522F90;
+    border-left: 4px solid #4B2C82;
     padding-left: 12px;
 }
 
@@ -1140,58 +1322,75 @@ body.dark-mode .nav-menu-btn:hover {
     background: rgba(255,255,255,0.08);
 }
 
+/* ===== メニューポップアップ（無機質） ===== */
 #navMenuOverlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0, 0, 0, 0.20);
     z-index: 9999;
     align-items: flex-start;
     justify-content: flex-end;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }
 #navMenuOverlay.active {
     display: flex;
 }
 
 #navMenuPopup {
-    background: #fff;
-    width: 280px;
+    background: #fafafa;
+    color: #111;
+    width: 320px;
+    max-width: 92vw;
     min-height: 100vh;
-    padding: 48px 24px 32px;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+    padding: 56px 28px 40px;
+    border-left: 1px solid #e5e5e5;
+    box-shadow: none;
     position: relative;
     overflow-y: auto;
-    animation: slideInRight 0.22s ease;
+    animation: slideInRight 0.18s linear;
 }
+
 @keyframes slideInRight {
-    from { transform: translateX(40px); opacity: 0; }
+    from { transform: translateX(20px); opacity: 0; }
     to   { transform: translateX(0);    opacity: 1; }
 }
 
 #navMenuClose {
     position: absolute;
     top: 14px;
-    right: 16px;
+    right: 14px;
     background: transparent;
-    border: none;
-    font-size: 20px;
+    border: 1px solid #d4d4d4;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
     cursor: pointer;
-    color: #555;
-    padding: 4px 8px;
-    border-radius: 4px;
+    color: #111;
+    padding: 0;
+    border-radius: 0;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
 }
 #navMenuClose:hover {
-    background: rgba(0,0,0,0.06);
+    background: #111;
+    color: #fafafa;
+    border-color: #111;
 }
 
 .nav-popup-section-title {
-    font-size: 11px;
-    font-weight: 700;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #999;
-    margin: 20px 0 8px;
+    letter-spacing: 0.3em;
+    color: #888;
+    margin: 28px 0 6px;
+    padding-bottom: 6px;
 }
 .nav-popup-section-title:first-of-type {
     margin-top: 0;
@@ -1201,25 +1400,73 @@ body.dark-mode .nav-menu-btn:hover {
     list-style: none;
     margin: 0;
     padding: 0;
+    border-top: 1px solid #e5e5e5;
+}
+.nav-popup-list li {
+    margin: 0;
+    border-bottom: 1px solid #e5e5e5;
 }
 .nav-popup-list li a {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 8px;
-    color: #2B2B2B;
+    gap: 12px;
+    padding: 14px 4px;
+    color: #111;
     text-decoration: none;
-    font-size: 15px;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-size: 13px;
     font-weight: 500;
-    border-radius: 6px;
-    transition: background 0.15s, color 0.15s;
-}
-.nav-popup-list li a:hover {
-    background: #f4f4f4;
-    color: #D8052E;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 0;
+    transition: color 0.15s, padding-left 0.15s;
+    position: relative;
 }
 .nav-popup-list li a i {
-    font-size: 17px;
-    opacity: 0.7;
+    font-size: 14px;
+    color: #888;
+    width: 18px;
+    text-align: center;
+    transition: color 0.15s;
 }
+.nav-popup-list li a:hover {
+    background: transparent;
+    color: #000;
+    padding-left: 8px;
+}
+.nav-popup-list li a:hover i {
+    color: #111;
+}
+
+/* ダークモード */
+body.dark-mode #navMenuPopup {
+    background: #111;
+    color: #e0e0e0;
+    border-left-color: #2a2a2a;
+}
+body.dark-mode #navMenuClose {
+    background: transparent;
+    color: #e0e0e0;
+    border-color: #3a3a3a;
+}
+body.dark-mode #navMenuClose:hover {
+    background: #e0e0e0;
+    color: #111;
+    border-color: #e0e0e0;
+}
+body.dark-mode .nav-popup-section-title {
+    color: #777;
+}
+body.dark-mode .nav-popup-list,
+body.dark-mode .nav-popup-list li {
+    border-color: #2a2a2a;
+}
+body.dark-mode .nav-popup-list li a {
+    color: #e0e0e0;
+}
+body.dark-mode .nav-popup-list li a:hover {
+    color: #fff;
+}
+body.dark-mode .nav-popup-list li a i {
+    color: #777;
 }

@@ -55,7 +55,7 @@
     justify-content: center;
     width: 24px;
     height: 22px;
-    background: #522F90;
+    background: #4B2C82;
     color: #fff;
     font-size: 11px;
     font-weight: 700;
@@ -143,9 +143,9 @@
 }
 
 .fav-action:hover {
-    border-color: #522F90;
-    color: #522F90;
-    background: rgba(82, 47, 144, 0.06);
+    border-color: #4B2C82;
+    color: #4B2C82;
+    background: rgba(75, 44, 130, 0.06);
 }
 
 .fav-action.danger:hover {
@@ -215,7 +215,7 @@
 .browse-button {
     display: inline-block;
     padding: 12px 30px;
-    background-color: #522F90;
+    background-color: #4B2C82;
     color: white;
     text-decoration: none;
     border-radius: 999px;

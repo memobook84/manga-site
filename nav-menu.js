@@ -8,13 +8,6 @@
     if (href === file || (file === '' && href === 'index.html')) {
       link.classList.add('active');
     }
-    // 詳細系ページもDBナビをアクティブに
-    if (href === 'database.html' && /^(detail|volume|author|new-releases|ranking|recommend)\.html$/.test(file)) {
-      link.classList.add('active');
-    }
-    if (href === 'blog.html' && file === 'blog-post.html') {
-      link.classList.add('active');
-    }
   });
 
   const overlay = document.createElement('div');

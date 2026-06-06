@@ -26,6 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="detail.css">
     <script src="manga-data.js"></script>
@@ -44,9 +45,9 @@
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
                 <a href="blog.html" class="nav-link">Blog</a>
-                <a href="database.html" class="nav-link">DB</a>
+                <a href="database.html" class="nav-link">BASE</a>
                 <a href="follow.html" class="nav-link follow-link">Favs</a>
-                <button class="nav-menu-btn" id="navMenuBtn"><i class="ph-bold ph-list"></i></button>
+                <button class="nav-menu-btn" id="navMenuBtn"><i class="ti ti-arrow-down-circle-filled"></i></button>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
@@ -130,6 +131,10 @@
                             <i class="ph-bold ph-funnel" style="font-size:14px"></i>
                             <span>巻を指定</span>
                         </button>
+                        <button type="button" class="cart-btn cart-btn-ghost" disabled>
+                            <i class="ph-bold ph-bookmark-simple" style="font-size:14px"></i>
+                            <span>未購入の巻をカートに入れる</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -147,13 +152,27 @@
                 <div class="range-modal-row">
                     <label class="range-field">
                         <span>From</span>
-                        <input type="number" id="range-from" min="1" value="1">
+                        <input type="number" id="range-from" min="1" value="1" inputmode="numeric">
                     </label>
                     <span class="range-sep">〜</span>
                     <label class="range-field">
                         <span>To</span>
-                        <input type="number" id="range-to" min="1" value="1">
+                        <input type="number" id="range-to" min="1" value="1" inputmode="numeric">
                     </label>
+                </div>
+                <div class="range-keypad" id="range-keypad" aria-label="テンキー">
+                    <button type="button" class="keypad-btn" data-key="1">1</button>
+                    <button type="button" class="keypad-btn" data-key="2">2</button>
+                    <button type="button" class="keypad-btn" data-key="3">3</button>
+                    <button type="button" class="keypad-btn" data-key="4">4</button>
+                    <button type="button" class="keypad-btn" data-key="5">5</button>
+                    <button type="button" class="keypad-btn" data-key="6">6</button>
+                    <button type="button" class="keypad-btn" data-key="7">7</button>
+                    <button type="button" class="keypad-btn" data-key="8">8</button>
+                    <button type="button" class="keypad-btn" data-key="9">9</button>
+                    <button type="button" class="keypad-btn keypad-btn-util" data-key="clear">C</button>
+                    <button type="button" class="keypad-btn" data-key="0">0</button>
+                    <button type="button" class="keypad-btn keypad-btn-util" data-key="back" aria-label="一文字消す"><i class="ph-bold ph-backspace"></i></button>
                 </div>
                 <button type="button" id="range-submit" class="cart-btn cart-btn-primary range-submit">
                     <i class="ph-bold ph-shopping-cart" style="font-size:14px"></i>

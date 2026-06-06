@@ -154,7 +154,7 @@ async function displayMangaDetail() {
     });
 
     // --- 巻一覧を表示 ---
-    const sortedVolumes = displayVolumesList(volumes);
+    const sortedVolumes = displayVolumesList(volumes, displaySeriesName);
 
     // カートボタンの設定
     setupCartButtons(sortedVolumes, displaySeriesName);
@@ -164,7 +164,7 @@ async function displayMangaDetail() {
 }
 
 // 巻一覧を表示（巻数でソート、volume.htmlへリンク）
-function displayVolumesList(volumes) {
+function displayVolumesList(volumes, seriesName) {
     const volumesGrid = document.getElementById('volumes-grid');
     volumesGrid.innerHTML = '';
 
@@ -191,18 +191,13 @@ function displayVolumesList(volumes) {
         volumeItem.className = 'volume-item';
 
         const imageHtml = createImageElement(vol, 280);
-        const volumeLabel = vol.volumeNum !== null ? `${vol.volumeNum}巻` : vol.title;
-        const formatDate = (d) => {
-            if (!d) return '';
-            const m = d.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
-            return m ? `${m[1]}/${parseInt(m[2],10)}/${parseInt(m[3],10)}` : d;
-        };
+        const baseName = seriesName || extractSeriesName(vol.title) || vol.title || '';
+        const volumeLabel = vol.volumeNum !== null ? `${baseName}（${vol.volumeNum}巻）` : (vol.title || baseName);
 
         volumeItem.innerHTML = `
             ${imageHtml}
             <div class="volume-info">
                 <div class="volume-number">${volumeLabel}</div>
-                <div class="volume-date">${formatDate(vol.firstReleaseDate)}</div>
             </div>
         `;
 
@@ -313,6 +308,36 @@ function setupCartButtons(sortedVolumes, seriesName) {
 
     if (closeBtn) closeBtn.onclick = closeRangeModal;
     if (modal) modal.onclick = (e) => { if (e.target === modal) closeRangeModal(); };
+
+    // テンキー
+    const keypad = document.getElementById('range-keypad');
+    let activeInput = fromInput;
+    function setActive(inp) {
+        activeInput = inp;
+        if (fromInput) fromInput.classList.toggle('range-field-active', inp === fromInput);
+        if (toInput) toInput.classList.toggle('range-field-active', inp === toInput);
+    }
+    if (fromInput) fromInput.addEventListener('focus', () => setActive(fromInput));
+    if (toInput) toInput.addEventListener('focus', () => setActive(toInput));
+    setActive(fromInput);
+
+    if (keypad) {
+        keypad.addEventListener('click', (e) => {
+            const btn = e.target.closest('.keypad-btn');
+            if (!btn || !activeInput) return;
+            const key = btn.dataset.key;
+            const cur = activeInput.value || '';
+            if (key === 'clear') {
+                activeInput.value = '';
+            } else if (key === 'back') {
+                activeInput.value = cur.slice(0, -1);
+            } else {
+                const next = (cur === '0' ? '' : cur) + key;
+                activeInput.value = next.slice(0, 4);
+            }
+            activeInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+    }
 
     if (submitBtn) {
         submitBtn.onclick = () => {

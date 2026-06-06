@@ -295,13 +295,14 @@ body {
     background: #f5f5f5;
     color: #555;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     font-size: 14px;
 }
 
 .pc-nav-arrow:hover:not(:disabled) {
-    background: #e8e8e8;
-    border-color: #bbb;
+    background: #422476;
+    border-color: #422476;
+    color: #fff;
 }
 
 .pc-nav-arrow:disabled {

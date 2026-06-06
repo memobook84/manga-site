@@ -117,7 +117,6 @@ async function renderPickup() {
             <a href="detail.html?title=${titleEncoded}" class="pickup-card">
                 <div class="pickup-cover" data-pickup-title="${item.title}"></div>
                 <div class="pickup-info">
-                    <span class="pickup-badge">${item.badge}</span>
                     <h3>${item.title}</h3>
                     <p>${item.comment}</p>
                     <div class="admin-comment">
@@ -134,7 +133,6 @@ async function renderPickup() {
     });
     container.innerHTML = html;
 
-    // 表紙を設定（coverUrlがあればそれを使用、なければAPIから取得）
     for (const item of pickupData) {
         const el = container.querySelector(`.pickup-cover[data-pickup-title="${item.title}"]`);
         if (!el) continue;
