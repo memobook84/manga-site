@@ -3,8 +3,20 @@
 // APIレスポンスのlocalStorageキャッシュ（7日間有効）
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
 
+const CACHE_VERSION = 'v2';
 async function cachedFetch(url) {
-    const key = 'api_cache_' + url;
+    const key = `api_cache_${CACHE_VERSION}_` + url;
+    // 旧バージョンキャッシュの一括削除（初回のみ）
+    if (!sessionStorage.getItem('cache_purged_' + CACHE_VERSION)) {
+        try {
+            Object.keys(localStorage).forEach(k => {
+                if (k.startsWith('api_cache_') && !k.startsWith(`api_cache_${CACHE_VERSION}_`)) {
+                    localStorage.removeItem(k);
+                }
+            });
+            sessionStorage.setItem('cache_purged_' + CACHE_VERSION, '1');
+        } catch(e) {}
+    }
     try {
         const cached = localStorage.getItem(key);
         if (cached) {
@@ -27,7 +39,7 @@ async function cachedFetch(url) {
 }
 
 function clearOldCache() {
-    const keys = Object.keys(localStorage).filter(k => k.startsWith('api_cache_'));
+    const keys = Object.keys(localStorage).filter(k => k.startsWith(`api_cache_${CACHE_VERSION}_`));
     keys.sort((a, b) => {
         try { return JSON.parse(localStorage.getItem(a)).ts - JSON.parse(localStorage.getItem(b)).ts; } catch(e) { return 0; }
     });
@@ -105,6 +117,25 @@ function adaptApiResponse(response) {
   };
 }
 
+// 表示高さから楽天 _ex サイズを決定（retina対応で2倍、刻みを固定）
+function pickRakutenSize(height) {
+  const target = Math.round(height * 2);
+  const steps = [240, 320, 480, 640, 800];
+  for (const s of steps) if (target <= s) return s;
+  return 800;
+}
+
+function withRakutenSize(url, size) {
+  if (!url) return url;
+  if (!/thumbnail\.image\.rakuten\.co\.jp/.test(url)) return url;
+  const base = url.replace(/\?_ex=\d+x\d+/, '');
+  return base + (base.includes('?') ? '&' : '?') + `_ex=${size}x${size}`;
+}
+
+// グローバルカウンタ（ファーストビュー画像判定用）
+let __imgIndex = 0;
+function resetImagePriority() { __imgIndex = 0; }
+
 // 画像表示用のHTML要素を生成（常にimg要素を生成し、Google Books APIでフォールバック）
 function createImageElement(item, height = 320) {
   const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
@@ -112,19 +143,25 @@ function createImageElement(item, height = 320) {
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
   const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
+  const size = pickRakutenSize(height);
+  const sizedUrl = withRakutenSize(item.imageUrl, size);
+  // 先頭6枚は eager + 高優先度、それ以降は lazy
+  const idx = __imgIndex++;
+  const loadAttrs = idx < 6
+    ? `loading="eager" fetchpriority="high" decoding="async"`
+    : `loading="lazy" decoding="async"`;
 
   if (item.imageUrl) {
-    return `<img src="${item.imageUrl}" alt="${item.title}"
+    return `<img src="${sizedUrl}" alt="${item.title}"
               ${dataIsbn} ${needsUpgrade}
               onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
-              loading="lazy">`;
+              ${loadAttrs}>`;
   }
-  // imageUrlがない場合でもISBNがあればGoogle Booksから取得を試みる
   if (isbn) {
     return `<img src="" alt="${item.title}"
               ${dataIsbn} data-needs-upgrade="1"
               onerror="handleImageError(this,'${safeTitle}','${safeAuthor}','${item.color}',${height})"
-              loading="lazy">`;
+              ${loadAttrs}>`;
   }
   return createPlaceholderHtml(item.title, item.author, item.color, height);
 }
@@ -189,20 +226,21 @@ function createDetailImageElement(item) {
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
   const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
   const imgStyle = "width:100%;height:auto;";
+  const sizedUrl = withRakutenSize(item.imageUrl, 800);
 
   if (item.imageUrl) {
-    return `<img src="${item.imageUrl}" alt="${item.title}"
+    return `<img src="${sizedUrl}" alt="${item.title}"
               ${dataIsbn} ${needsUpgrade}
               style="${imgStyle}"
               onerror="handleDetailImageError(this,'${safeTitle}','${item.color}')"
-              loading="lazy">`;
+              loading="eager" fetchpriority="high" decoding="async">`;
   }
   if (isbn) {
     return `<img src="" alt="${item.title}"
               ${dataIsbn} data-needs-upgrade="1"
               style="${imgStyle}"
               onerror="handleDetailImageError(this,'${safeTitle}','${item.color}')"
-              loading="lazy">`;
+              loading="eager" fetchpriority="high" decoding="async">`;
   }
   return `<div class="manga-detail-placeholder" style="background-color: ${item.color};">
             <span class="manga-placeholder-text">${item.title}</span>
@@ -224,7 +262,7 @@ async function handleDetailImageError(img, title, color) {
       return;
     }
     try {
-      const resp = await fetch(`/api/cover?isbn=${isbn}`);
+      const resp = await fetch(`/api/cover?isbn=${isbn}&zoom=0`);
       if (resp.ok) {
         const data = await resp.json();
         if (data.coverUrl) { coverCache[isbn] = data.coverUrl; img.src = data.coverUrl; return; }
@@ -281,9 +319,9 @@ async function upgradeCovers() {
     }
     batch.push(img);
   }
-  // 5件ずつバッチ処理（レート制限対策）
-  for (let i = 0; i < batch.length; i += 5) {
-    const chunk = batch.slice(i, i + 5);
+  // 8件ずつバッチ処理（Google Books は十分高速なので待機なし）
+  for (let i = 0; i < batch.length; i += 8) {
+    const chunk = batch.slice(i, i + 8);
     await Promise.all(chunk.map(async (img) => {
       const isbn = img.dataset.isbn;
       try {
@@ -311,8 +349,46 @@ async function upgradeCovers() {
         coverCache[isbn] = false;
       }
     }));
-    if (i + 5 < batch.length) await new Promise(r => setTimeout(r, 400));
   }
+}
+
+// 共通ページネーションレンダラー（紫テーマ）
+function renderPagination(container, currentPage, totalPages, onChange) {
+  if (!container) return;
+  if (totalPages <= 1) { container.style.display = 'none'; return; }
+  container.style.display = 'flex';
+  const icons = {
+    first: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="6" width="2" height="12"/><path d="M19 6l-7 6 7 6V6z"/></svg>',
+    prev:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6l-7 6 7 6V6z"/></svg>',
+    next:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 6l7 6-7 6V6z"/></svg>',
+    last:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 6l7 6-7 6V6z"/><rect x="17" y="6" width="2" height="12"/></svg>',
+  };
+  const atFirst = currentPage <= 1;
+  const atLast = currentPage >= totalPages;
+  container.innerHTML = `
+    <button class="page-btn" data-action="first" ${atFirst ? 'disabled' : ''} aria-label="最初のページ">${icons.first}</button>
+    <button class="page-btn" data-action="prev"  ${atFirst ? 'disabled' : ''} aria-label="前のページ">${icons.prev}</button>
+    <div class="page-current-pill">
+      <span class="page-current">${currentPage}</span>
+      <span class="page-of">of ${totalPages}</span>
+    </div>
+    <button class="page-btn" data-action="next" ${atLast ? 'disabled' : ''} aria-label="次のページ">${icons.next}</button>
+    <button class="page-btn" data-action="last" ${atLast ? 'disabled' : ''} aria-label="最後のページ">${icons.last}</button>
+  `;
+  container.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.action;
+      let next = currentPage;
+      if (action === 'first') next = 1;
+      else if (action === 'prev') next = currentPage - 1;
+      else if (action === 'next') next = currentPage + 1;
+      else if (action === 'last') next = totalPages;
+      if (next !== currentPage && next >= 1 && next <= totalPages) {
+        onChange(next);
+        window.scrollTo(0, 0);
+      }
+    });
+  });
 }
 
 // ヘッダー：下スクロールで隠れ、上スクロールで再表示

@@ -387,46 +387,10 @@ function fallbackDisplay(keyword = '') {
 // ページネーション更新
 function updatePagination() {
     const container = document.getElementById('pagination');
-    if (!container) return;
-
-    if (totalPages <= 1) {
-        container.style.display = 'none';
-        return;
-    }
-
-    container.style.display = 'flex';
-    container.innerHTML = '';
-
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'page-btn';
-    prevBtn.textContent = '← 前へ';
-    prevBtn.disabled = currentPage <= 1;
-    prevBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            fetchFromApi(currentPage, currentKeyword);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+    renderPagination(container, currentPage, totalPages, (next) => {
+        currentPage = next;
+        fetchFromApi(currentPage, currentKeyword);
     });
-    container.appendChild(prevBtn);
-
-    const pageInfo = document.createElement('span');
-    pageInfo.className = 'page-info';
-    pageInfo.textContent = `${currentPage} / ${totalPages}`;
-    container.appendChild(pageInfo);
-
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'page-btn';
-    nextBtn.textContent = '次へ →';
-    nextBtn.disabled = currentPage >= totalPages;
-    nextBtn.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            fetchFromApi(currentPage, currentKeyword);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    });
-    container.appendChild(nextBtn);
 }
 
 // 検索機能

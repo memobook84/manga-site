@@ -14,7 +14,7 @@ function fetchJson(url) {
 }
 
 module.exports = async function handler(req, res) {
-  const { isbn } = req.query;
+  const { isbn, zoom } = req.query;
 
   if (!isbn) {
     return res.status(400).json({ error: 'isbn parameter is required' });
@@ -26,9 +26,10 @@ module.exports = async function handler(req, res) {
     if (data.items && data.items.length > 0) {
       const vol = data.items[0];
       const links = vol.volumeInfo?.imageLinks || {};
-      // zoom=0で最大サイズ画像を取得
+      // zoom指定: 1=サムネ(デフォルト/軽量)、0=最大
+      const z = (zoom === '0') ? 0 : 1;
       const volumeId = vol.id;
-      const coverUrl = `https://books.google.com/books/content?id=${volumeId}&printsec=frontcover&img=1&zoom=0&source=gbs_api`;
+      const coverUrl = `https://books.google.com/books/content?id=${volumeId}&printsec=frontcover&img=1&zoom=${z}&source=gbs_api`;
 
       res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
       return res.status(200).json({

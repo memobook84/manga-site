@@ -35,16 +35,15 @@ function rakutenFetch(url) {
 function resolveImageUrl(item) {
   const raw = item.largeImageUrl || item.mediumImageUrl || '';
   if (!raw) return { imageUrl: '', hasRealCover: false };
-  const url = raw.replace('http://', 'https://');
-  const sized = url.includes('?_ex=') ? url.replace(/\?_ex=\d+x\d+/, '?_ex=800x800') : url + '?_ex=800x800';
-  // プレースホルダー画像の検出
+  // _ex パラメータを除去し、クライアント側で用途別サイズを付与する
+  const url = raw.replace('http://', 'https://').replace(/\?_ex=\d+x\d+/, '');
   const isPlaceholder =
-    url.includes('noimage') ||                               // noimage系
+    url.includes('noimage') ||
     url.includes('no_image') ||
-    url.includes('/0000/') ||                                // ダミーパス
-    !raw;                                                    // URL自体が空
+    url.includes('/0000/') ||
+    !raw;
   const hasRealCover = !isPlaceholder;
-  return { imageUrl: sized, hasRealCover };
+  return { imageUrl: url, hasRealCover };
 }
 
 function mapItem(item) {
@@ -101,6 +100,7 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: data.errors });
     }
 
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
     res.status(200).json({
       items: (data.Items || []).map(mapItem),
       totalCount: data.count || 0,
