@@ -1,0 +1,187 @@
+/* 全巻一覧ページ専用スタイル — Favorites風の縦リスト */
+
+.series-volumes-main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+}
+
+.sv-hero {
+    padding: 10px 0 20px;
+    border-bottom: 2px solid #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.sv-hero h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #111;
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    line-height: 1.3;
+    margin: 0 0 6px;
+}
+
+.sv-hero p {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    margin: 0;
+}
+
+/* リスト全体 */
+.series-volumes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* 各行 */
+.series-vol-item {
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.series-vol-item:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* 左：カバー画像 */
+.sv-cover {
+    flex: 0 0 130px;
+    padding: 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sv-cover img,
+.sv-cover .manga-placeholder {
+    width: 110px;
+    height: auto;
+    max-height: 165px;
+    object-fit: contain;
+    display: block;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* 右：メタ情報 */
+.sv-meta {
+    flex: 1;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.sv-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 6px;
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.sv-volume {
+    font-size: 13px;
+    font-weight: 700;
+    color: #4B2C82;
+    margin: 0;
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+}
+
+/* 右端：シェブロン */
+.sv-chevron {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    color: #bbb;
+}
+
+/* 読み込み中・エラー表示 */
+.sv-message {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-sub);
+    font-size: 15px;
+}
+
+/* モバイル用 戻るボタン（PCでは非表示） */
+.page-back-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .page-back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 72px;
+        left: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.92);
+        color: #1a1a1a;
+        border: 1px solid var(--color-border, #e5e1dc);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 90;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.15s ease;
+    }
+
+    .page-back-btn:active {
+        transform: scale(0.9);
+    }
+
+    .series-volumes-main {
+        padding: 16px 14px 80px;
+    }
+
+    .sv-hero h2 {
+        font-size: 20px;
+        padding-left: 50px;
+    }
+
+    .sv-hero p {
+        padding-left: 50px;
+    }
+
+    .sv-cover {
+        flex: 0 0 100px;
+        padding: 12px 0;
+    }
+
+    .sv-cover img,
+    .sv-cover .manga-placeholder {
+        width: 86px;
+        max-height: 130px;
+    }
+
+    .sv-meta {
+        padding: 12px 12px;
+    }
+
+    .sv-title {
+        font-size: 15px;
+        margin-bottom: 4px;
+    }
+
+    .sv-volume {
+        font-size: 12px;
+    }
+}

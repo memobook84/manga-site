@@ -23,6 +23,7 @@
 - `ranking.html` / `ranking.js` / `ranking.css` — Popularページ
 - `follow.html` / `follow.js` / `follow.css` — Favoritesページ
 - `recommend.html` / `recommend.js` / `recommend.css` — おすすめ漫画ページ
+- `series-volumes.html` / `series-volumes.js` / `series-volumes.css` — 全巻一覧ページ（作品ページから左スワイプで遷移）
 - `database.html` / `database.js` — Databaseページ
 - `privacy.html` / `about.html` / `legal.css` — 法的ページ
 - `rakuten-adapter.js` — API変換・画像生成・共通関数
@@ -50,4 +51,6 @@
 - ダークモード: ホームページのみ実装、localStorage保持、head内早期適用
 - スプラッシュ: sessionStorage制御で同一セッション内1回のみ表示
 - スワイプナビ: volume.htmlで左右スワイプによる巻移動
+- ページスライド遷移（モバイル）: Database→detail.htmlは右からスライドイン。detail.htmlは左→右スワイプ/左上矢印で戻る、右→左スワイプでseries-volumes.html（全巻一覧）へ。一覧から左→右スワイプで作品ページに戻る。sessionStorageフラグ（detailSlideIn/volumesSlideIn）で入場演出を制御
+- スワイプ戻る（モバイル共通）: swipe-back.js で左→右スワイプ＝戻るを全ページ標準化。組み込み対象外は index.html（トップ）と独自スワイプ持ちの detail/volume/series-volumes
 - ナビ構成: Pickup / Database / Popular / Favorites

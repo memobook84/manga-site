@@ -106,70 +106,17 @@
     if (isOpen()) close();
   }, { passive: true });
 
-  // ===== ボトムナビ：ルーペ風スライドインジケーター =====
+  // ===== ボトムナビ：アクティブアイコンを塗りつぶし表示 =====
   const bottomNav = document.querySelector('.bottom-nav');
   if (bottomNav) {
-    const loupe = document.createElement('span');
-    loupe.className = 'bottom-nav-loupe';
-    bottomNav.prepend(loupe);
+    const activeIcon = bottomNav.querySelector('.bottom-nav-item.active i');
+    if (activeIcon) activeIcon.classList.replace('ph-bold', 'ph-fill');
 
-    function moveLoupe(target, animate) {
-      if (!target) {
-        loupe.classList.remove('visible');
-        return;
-      }
-      const navRect = bottomNav.getBoundingClientRect();
-      const rect = target.getBoundingClientRect();
-      const x = rect.left - navRect.left + rect.width / 2;
-      if (!animate) loupe.classList.add('no-anim');
-      loupe.style.transform = 'translateX(' + x + 'px)';
-      loupe.classList.add('visible');
-      if (!animate) {
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () {
-            loupe.classList.remove('no-anim');
-          });
-        });
-      }
-    }
-
-    // 初期位置（アニメーションなしで現在のactiveへ）
-    moveLoupe(bottomNav.querySelector('.bottom-nav-item.active'), false);
-
-    // タップ → ルーペが滑らかにスライド → 移動完了後にページ遷移
-    bottomNav.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+    // 現在のページのアイテムはタップしても遷移しない
+    bottomNav.querySelectorAll('.bottom-nav-item.active').forEach(function (item) {
       item.addEventListener('click', function (e) {
-        if (item.dataset.page === 'back') return;
-        if (item.classList.contains('active')) {
-          e.preventDefault();
-          return;
-        }
-        const href = item.getAttribute('href');
-        if (!href || href.indexOf('javascript') === 0) return;
         e.preventDefault();
-
-        bottomNav.querySelectorAll('.bottom-nav-item.active').forEach(function (a) {
-          a.classList.remove('active');
-        });
-        item.classList.add('active');
-        moveLoupe(item, true);
-
-        // スライド完了を待ってから遷移（transitionendが来ない場合のフォールバック付き）
-        let navigated = false;
-        function go() {
-          if (navigated) return;
-          navigated = true;
-          window.location.href = href;
-        }
-        loupe.addEventListener('transitionend', function (ev) {
-          if (ev.propertyName === 'transform') go();
-        }, { once: true });
-        setTimeout(go, 500);
       });
-    });
-
-    window.addEventListener('resize', function () {
-      moveLoupe(bottomNav.querySelector('.bottom-nav-item.active'), false);
     });
   }
 

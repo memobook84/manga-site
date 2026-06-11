@@ -1162,48 +1162,14 @@ body.dark-mode .page-of { color: #B89DE8; }
         border: none;
         border-radius: 999px;
         z-index: 200;
-        padding: 8px 14px;
-        gap: 4px;
+        padding: 14px 24px;
+        gap: 18px;
         justify-content: space-around;
         align-items: center;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12),
-                    0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10),
+                    0 2px 8px rgba(0, 0, 0, 0.05);
         width: auto;
         max-width: calc(100% - 32px);
-    }
-
-    /* ルーペ（レンズ）：activeアイテムの背後を滑らかにスライド */
-    .bottom-nav-loupe {
-        position: absolute;
-        left: -24px;
-        top: 50%;
-        width: 48px;
-        height: 48px;
-        margin-top: -24px;
-        border-radius: 50%;
-        /* ガラスレンズ：左上の反射ハイライト＋うっすら紫がかった硝子
-           （backdrop-filterはスクロール時に重いため不使用。グラデーションのみで表現） */
-        background:
-            radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0) 45%),
-            radial-gradient(circle at 72% 80%, rgba(75, 44, 130, 0.14) 0%, rgba(75, 44, 130, 0) 55%),
-            linear-gradient(135deg, rgba(255, 255, 255, 0.50) 0%, rgba(233, 226, 247, 0.30) 100%);
-        border: 1.5px solid rgba(75, 44, 130, 0.30);
-        box-shadow:
-            0 4px 12px rgba(0, 0, 0, 0.14),
-            inset 0 0 0 2px rgba(255, 255, 255, 0.55),
-            inset 0 -5px 8px rgba(75, 44, 130, 0.10);
-        opacity: 0;
-        transform: translateX(0);
-        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-                    opacity 0.25s ease;
-        pointer-events: none;
-        z-index: 0;
-    }
-    .bottom-nav-loupe.visible {
-        opacity: 1;
-    }
-    .bottom-nav-loupe.no-anim {
-        transition: none;
     }
 
     .bottom-nav-item {
@@ -1212,17 +1178,12 @@ body.dark-mode .page-of { color: #B89DE8; }
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: #bdbdbd;
-        width: 52px;
-        height: 44px;
-        border-radius: 999px;
+        color: #a3a3a3;
+        width: 44px;
+        height: 36px;
         background: transparent;
-        transition: color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        transition: color 0.2s ease, transform 0.2s ease;
         -webkit-tap-highlight-color: transparent;
-        will-change: color, transform;
-        position: relative;
-        z-index: 1;
     }
 
     .bottom-nav-item span {
@@ -1230,21 +1191,16 @@ body.dark-mode .page-of { color: #B89DE8; }
     }
 
     .bottom-nav-item i {
-        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-                    color 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        font-size: 25px !important;
     }
 
     .bottom-nav-item:active {
-        transform: scale(0.9);
+        transform: scale(0.88);
     }
 
-    /* レンズ越しのアイコンは紫で拡大表示 */
+    /* アクティブは黒の塗りつぶしアイコン */
     .bottom-nav-item.active {
-        color: #4B2C82;
-    }
-
-    .bottom-nav-item.active i {
-        transform: scale(1.28);
+        color: #111;
     }
 
     /* ボトムナビ分の余白 */

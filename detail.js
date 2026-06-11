@@ -462,8 +462,163 @@ function closeVideoModal() {
     document.body.style.overflow = '';
 }
 
+// ===== モバイル: ページスライド遷移 =====
+// Database等から来たときは右からスライドイン、
+// 左上の矢印ボタン or 左→右スワイプで右へスライドアウトして戻る
+// 右→左スワイプで全巻一覧ページ（series-volumes.html）へ進む
+function setupSlideNavigation() {
+    const pageEl = document.querySelector('.detail-main');
+    if (!pageEl) return;
+
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const ease = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+    // bfcache復帰時（全巻一覧から戻ってきた時など）にスタイルをリセット
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) {
+            leaving = false;
+            pageEl.style.transition = 'none';
+            pageEl.style.transform = '';
+            pageEl.style.opacity = '';
+        }
+    });
+
+    // 入場アニメーション（右からスライドイン）
+    // どのページから作品をクリックしても発動。戻る/進む・リロードでは発動しない
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    const isFreshNav = navEntry ? navEntry.type === 'navigate' : true;
+    const hasFlag = !!sessionStorage.getItem('detailSlideIn');
+    sessionStorage.removeItem('detailSlideIn');
+    if (isMobile && (hasFlag || isFreshNav)) {
+        pageEl.style.transition = 'none';
+        pageEl.style.transform = `translateX(${window.innerWidth}px)`;
+        pageEl.style.opacity = '0';
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                pageEl.style.transition = `transform 0.42s ${ease}, opacity 0.42s ease`;
+                pageEl.style.transform = '';
+                pageEl.style.opacity = '';
+            });
+        });
+    }
+
+    // 退場アニメーション（右へスライドアウトして戻る）
+    let leaving = false;
+    function slideBack() {
+        if (leaving) return;
+        leaving = true;
+        pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
+        pageEl.style.transform = `translateX(${window.innerWidth}px)`;
+        pageEl.style.opacity = '0';
+        setTimeout(() => {
+            if (history.length > 1) {
+                history.back();
+            } else {
+                window.location.href = 'database.html';
+            }
+        }, 250);
+    }
+
+    // 進むアニメーション（左へスライドアウトして全巻一覧へ）
+    function slideForward() {
+        if (leaving) return;
+        const { title } = getDetailParams();
+        if (!title) return;
+        leaving = true;
+        pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
+        pageEl.style.transform = `translateX(${-window.innerWidth}px)`;
+        pageEl.style.opacity = '0';
+        sessionStorage.setItem('volumesSlideIn', '1');
+        setTimeout(() => {
+            window.location.href = `series-volumes.html?title=${encodeURIComponent(title)}`;
+        }, 250);
+    }
+
+    const backBtn = document.getElementById('page-back-btn');
+    if (backBtn) backBtn.addEventListener('click', slideBack);
+
+    const forwardBtn = document.getElementById('page-forward-btn');
+    if (forwardBtn) forwardBtn.addEventListener('click', slideForward);
+
+    if (!isMobile) return;
+
+    // 左→右スワイプで戻る
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let tracking = false;
+    let swiping = false;
+    let lastTouchX = 0;
+    let lastTouchTime = 0;
+    let velocityX = 0;
+
+    function isModalOpen() {
+        return document.querySelector('.range-modal-overlay.active, .video-modal-overlay.active');
+    }
+
+    document.addEventListener('touchstart', (e) => {
+        if (isModalOpen() || leaving) { tracking = false; return; }
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        lastTouchX = touchStartX;
+        lastTouchTime = Date.now();
+        velocityX = 0;
+        tracking = true;
+        swiping = false;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!tracking || leaving) return;
+        const dx = e.touches[0].clientX - touchStartX;
+        const dy = e.touches[0].clientY - touchStartY;
+
+        if (!swiping) {
+            if (Math.abs(dx) <= 8) return;
+            // 縦スクロール優勢はスワイプ対象外
+            if (Math.abs(dy) > Math.abs(dx) * 1.2) {
+                tracking = false;
+                return;
+            }
+            swiping = true;
+            pageEl.style.transition = 'none';
+        }
+
+        const now = Date.now();
+        if (now - lastTouchTime > 0) {
+            velocityX = (e.touches[0].clientX - lastTouchX) / (now - lastTouchTime);
+        }
+        lastTouchX = e.touches[0].clientX;
+        lastTouchTime = now;
+
+        pageEl.style.transform = `translateX(${dx}px)`;
+        pageEl.style.opacity = Math.max(0.4, 1 - Math.abs(dx) / window.innerWidth * 0.6);
+        if (e.cancelable) e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (!tracking || leaving) return;
+        tracking = false;
+        if (!swiping) return;
+
+        const dx = e.changedTouches[0].clientX - touchStartX;
+
+        if (dx > 60 || velocityX > 0.4) {
+            // 左→右: 戻る
+            slideBack();
+        } else if (dx < -60 || velocityX < -0.4) {
+            // 右→左: 全巻一覧へ進む
+            slideForward();
+        } else {
+            // 閾値未満なら元の位置に戻す
+            pageEl.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease';
+            pageEl.style.transform = '';
+            pageEl.style.opacity = '';
+        }
+    }, { passive: true });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     displayMangaDetail();
+    setupSlideNavigation();
     const modal = document.getElementById('video-modal');
     const closeBtn = document.getElementById('video-modal-close');
     if (closeBtn) closeBtn.addEventListener('click', closeVideoModal);

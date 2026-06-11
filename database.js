@@ -27,6 +27,14 @@ function showSkeleton(count = 60) {
     }
 }
 
+// 詳細ページへ遷移（モバイルはスライドイン演出付き）
+function goToDetail(seriesTitle) {
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        sessionStorage.setItem('detailSlideIn', '1');
+    }
+    window.location.href = `detail.html?title=${encodeURIComponent(seriesTitle)}`;
+}
+
 // 掲載対象の出版社
 const ALLOWED_PUBLISHERS = ['集英社', '小学館', '講談社'];
 
@@ -152,7 +160,7 @@ function createRankingSection(rankingItems, startRank, title) {
         el.addEventListener('click', () => {
             const item = rankingItems[i];
             const seriesTitle = item.displayTitle || item.title;
-            window.location.href = `detail.html?title=${encodeURIComponent(seriesTitle)}`;
+            goToDetail(seriesTitle);
         });
     });
 
@@ -190,7 +198,7 @@ function displayMangaItems(items) {
 
         mangaItem.addEventListener('click', () => {
             const seriesTitle = item.displayTitle || item.title;
-            window.location.href = `detail.html?title=${encodeURIComponent(seriesTitle)}`;
+            goToDetail(seriesTitle);
         });
 
         gridContainer.appendChild(mangaItem);
