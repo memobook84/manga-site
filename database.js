@@ -184,7 +184,7 @@ function displayMangaItems(items) {
         const imageHtml = createImageElement(item);
 
         mangaItem.innerHTML = `
-            ${imageHtml}
+            <div class="db-cover-frame">${imageHtml}</div>
             <h3>${item.displayTitle || item.title}</h3>
         `;
 

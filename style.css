@@ -285,6 +285,31 @@ header h1 a {
     background: transparent;
 }
 
+/* ホバーで英語→日本語にロール切替 */
+.nav-link .nav-roll {
+    display: grid;
+    overflow: hidden;
+    line-height: 1.5;
+}
+.nav-link .nav-roll > span {
+    grid-area: 1 / 1;
+    justify-self: center;
+    align-self: center;
+    white-space: nowrap;
+    transition: transform 0.2s cubic-bezier(0.33, 0, 0.2, 1);
+}
+.nav-link .nav-roll-ja {
+    transform: translateY(120%);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+}
+.nav-link:hover .nav-roll-en {
+    transform: translateY(-120%);
+}
+.nav-link:hover .nav-roll-ja {
+    transform: translateY(0);
+}
+
 /* アクティブ: 下線（アンダーバー） */
 .nav-link.active::after {
     left: 14px;
@@ -528,29 +553,81 @@ body.dark-mode.page-database .manga-item {
     box-shadow: none;
 }
 
-body.page-database .manga-item img {
-    height: 280px;
-    filter:
-        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
-        drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18))
-        drop-shadow(0 22px 30px rgba(0, 0, 0, 0.10));
-    transition: filter 0.3s ease, transform 0.3s ease;
+/* ハードカバー質感フレーム（detail.cssの.detail-cover-frameと同じ表現） */
+body.page-database .db-cover-frame {
+    position: relative;
+    align-self: center;
+    max-width: 100%;
+    margin-top: auto;
     margin-bottom: 18px;
+    border-radius: 5px 2px 2px 5px;
+    box-shadow:
+        0 10px 22px rgba(0, 0, 0, 0.26),
+        0 2px 5px rgba(0, 0, 0, 0.16);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-body.page-database .manga-item:hover img {
+body.page-database .db-cover-frame img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: 280px;
+    max-width: 100%;
+    border-radius: inherit;
+}
+
+/* 背表紙側の溝（右綴じなので右側） */
+body.page-database .db-cover-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(270deg,
+        rgba(0, 0, 0, 0.32) 0px,
+        rgba(0, 0, 0, 0.10) 3px,
+        rgba(255, 255, 255, 0.28) 5px,
+        rgba(255, 255, 255, 0.08) 8px,
+        rgba(0, 0, 0, 0.06) 10px,
+        transparent 13px);
+}
+
+/* カバー表面の光沢 */
+body.page-database .db-cover-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(240deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.04) 30%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.06) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.28),
+        inset 1px 0 0 rgba(0, 0, 0, 0.16),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.20);
+}
+
+body.page-database .db-cover-frame .manga-cover-placeholder {
+    width: 187px;
+    border-radius: inherit;
+}
+
+body.page-database .manga-item:hover .db-cover-frame {
     transform: translateY(-3px);
-    filter:
-        drop-shadow(0 4px 5px rgba(0, 0, 0, 0.10))
-        drop-shadow(0 16px 24px rgba(0, 0, 0, 0.22))
-        drop-shadow(0 28px 36px rgba(0, 0, 0, 0.10));
+    box-shadow:
+        0 16px 30px rgba(0, 0, 0, 0.30),
+        0 4px 8px rgba(0, 0, 0, 0.16);
 }
 
-body.dark-mode.page-database .manga-item img {
-    filter:
-        drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35))
-        drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45))
-        drop-shadow(0 22px 30px rgba(0, 0, 0, 0.30));
+body.dark-mode.page-database .db-cover-frame {
+    box-shadow:
+        0 10px 22px rgba(0, 0, 0, 0.50),
+        0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
 body.page-database .manga-item h3,
@@ -562,29 +639,31 @@ body.page-database .manga-item .author {
 
 /* スマホ用 データベース調整 */
 @media (max-width: 768px) {
-    body.page-database .manga-item img {
-        object-fit: contain;
-        object-position: bottom;
-        height: auto;
-        aspect-ratio: 2 / 3;
+    body.page-database .db-cover-frame {
         margin-bottom: 10px;
-        filter:
-            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
-            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15))
-            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.08));
+        border-radius: 4px 1px 1px 4px;
+        box-shadow:
+            0 5px 12px rgba(0, 0, 0, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.14);
     }
-    body.page-database .manga-item:hover img {
+    body.page-database .db-cover-frame img {
+        height: auto;
+        max-width: 100%;
+    }
+    body.page-database .db-cover-frame .manga-cover-placeholder {
+        width: 100px;
+        height: 150px !important; /* インラインのheight指定を上書き */
+    }
+    body.page-database .manga-item:hover .db-cover-frame {
         transform: none;
-        filter:
-            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.10))
-            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15))
-            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.08));
+        box-shadow:
+            0 5px 12px rgba(0, 0, 0, 0.22),
+            0 1px 3px rgba(0, 0, 0, 0.14);
     }
-    body.dark-mode.page-database .manga-item img {
-        filter:
-            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35))
-            drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45))
-            drop-shadow(0 12px 16px rgba(0, 0, 0, 0.25));
+    body.dark-mode.page-database .db-cover-frame {
+        box-shadow:
+            0 5px 12px rgba(0, 0, 0, 0.45),
+            0 1px 3px rgba(0, 0, 0, 0.30);
     }
     body.page-database .manga-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1093,6 +1172,34 @@ body.dark-mode .page-of { color: #B89DE8; }
         max-width: calc(100% - 32px);
     }
 
+    /* ルーペ（レンズ）：activeアイテムの背後を滑らかにスライド */
+    .bottom-nav-loupe {
+        position: absolute;
+        left: -24px;
+        top: 50%;
+        width: 48px;
+        height: 48px;
+        margin-top: -24px;
+        border-radius: 50%;
+        background: #4B2C82;
+        box-shadow:
+            0 6px 16px rgba(75, 44, 130, 0.40),
+            inset 0 1px 0 rgba(255, 255, 255, 0.22),
+            inset 0 -2px 4px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+        transform: translateX(0);
+        transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                    opacity 0.25s ease;
+        pointer-events: none;
+        z-index: 0;
+    }
+    .bottom-nav-loupe.visible {
+        opacity: 1;
+    }
+    .bottom-nav-loupe.no-anim {
+        transition: none;
+    }
+
     .bottom-nav-item {
         display: flex;
         flex-direction: column;
@@ -1108,6 +1215,8 @@ body.dark-mode .page-of { color: #B89DE8; }
                     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
         -webkit-tap-highlight-color: transparent;
         will-change: color, transform;
+        position: relative;
+        z-index: 1;
     }
 
     .bottom-nav-item span {
@@ -1123,12 +1232,13 @@ body.dark-mode .page-of { color: #B89DE8; }
         transform: scale(0.9);
     }
 
+    /* ルーペに乗ったアイコンは白く・拡大（レンズ越しの見え方） */
     .bottom-nav-item.active {
-        color: #4B2C82;
+        color: #fff;
     }
 
     .bottom-nav-item.active i {
-        transform: scale(1.18);
+        transform: scale(1.28);
     }
 
     /* ボトムナビ分の余白 */
@@ -1348,6 +1458,27 @@ body.dark-mode .page-of { color: #B89DE8; }
 .nav-menu-btn:hover {
     background: rgba(0,0,0,0.06);
 }
+.nav-menu-btn .nav-caret {
+    width: 0.7em;
+    height: 1em;
+    fill: currentColor;
+    display: block;
+    transition: transform 0.18s ease;
+}
+.nav-menu-btn.open {
+    background: rgba(0, 0, 0, 0.06);
+}
+.nav-menu-btn.open .nav-caret {
+    transform: rotate(180deg);
+}
+@media (min-width: 769px) {
+    header .nav-menu-btn.open {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}
+body.dark-mode .nav-menu-btn.open {
+    background: rgba(255, 255, 255, 0.08);
+}
 body.dark-mode .nav-menu-btn {
     color: #e0e0e0;
 }
@@ -1355,42 +1486,44 @@ body.dark-mode .nav-menu-btn:hover {
     background: rgba(255,255,255,0.08);
 }
 
-/* ===== メニューポップアップ（無機質） ===== */
+/* ===== メニュードロップダウン（アイコン下） ===== */
 #navMenuOverlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.20);
+    background: transparent;
     z-index: 9999;
-    align-items: flex-start;
-    justify-content: flex-end;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
 }
 #navMenuOverlay.active {
-    display: flex;
+    display: block;
 }
 
 #navMenuPopup {
-    background: #fafafa;
-    color: #111;
-    width: 320px;
+    position: fixed;
+    top: 56px;
+    right: 16px;
+    background: #4B2C82;
+    color: #fff;
+    width: 280px;
     max-width: 92vw;
-    min-height: 100vh;
-    padding: 56px 28px 40px;
-    border-left: 1px solid #e5e5e5;
-    box-shadow: none;
-    position: relative;
+    max-height: calc(100vh - 80px);
+    padding: 6px 0 10px;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30);
     overflow-y: auto;
-    animation: slideInRight 0.18s linear;
+    overflow-x: hidden;
+    transform-origin: top right;
+    animation: navDropDown 0.14s ease-out;
 }
 
-@keyframes slideInRight {
-    from { transform: translateX(20px); opacity: 0; }
-    to   { transform: translateX(0);    opacity: 1; }
+@keyframes navDropDown {
+    from { transform: translateY(-6px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
 }
 
 #navMenuClose {
+    display: none;
     position: absolute;
     top: 14px;
     right: 14px;
@@ -1417,89 +1550,44 @@ body.dark-mode .nav-menu-btn:hover {
 
 .nav-popup-section-title {
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.3em;
-    color: #888;
-    margin: 28px 0 6px;
-    padding-bottom: 6px;
+    letter-spacing: 0.4em;
+    color: rgba(255, 255, 255, 0.40);
+    margin: 20px 20px 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 .nav-popup-section-title:first-of-type {
-    margin-top: 0;
+    margin-top: 14px;
 }
 
 .nav-popup-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    border-top: 1px solid #e5e5e5;
 }
 .nav-popup-list li {
     margin: 0;
-    border-bottom: 1px solid #e5e5e5;
 }
 .nav-popup-list li a {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 4px;
-    color: #111;
+    align-items: baseline;
+    padding: 9px 20px;
+    color: #fff;
     text-decoration: none;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
     font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     border-radius: 0;
-    transition: color 0.15s, padding-left 0.15s;
-    position: relative;
-}
-.nav-popup-list li a i {
-    font-size: 14px;
-    color: #888;
-    width: 18px;
-    text-align: center;
-    transition: color 0.15s;
+    transition: background 0.1s, color 0.1s;
 }
 .nav-popup-list li a:hover {
-    background: transparent;
-    color: #000;
-    padding-left: 8px;
-}
-.nav-popup-list li a:hover i {
-    color: #111;
+    background: #fff;
+    color: #4B2C82;
 }
 
-/* ダークモード */
-body.dark-mode #navMenuPopup {
-    background: #111;
-    color: #e0e0e0;
-    border-left-color: #2a2a2a;
-}
-body.dark-mode #navMenuClose {
-    background: transparent;
-    color: #e0e0e0;
-    border-color: #3a3a3a;
-}
-body.dark-mode #navMenuClose:hover {
-    background: #e0e0e0;
-    color: #111;
-    border-color: #e0e0e0;
-}
-body.dark-mode .nav-popup-section-title {
-    color: #777;
-}
-body.dark-mode .nav-popup-list,
-body.dark-mode .nav-popup-list li {
-    border-color: #2a2a2a;
-}
-body.dark-mode .nav-popup-list li a {
-    color: #e0e0e0;
-}
-body.dark-mode .nav-popup-list li a:hover {
-    color: #fff;
-}
-body.dark-mode .nav-popup-list li a i {
-    color: #777;
-}
+/* ダークモードでもメニューはテーマカラー（紫）で統一 */
