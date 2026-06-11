@@ -1181,11 +1181,18 @@ body.dark-mode .page-of { color: #B89DE8; }
         height: 48px;
         margin-top: -24px;
         border-radius: 50%;
-        background: #4B2C82;
+        /* ガラスレンズ：左上の反射ハイライト＋うっすら紫がかった硝子 */
+        background:
+            radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.30) 20%, rgba(255, 255, 255, 0) 42%),
+            radial-gradient(circle at 72% 80%, rgba(75, 44, 130, 0.12) 0%, rgba(75, 44, 130, 0) 55%),
+            rgba(120, 90, 180, 0.10);
+        -webkit-backdrop-filter: blur(1.5px) saturate(1.3) brightness(1.05);
+        backdrop-filter: blur(1.5px) saturate(1.3) brightness(1.05);
+        border: 1.5px solid rgba(75, 44, 130, 0.30);
         box-shadow:
-            0 6px 16px rgba(75, 44, 130, 0.40),
-            inset 0 1px 0 rgba(255, 255, 255, 0.22),
-            inset 0 -2px 4px rgba(0, 0, 0, 0.18);
+            0 4px 12px rgba(0, 0, 0, 0.14),
+            inset 0 0 0 2px rgba(255, 255, 255, 0.55),
+            inset 0 -5px 8px rgba(75, 44, 130, 0.10);
         opacity: 0;
         transform: translateX(0);
         transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
@@ -1232,9 +1239,9 @@ body.dark-mode .page-of { color: #B89DE8; }
         transform: scale(0.9);
     }
 
-    /* ルーペに乗ったアイコンは白く・拡大（レンズ越しの見え方） */
+    /* レンズ越しのアイコンは紫で拡大表示 */
     .bottom-nav-item.active {
-        color: #fff;
+        color: #4B2C82;
     }
 
     .bottom-nav-item.active i {
