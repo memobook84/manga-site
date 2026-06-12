@@ -384,7 +384,7 @@ function setupQuickViewSwipe(overlay) {
         const hasNext = qvState.index < qvState.volumes.length - 1;
         const hasPrev = qvState.index > 0;
         let move = dx;
-        if ((dx > 0 && !hasNext) || (dx < 0 && !hasPrev)) {
+        if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
             move = dx * 0.25;
         }
         content.style.transform = `translateX(${move}px)`;
@@ -401,12 +401,12 @@ function setupQuickViewSwipe(overlay) {
         const dx = e.changedTouches[0].clientX - startX;
         const hasNext = qvState.index < qvState.volumes.length - 1;
         const hasPrev = qvState.index > 0;
-        const goNext = wasSwiping && dx > 60 && hasNext;
-        const goPrev = wasSwiping && dx < -60 && hasPrev;
+        const goNext = wasSwiping && dx < -60 && hasNext;
+        const goPrev = wasSwiping && dx > 60 && hasPrev;
 
         if (goNext || goPrev) {
             animating = true;
-            const outX = goNext ? window.innerWidth * 0.55 : -window.innerWidth * 0.55;
+            const outX = goNext ? -window.innerWidth * 0.55 : window.innerWidth * 0.55;
             content.style.transition = 'transform 0.18s ease-in, opacity 0.18s ease-in';
             content.style.transform = `translateX(${outX}px)`;
             content.style.opacity = '0';
