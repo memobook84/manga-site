@@ -352,13 +352,15 @@ function closeQuickView() {
     content.style.opacity = '';
 }
 
-// クイックビューの左右スワイプで前後の巻へ（右スワイプ＝次の巻、左スワイプ＝前の巻）
+// クイックビューのスワイプ操作
+// 左右スワイプ＝前後の巻へ（指を右→左＝次の巻、左→右＝前の巻）
+// 下スワイプ＝ポップアップを閉じる
 function setupQuickViewSwipe(overlay) {
     const content = overlay.querySelector('.quickview-content');
     let startX = 0;
     let startY = 0;
     let tracking = false;
-    let swiping = false;
+    let mode = null; // 'horizontal' | 'down' | null
     let animating = false;
 
     content.addEventListener('touchstart', (e) => {
@@ -366,7 +368,7 @@ function setupQuickViewSwipe(overlay) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         tracking = true;
-        swiping = false;
+        mode = null;
         content.style.transition = 'none';
     }, { passive: true });
 
@@ -375,16 +377,29 @@ function setupQuickViewSwipe(overlay) {
         const dx = e.touches[0].clientX - startX;
         const dy = e.touches[0].clientY - startY;
 
-        if (!swiping && Math.abs(dx) > 8) {
+        if (!mode && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
             if (Math.abs(dy) > Math.abs(dx) * 1.2) {
-                tracking = false;
-                return;
+                // 縦ジェスチャー: 下方向のみ「閉じる」として追従
+                if (dy > 0) {
+                    mode = 'down';
+                } else {
+                    tracking = false;
+                    return;
+                }
+            } else {
+                mode = 'horizontal';
             }
-            swiping = true;
         }
-        if (!swiping) return;
+        if (!mode) return;
 
         e.preventDefault();
+
+        if (mode === 'down') {
+            const move = Math.max(0, dy);
+            content.style.transform = `translateY(${move}px)`;
+            content.style.opacity = String(Math.max(0.4, 1 - move / 420));
+            return;
+        }
 
         const hasNext = qvState.index < qvState.volumes.length - 1;
         const hasPrev = qvState.index > 0;
@@ -399,15 +414,36 @@ function setupQuickViewSwipe(overlay) {
     content.addEventListener('touchend', (e) => {
         if (!tracking) return;
         tracking = false;
-        const wasSwiping = swiping;
-        swiping = false;
+        const endMode = mode;
+        mode = null;
         if (!qvState) return;
 
         const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+
+        // 下スワイプ: 一定量を超えたら閉じる
+        if (endMode === 'down') {
+            if (dy > 90) {
+                animating = true;
+                content.style.transition = 'transform 0.22s ease-in, opacity 0.22s ease-in';
+                content.style.transform = `translateY(${window.innerHeight * 0.5}px)`;
+                content.style.opacity = '0';
+                setTimeout(() => {
+                    closeQuickView();
+                    animating = false;
+                }, 210);
+            } else {
+                content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+                content.style.transform = '';
+                content.style.opacity = '';
+            }
+            return;
+        }
+
         const hasNext = qvState.index < qvState.volumes.length - 1;
         const hasPrev = qvState.index > 0;
-        const goNext = wasSwiping && dx < -60 && hasNext;
-        const goPrev = wasSwiping && dx > 60 && hasPrev;
+        const goNext = endMode === 'horizontal' && dx < -60 && hasNext;
+        const goPrev = endMode === 'horizontal' && dx > 60 && hasPrev;
 
         if (goNext || goPrev) {
             animating = true;
