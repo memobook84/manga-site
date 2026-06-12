@@ -49,7 +49,7 @@
 - アプリアイコンとヘッダーロゴ/ファビコンは別画像（黒背景/白背景）
 - ボトムナビ: モバイルのみ表示、サブページにはBackボタン付き
 - ダークモード: ホームページのみ実装、localStorage保持、head内早期適用
-- スプラッシュ: sessionStorage制御で同一セッション内1回のみ表示
+- スプラッシュ: sessionStorage制御で同一セッション内1回のみ表示（index.html と database.html=ホーム に設置）
 - スワイプナビ: volume.htmlで左右スワイプによる巻移動（指を右→左に動かす＝次の巻、左→右に動かす＝前の巻。ユーザーの言う「右にスワイプ＝次」は“ページが右に進む”の意）
 - ページスライド遷移（モバイル）: Database→detail.htmlは右からスライドイン。detail.htmlは左→右スワイプ/左上矢印で戻る、右→左スワイプでseries-volumes.html（全巻一覧）へ。一覧から左→右スワイプで作品ページに戻る。sessionStorageフラグ（detailSlideIn/volumesSlideIn）で入場演出を制御
 - スワイプ戻る（モバイル共通）: swipe-back.js で左→右スワイプ＝戻るを全ページ標準化。組み込み対象外は index.html（トップ）と独自スワイプ持ちの detail/volume/series-volumes
