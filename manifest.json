@@ -2,7 +2,7 @@
   "name": "ATLAS COMIC",
   "short_name": "ATLAS COMIC",
   "description": "Manga collection from Shueisha, Shogakukan, and Kodansha",
-  "start_url": "/",
+  "start_url": "/database.html",
   "display": "standalone",
   "background_color": "#4B2C82",
   "theme_color": "#4B2C82",

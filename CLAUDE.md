@@ -54,4 +54,5 @@
 - ページスライド遷移（モバイル）: Database→detail.htmlは右からスライドイン。detail.htmlは左→右スワイプ/左上矢印で戻る、右→左スワイプでseries-volumes.html（全巻一覧）へ。一覧から左→右スワイプで作品ページに戻る。sessionStorageフラグ（detailSlideIn/volumesSlideIn）で入場演出を制御
 - スワイプ戻る（モバイル共通）: swipe-back.js で左→右スワイプ＝戻るを全ページ標準化。組み込み対象外は index.html（トップ）と独自スワイプ持ちの detail/volume/series-volumes
 - クイックビュー: detail.htmlのシリーズ一覧で巻カバーをホバー（タッチ端末は常時表示）するとNetflix風の丸ボタンが出現、クリックで簡易ポップアップ（表紙・発売日・価格・レーベル・あらすじ・巻ページリンク・巻位置カウンター）。モバイルはポップアップを左右スワイプで前後の巻に切替（指を右→左＝次、左→右＝前。巻ページと同じ向き）。下スワイプで閉じる（90px超で確定、未満はバウンスで復帰）。アクセントカラーはテーマ紫 #4B2C82（ホバー #371F63）、表示中は背面スクロールをtouchmove preventDefaultで固定
+- ホーム: ルート「/」はdatabase.htmlへリダイレクト（vercel.json）、PWAのstart_urlもdatabase.html。index.html（検索ページ）はナビのPickupリンク等から到達
 - ナビ構成: Pickup / Database / Popular / Favorites
