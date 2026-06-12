@@ -1027,8 +1027,8 @@ body.dark-mode .range-field input {
 }
 
 .volume-quick-btn:hover {
-    background: #D8052E;
-    border-color: #D8052E;
+    background: #4B2C82;
+    border-color: #4B2C82;
     transform: translateY(0) scale(1.08);
 }
 
@@ -1075,7 +1075,7 @@ body.dark-mode .range-field input {
     animation: quickviewIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* 雑誌の背表紙風の赤いアクセントライン */
+/* 雑誌の背表紙風のアクセントライン（テーマカラー紫） */
 .quickview-content::before {
     content: '';
     position: absolute;
@@ -1083,7 +1083,7 @@ body.dark-mode .range-field input {
     top: 0;
     bottom: 0;
     width: 5px;
-    background: #D8052E;
+    background: #4B2C82;
     z-index: 1;
 }
 
@@ -1141,7 +1141,7 @@ body.dark-mode .range-field input {
     position: absolute;
     left: 0;
     bottom: 14px;
-    background: #111;
+    background: #4B2C82;
     color: #fff;
     font-family: 'Michroma', 'Montserrat', sans-serif;
     font-size: 10px;
@@ -1163,7 +1163,7 @@ body.dark-mode .range-field input {
     font-size: 9.5px;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: #D8052E;
+    color: #4B2C82;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -1176,7 +1176,7 @@ body.dark-mode .range-field input {
     flex: 1;
     max-width: 46px;
     height: 1px;
-    background: #D8052E;
+    background: #4B2C82;
     opacity: 0.5;
 }
 
@@ -1251,7 +1251,7 @@ body.dark-mode .range-field input {
     align-items: center;
     gap: 10px;
     padding: 11px 22px;
-    background: #111;
+    background: #4B2C82;
     color: #fff;
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
@@ -1264,7 +1264,7 @@ body.dark-mode .range-field input {
 }
 
 .quickview-link:hover {
-    background: #D8052E;
+    background: #371F63;
     gap: 14px;
 }
 

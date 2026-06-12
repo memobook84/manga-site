@@ -268,6 +268,11 @@ function ensureQuickViewModal() {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) closeQuickView();
     });
+    // ポップアップ表示中は背面ページのスクロールを完全に止める
+    // （body overflow:hidden だけではiOSのタッチスクロールを防げない）
+    overlay.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+    }, { passive: false });
     overlay.querySelector('.quickview-close').addEventListener('click', closeQuickView);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeQuickView();
