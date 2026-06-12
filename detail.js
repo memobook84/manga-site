@@ -186,7 +186,7 @@ function displayVolumesList(volumes, seriesName) {
         return (a.title || '').localeCompare(b.title || '');
     });
 
-    withVolNum.forEach(vol => {
+    withVolNum.forEach((vol, volIndex) => {
         const volumeItem = document.createElement('div');
         volumeItem.className = 'volume-item';
 
@@ -195,7 +195,12 @@ function displayVolumesList(volumes, seriesName) {
         const volumeLabel = vol.volumeNum !== null ? `${baseName}（${vol.volumeNum}巻）` : (vol.title || baseName);
 
         volumeItem.innerHTML = `
-            ${imageHtml}
+            <div class="volume-cover-wrap">
+                ${imageHtml}
+                <button type="button" class="volume-quick-btn" aria-label="クイックビュー">
+                    <i class="ph-bold ph-caret-down" style="font-size:17px"></i>
+                </button>
+            </div>
             <div class="volume-info">
                 <div class="volume-number">${volumeLabel}</div>
             </div>
@@ -208,10 +213,233 @@ function displayVolumesList(volumes, seriesName) {
             }
         });
 
+        // ホバー/タップで出るボタン → 簡易ポップアップ（クイックビュー）
+        const quickBtn = volumeItem.querySelector('.volume-quick-btn');
+        quickBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openQuickView(withVolNum, seriesName, volIndex);
+        });
+
         volumesGrid.appendChild(volumeItem);
     });
 
     return withVolNum;
+}
+
+// ===== クイックビュー（シリーズ一覧の巻ホバー → 簡易ポップアップ） =====
+function ensureQuickViewModal() {
+    let overlay = document.getElementById('quickview-modal');
+    if (overlay) return overlay;
+
+    overlay = document.createElement('div');
+    overlay.id = 'quickview-modal';
+    overlay.className = 'quickview-overlay';
+    overlay.innerHTML = `
+        <div class="quickview-content" role="dialog" aria-modal="true">
+            <button type="button" class="quickview-close" aria-label="閉じる">
+                <i class="ph-bold ph-x" style="font-size:16px"></i>
+            </button>
+            <div class="quickview-cover">
+                <div class="quickview-cover-img"></div>
+                <span class="quickview-vol-tag" hidden></span>
+            </div>
+            <div class="quickview-info">
+                <div class="quickview-eyebrow">
+                    <span>Quick View</span>
+                    <span class="quickview-counter"></span>
+                </div>
+                <h3 class="quickview-title"></h3>
+                <dl class="quickview-meta"></dl>
+                <p class="quickview-desc"></p>
+                <a class="quickview-link" href="#">
+                    <span>View Volume</span>
+                    <i class="ph-bold ph-arrow-right" style="font-size:14px"></i>
+                </a>
+                <div class="quickview-swipe-hint">
+                    <i class="ph-bold ph-caret-left" style="font-size:11px"></i>
+                    <span>スワイプで前後の巻へ</span>
+                    <i class="ph-bold ph-caret-right" style="font-size:11px"></i>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeQuickView();
+    });
+    overlay.querySelector('.quickview-close').addEventListener('click', closeQuickView);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeQuickView();
+    });
+    setupQuickViewSwipe(overlay);
+    return overlay;
+}
+
+// クイックビューの状態（巻リスト・シリーズ名・現在の巻）
+let qvState = null;
+
+function openQuickView(volumes, seriesName, index) {
+    qvState = { volumes, seriesName, index };
+    const overlay = ensureQuickViewModal();
+    renderQuickView();
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function renderQuickView() {
+    if (!qvState) return;
+    const overlay = ensureQuickViewModal();
+    const vol = qvState.volumes[qvState.index];
+
+    const baseName = qvState.seriesName || extractSeriesName(vol.title) || vol.title || '';
+    const volumeLabel = vol.volumeNum !== null && vol.volumeNum !== undefined
+        ? `${baseName}（${vol.volumeNum}巻）`
+        : (vol.title || baseName);
+
+    overlay.querySelector('.quickview-cover-img').innerHTML = createImageElement(vol, 400);
+    overlay.querySelector('.quickview-title').textContent = volumeLabel;
+    overlay.querySelector('.quickview-counter').textContent =
+        `${qvState.index + 1} / ${qvState.volumes.length}`;
+
+    // VOL.タグ（巻数があるときのみ表示）
+    const volTag = overlay.querySelector('.quickview-vol-tag');
+    if (vol.volumeNum !== null && vol.volumeNum !== undefined) {
+        volTag.textContent = `VOL.${String(vol.volumeNum).padStart(2, '0')}`;
+        volTag.hidden = false;
+    } else {
+        volTag.hidden = true;
+    }
+
+    const metaRows = [
+        ['Release', formatQuickViewDate(vol.firstReleaseDate)],
+        ['Price', vol.price],
+        ['Label', vol.label],
+    ].filter(([, v]) => v);
+    overlay.querySelector('.quickview-meta').innerHTML = metaRows
+        .map(([k, v]) => `<div class="quickview-meta-row"><dt>${k}</dt><dd>${v}</dd></div>`)
+        .join('');
+
+    const desc = (vol.description || '').trim();
+    const descEl = overlay.querySelector('.quickview-desc');
+    descEl.textContent = desc || 'この巻のストーリー情報はありません。';
+    descEl.classList.toggle('quickview-desc-empty', !desc);
+
+    const link = overlay.querySelector('.quickview-link');
+    if (vol.isbn) {
+        const series = extractSeriesName(vol.title) || '';
+        link.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}&series=${encodeURIComponent(series)}`;
+        link.hidden = false;
+    } else {
+        link.hidden = true;
+    }
+}
+
+function closeQuickView() {
+    const overlay = document.getElementById('quickview-modal');
+    if (!overlay || !overlay.classList.contains('active')) return;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    // スワイプ途中で閉じた場合に備えてリセット
+    const content = overlay.querySelector('.quickview-content');
+    content.style.transition = '';
+    content.style.transform = '';
+    content.style.opacity = '';
+}
+
+// クイックビューの左右スワイプで前後の巻へ（右スワイプ＝次の巻、左スワイプ＝前の巻）
+function setupQuickViewSwipe(overlay) {
+    const content = overlay.querySelector('.quickview-content');
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+    let swiping = false;
+    let animating = false;
+
+    content.addEventListener('touchstart', (e) => {
+        if (animating) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        tracking = true;
+        swiping = false;
+        content.style.transition = 'none';
+    }, { passive: true });
+
+    content.addEventListener('touchmove', (e) => {
+        if (!tracking || !qvState) return;
+        const dx = e.touches[0].clientX - startX;
+        const dy = e.touches[0].clientY - startY;
+
+        if (!swiping && Math.abs(dx) > 8) {
+            if (Math.abs(dy) > Math.abs(dx) * 1.2) {
+                tracking = false;
+                return;
+            }
+            swiping = true;
+        }
+        if (!swiping) return;
+
+        e.preventDefault();
+
+        const hasNext = qvState.index < qvState.volumes.length - 1;
+        const hasPrev = qvState.index > 0;
+        let move = dx;
+        if ((dx > 0 && !hasNext) || (dx < 0 && !hasPrev)) {
+            move = dx * 0.25;
+        }
+        content.style.transform = `translateX(${move}px)`;
+        content.style.opacity = String(Math.max(0.5, 1 - Math.abs(move) / 320));
+    }, { passive: false });
+
+    content.addEventListener('touchend', (e) => {
+        if (!tracking) return;
+        tracking = false;
+        const wasSwiping = swiping;
+        swiping = false;
+        if (!qvState) return;
+
+        const dx = e.changedTouches[0].clientX - startX;
+        const hasNext = qvState.index < qvState.volumes.length - 1;
+        const hasPrev = qvState.index > 0;
+        const goNext = wasSwiping && dx > 60 && hasNext;
+        const goPrev = wasSwiping && dx < -60 && hasPrev;
+
+        if (goNext || goPrev) {
+            animating = true;
+            const outX = goNext ? window.innerWidth * 0.55 : -window.innerWidth * 0.55;
+            content.style.transition = 'transform 0.18s ease-in, opacity 0.18s ease-in';
+            content.style.transform = `translateX(${outX}px)`;
+            content.style.opacity = '0';
+            setTimeout(() => {
+                qvState.index += goNext ? 1 : -1;
+                renderQuickView();
+                content.style.transition = 'none';
+                content.style.transform = `translateX(${-outX}px)`;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        content.style.transition = 'transform 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.24s ease';
+                        content.style.transform = '';
+                        content.style.opacity = '';
+                        setTimeout(() => {
+                            content.style.transition = '';
+                            animating = false;
+                        }, 260);
+                    });
+                });
+            }, 180);
+        } else {
+            content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+            content.style.transform = '';
+            content.style.opacity = '';
+        }
+    }, { passive: true });
+}
+
+function formatQuickViewDate(dateStr) {
+    if (!dateStr) return '';
+    const m = String(dateStr).match(/(\d{4})[年\-\/](\d{1,2})[月\-\/](\d{1,2})/);
+    if (!m) return dateStr;
+    return `${m[1]}/${String(m[2]).padStart(2, '0')}/${String(m[3]).padStart(2, '0')}`;
 }
 
 // ISBN-13 → ASIN(ISBN-10) 変換（978始まりのみ）
@@ -552,7 +780,7 @@ function setupSlideNavigation() {
     let velocityX = 0;
 
     function isModalOpen() {
-        return document.querySelector('.range-modal-overlay.active, .video-modal-overlay.active');
+        return document.querySelector('.range-modal-overlay.active, .video-modal-overlay.active, .quickview-overlay.active');
     }
 
     document.addEventListener('touchstart', (e) => {

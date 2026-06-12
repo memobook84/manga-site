@@ -234,7 +234,7 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
     const swipeDir = sessionStorage.getItem('swipeDir');
     if (swipeDir) {
         sessionStorage.removeItem('swipeDir');
-        const fromX = swipeDir === 'next' ? window.innerWidth : -window.innerWidth;
+        const fromX = swipeDir === 'next' ? -window.innerWidth : window.innerWidth;
         pageEl.style.transition = 'none';
         pageEl.style.transform = `translateX(${fromX}px)`;
         pageEl.style.opacity = '0';
@@ -281,7 +281,7 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         lastTouchTime = now;
 
         let move = dx;
-        if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
+        if ((dx > 0 && !hasNext) || (dx < 0 && !hasPrev)) {
             move = dx * 0.2;
         }
         pageEl.style.transform = `translateX(${move}px)`;
@@ -298,15 +298,15 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
 
         const ease = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
-        if (shouldNavigate && dx < 0 && hasNext) {
+        if (shouldNavigate && dx > 0 && hasNext) {
             pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
-            pageEl.style.transform = `translateX(${-window.innerWidth}px)`;
+            pageEl.style.transform = `translateX(${window.innerWidth}px)`;
             pageEl.style.opacity = '0';
             sessionStorage.setItem('swipeDir', 'next');
             setTimeout(() => navigateToVolume(withVolNum[currentIndex + 1], seriesName), 250);
-        } else if (shouldNavigate && dx > 0 && hasPrev) {
+        } else if (shouldNavigate && dx < 0 && hasPrev) {
             pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
-            pageEl.style.transform = `translateX(${window.innerWidth}px)`;
+            pageEl.style.transform = `translateX(${-window.innerWidth}px)`;
             pageEl.style.opacity = '0';
             sessionStorage.setItem('swipeDir', 'prev');
             setTimeout(() => navigateToVolume(withVolNum[currentIndex - 1], seriesName), 250);

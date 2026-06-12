@@ -2,30 +2,12 @@
   // 現在のページに対応するヘッダーナビにactiveクラスを付与
   const path = location.pathname.toLowerCase();
   const file = path.split('/').pop() || 'index.html';
-  // ホバー時に日本語表記へロール切替するためのラベル対応表
-  const jaLabels = {
-    'index.html': 'ピックアップ',
-    'blog.html': 'ブログ',
-    'database.html': 'データベース',
-    'ranking.html': '人気',
-    'new-releases.html': '新刊',
-    'follow.html': 'お気に入り',
-  };
 
   document.querySelectorAll('.header-nav .nav-link').forEach((link) => {
     const href = (link.getAttribute('href') || '').toLowerCase().split('/').pop();
     if (!href) return;
     if (href === file || (file === '' && href === 'index.html')) {
       link.classList.add('active');
-    }
-    const ja = jaLabels[href];
-    if (ja) {
-      const en = link.textContent.trim();
-      link.innerHTML =
-        '<span class="nav-roll">' +
-        '<span class="nav-roll-en">' + en + '</span>' +
-        '<span class="nav-roll-ja">' + ja + '</span>' +
-        '</span>';
     }
   });
 

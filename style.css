@@ -285,31 +285,6 @@ header h1 a {
     background: transparent;
 }
 
-/* ホバーで英語→日本語にロール切替 */
-.nav-link .nav-roll {
-    display: grid;
-    overflow: hidden;
-    line-height: 1.5;
-}
-.nav-link .nav-roll > span {
-    grid-area: 1 / 1;
-    justify-self: center;
-    align-self: center;
-    white-space: nowrap;
-    transition: transform 0.2s cubic-bezier(0.33, 0, 0.2, 1);
-}
-.nav-link .nav-roll-ja {
-    transform: translateY(120%);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 12px;
-}
-.nav-link:hover .nav-roll-en {
-    transform: translateY(-120%);
-}
-.nav-link:hover .nav-roll-ja {
-    transform: translateY(0);
-}
-
 /* アクティブ: 下線（アンダーバー） */
 .nav-link.active::after {
     left: 14px;
@@ -1553,3 +1528,18 @@ body.dark-mode .nav-menu-btn:hover {
 }
 
 /* ダークモードでもメニューはテーマカラー（紫）で統一 */
+
+/* ============================================
+   PC: ページ間遷移の安定化
+   クロスドキュメントView Transitionで全画面リロードの
+   白フラッシュを抑え、ヘッダーを遷移中も固定表示する
+   （Chrome/Edge 126+, Safari 18.2+。非対応ブラウザは従来通り）
+   ============================================ */
+@media (min-width: 1025px) {
+    @view-transition {
+        navigation: auto;
+    }
+    header {
+        view-transition-name: site-header;
+    }
+}
