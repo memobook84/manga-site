@@ -124,6 +124,7 @@
 }
 
 @media (max-width: 768px) {
+    /* ボタン風の装飾なし、小さい三角形アイコンのみ（タップ領域は40px確保） */
     .page-back-btn {
         display: flex;
         align-items: center;
@@ -133,11 +134,9 @@
         left: 14px;
         width: 40px;
         height: 40px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.92);
-        color: #1a1a1a;
-        border: 1px solid var(--color-border, #e5e1dc);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        background: none;
+        color: rgba(26, 26, 26, 0.5);
+        border: none;
         z-index: 90;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
