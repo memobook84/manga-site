@@ -1308,3 +1308,23 @@ body.dark-mode .range-field input {
         justify-content: center;
     }
 }
+
+/* タブレット縦長ポップアップ: スマホより大きめに */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .quickview-content {
+        max-width: 520px;
+    }
+    .quickview-cover {
+        padding: 40px 24px 44px;
+    }
+    .quickview-cover-img img,
+    .quickview-cover-img .manga-cover-placeholder {
+        width: 240px;
+    }
+    .quickview-info {
+        padding: 28px 32px 30px;
+    }
+    .quickview-title {
+        font-size: 22px;
+    }
+}
