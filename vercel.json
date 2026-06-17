@@ -1,6 +1,7 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/database.html", "permanent": false }
+    { "source": "/", "destination": "/home.html", "permanent": false },
+    { "source": "/database.html", "destination": "/home.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }

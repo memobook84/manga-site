@@ -2,77 +2,57 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <script>if(localStorage.getItem('darkMode')==='true')document.documentElement.classList.add('dark-mode-pending');</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu - ATLAS COMIC</title>
+    <title>Database - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/favicon.png">
+    <meta name="description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
+    <!-- OGP -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ATLAS COMIC">
+    <meta property="og:title" content="Database - ATLAS COMIC">
+    <meta property="og:description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
+    <meta property="og:url" content="https://manga-site-three.vercel.app/">
+    <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Database - ATLAS COMIC">
+    <meta name="twitter:description" content="ATLAS COMICのデータベース。全1280シリーズの漫画カタログを出版社・ジャンル別に検索できます。">
+    <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260617">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
-    <style>
-        body {
-            background: #fff;
-            min-height: 100vh;
-        }
-        .menu-main {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 24px 0 100px;
-        }
-        .menu-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #999;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 24px 20px 8px;
-        }
-        .menu-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .menu-list a {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            font-size: 16px;
-            font-weight: 500;
-            color: #111;
-            text-decoration: none;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
-        }
-        .menu-list a:first-child {
-            border-top: 1px solid #f0f0f0;
-        }
-        .menu-list a:active {
-            background: #f7f7f7;
-        }
-        .menu-arrow {
-            color: #bbb;
-            font-size: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="legal.css">
+    <script src="manga-data.js"></script>
+    <script src="rakuten-adapter.js"></script>
+    <script src="database.js"></script>
+<script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
 </head>
-<body>
+<body class="page-database">
+    <!-- スプラッシュオーバーレイ -->
+    <div id="splashOverlay">
+        <canvas id="splashCanvas"></canvas>
+        <h1 class="splash-title">ATLAS COMIC</h1>
+    </div>
+    <script src="splash.js"></script>
+
+    <!-- ヘッダー -->
     <header>
         <div class="header-container">
-            <a href="index.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
-            <h1><a href="index.html">ATLAS COMIC</a></h1>
+            <a href="home.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
                 <a href="blog.html" class="nav-link">Blog</a>
-                <a href="database.html" class="nav-link">BASE</a>
                 <a href="follow.html" class="nav-link follow-link">Favs</a>
                 <button class="nav-menu-btn" id="navMenuBtn"><svg viewBox="0 0 320 512" class="nav-caret" aria-hidden="true"><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg></button>
             </nav>
@@ -85,47 +65,212 @@
         </div>
     </header>
 
-    <main class="menu-main">
-        <div class="menu-section-title">Browse</div>
-        <ul class="menu-list">
-            <li><a href="index.html">Pickup <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="database.html">Database <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="ranking.html">Popular <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="new-releases.html">New Releases <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="blog.html">Blog <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="follow.html">Favorites <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
+    <section class="page-hero">
+        <h2 id="sidebar-toggle" class="page-hero-toggle">
+            <span>DATABASE</span>
+            <i class="ph-bold ph-caret-left page-hero-caret" style="font-size:18px"></i>
+        </h2>
+        <button id="grid-toggle" class="page-hero-grid-toggle" aria-label="サイドバーを隠して6列表示に切替">
+            <i class="ph-bold ph-caret-left" style="font-size:18px"></i>
+        </button>
+        <p>全作品のカタログを出版社・ジャンル別に検索</p>
+    </section>
+    <!-- メインコンテンツ -->
+    <div class="main-layout">
+        <!-- サイドバー -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        Publisher
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="集英社">集英社</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="小学館">小学館</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="講談社">講談社</a></li>
+                        <li><span class="sidebar-link">秋田書店</span></li>
+                        <li><span class="sidebar-link">KADOKAWA</span></li>
+                        <li><span class="sidebar-link">スクウェア・エニックス</span></li>
+                        <li><span class="sidebar-link">白泉社</span></li>
+                        <li><span class="sidebar-link">双葉社</span></li>
+                        <li><span class="sidebar-link">徳間書店</span></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        Genre
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001001">少年漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001002">少女漫画</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001003">青年漫画</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
+                        Discover
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="new-releases.html" class="sidebar-link">新刊</a></li>
+                        <li><a href="ranking.html" class="sidebar-link">ランキング</a></li>
+                        <li><a href="recommend.html" class="sidebar-link">おすすめ</a></li>
+                        <li><a href="follow.html" class="sidebar-link">フォロー中</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
 
-        <div class="menu-section-title">Info</div>
-        <ul class="menu-list">
-            <li><a href="profile.html">About Me <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="about.html">運営者情報 <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="privacy.html">プライバシーポリシー <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
-    </main>
+        <!-- メインエリア -->
+        <main>
+            <div class="manga-grid">
+                <!-- JavaScriptで動的に漫画が表示されます -->
+            </div>
+            <div class="pagination-row">
+                <button id="cover-toggle" class="cover-toggle" aria-label="表紙エフェクト切替（ハードカバー／影）">
+                    <span class="cover-toggle-knob"></span>
+                </button>
+                <button id="bg-toggle" class="bg-toggle" aria-label="背景色切替（白／#F9F9F9）">
+                    <span class="bg-toggle-knob"></span>
+                </button>
+                <div id="pagination" class="pagination" style="display: none;">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+                <button id="dark-toggle" class="dark-toggle" aria-label="ダークモード切替">
+                    <span class="dark-toggle-knob"></span>
+                </button>
+            </div>
+        </main>
+    </div>
 
+
+    <!-- サイトフッター -->
+    <div class="site-footer">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <span class="footer-sep">|</span>
+        <a href="about.html">運営者情報</a>
+        <span class="footer-sep">|</span>
+        <a href="profile.html">管理人紹介</a>
+    </div>
+
+    <!-- ボトムナビ -->
     <nav class="bottom-nav">
         <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
             <i class="ph-bold ph-arrow-left" style="font-size:22px"></i>
             <span>Back</span>
         </a>
+        <a href="/home.html" class="bottom-nav-item active" data-page="database">
+            <i class="ph-bold ph-house" style="font-size:22px"></i>
+            <span>Home</span>
+        </a>
         <a href="/index.html" class="bottom-nav-item" data-page="home">
             <i class="ph-bold ph-fire" style="font-size:22px"></i>
             <span>Pickup</span>
-        </a>
-        <a href="/database.html" class="bottom-nav-item" data-page="database">
-            <i class="ph-bold ph-database" style="font-size:22px"></i>
-            <span>Database</span>
         </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
             <i class="ph-bold ph-butterfly" style="font-size:22px"></i>
             <span>Favorites</span>
         </a>
-        <a href="/home.html" class="bottom-nav-item active" data-page="menu">
+        <a href="/menu.html" class="bottom-nav-item" data-page="menu">
             <i class="ph-bold ph-list" style="font-size:22px"></i>
             <span>Menu</span>
         </a>
     </nav>
+
+    <script>
+    (function() {
+        var path = location.pathname;
+        var items = document.querySelectorAll('.bottom-nav-item');
+        items.forEach(function(item) {
+            var page = item.dataset.page;
+            if ((page === 'database' && (path === '/' || path.includes('home') || path.includes('database'))) ||
+                (page === 'ranking' && path.includes('ranking')) ||
+                (page === 'blog' && path.includes('blog')) ||
+                (page === 'follow' && path.includes('follow'))) {
+                item.classList.add('active');
+            }
+        });
+    })();
+    </script>
+
+    <script>
+    // ダークモード
+    (function() {
+        var isDark = localStorage.getItem('darkMode') === 'true';
+        var body = document.body;
+        var btn = document.getElementById('dark-toggle');
+
+        if (isDark) body.classList.add('dark-mode');
+
+        btn.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+        });
+    })();
+    </script>
+
+    <script>
+    // サイドバー開閉
+    (function() {
+        var layout = document.querySelector('.main-layout');
+        var btn = document.getElementById('sidebar-toggle');
+        if (!btn || !layout) return;
+        var collapsed = localStorage.getItem('dbSidebarCollapsed') === 'true';
+        if (collapsed) {
+            layout.classList.add('sidebar-collapsed');
+            document.body.classList.add('sidebar-collapsed');
+        }
+        btn.addEventListener('click', function() {
+            var on = layout.classList.toggle('sidebar-collapsed');
+            document.body.classList.toggle('sidebar-collapsed', on);
+            localStorage.setItem('dbSidebarCollapsed', on);
+        });
+    })();
+    </script>
+
+    <script>
+    // 6列表示トグル（サイドバーを隠して横6冊並べる）
+    (function() {
+        var btn = document.getElementById('grid-toggle');
+        if (!btn) return;
+        if (localStorage.getItem('dbGridSix') === 'true') {
+            document.body.classList.add('grid-six');
+        }
+        btn.addEventListener('click', function() {
+            var on = document.body.classList.toggle('grid-six');
+            localStorage.setItem('dbGridSix', on);
+        });
+    })();
+    </script>
+
+    <script>
+    // 表紙エフェクト切替（ハードカバー → 軽い影）
+    (function() {
+        var btn = document.getElementById('cover-toggle');
+        if (!btn) return;
+        if (localStorage.getItem('dbFlatCover') === 'true') {
+            document.body.classList.add('flat-cover');
+        }
+        btn.addEventListener('click', function() {
+            var on = document.body.classList.toggle('flat-cover');
+            localStorage.setItem('dbFlatCover', on);
+        });
+    })();
+    </script>
+
+    <script>
+    // 背景色切替（白 ⇔ #F9F9F9）
+    (function() {
+        var btn = document.getElementById('bg-toggle');
+        if (!btn) return;
+        if (localStorage.getItem('dbBgSoft') === 'true') {
+            document.body.classList.add('bg-soft');
+        }
+        btn.addEventListener('click', function() {
+            var on = document.body.classList.toggle('bg-soft');
+            localStorage.setItem('dbBgSoft', on);
+        });
+    })();
+    </script>
 
     <script>
     if ('serviceWorker' in navigator) {

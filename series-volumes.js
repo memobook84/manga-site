@@ -161,7 +161,7 @@ function setupSlideNavigation() {
                 history.back();
             } else {
                 const { title } = getSeriesParams();
-                window.location.href = title ? `detail.html?title=${encodeURIComponent(title)}` : 'database.html';
+                window.location.href = title ? `detail.html?title=${encodeURIComponent(title)}` : 'home.html';
             }
         }, 250);
     }

@@ -1,4 +1,5 @@
 // 左→右スワイプで前のページに戻る（モバイル共通ジェスチャー）
+// 戻り演出はスターウォーズ風ワイプ（紫の面＋白い発光エッジが左→右に画面を横切る）
 // 独自のスワイプ処理を持つページ（detail / volume / series-volumes）と
 // トップページ（index）には読み込まないこと
 (function () {
@@ -7,15 +8,15 @@
     const pageEl = document.querySelector('main, .blog-container, .blog-post-container, .legal-content');
     if (!pageEl) return;
 
-    const ease = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    const W = () => window.innerWidth;
     let leaving = false;
 
     // ボトムナビから直接行くハブページには戻るボタンを出さない（スワイプ戻るのみ有効）
     const file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    const noButtonPages = ['database.html', 'follow.html', 'home.html'];
+    const noButtonPages = ['home.html', 'menu.html', 'follow.html'];
     const showButton = !noButtonPages.includes(file);
 
-    // 左上の戻るボタンを自動生成（detail.htmlのpage-back-btnと同デザイン）
+    // ===== スタイル =====
     const style = document.createElement('style');
     style.textContent = `
         .page-back-btn {
@@ -40,44 +41,112 @@
         .page-back-btn:active {
             transform: scale(0.9);
         }
+        /* スターウォーズ風ワイプ */
+        .sw-wipe {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            pointer-events: none;
+            background: #4B2C82;
+            transform: translateX(-100%);
+            display: none;
+            will-change: transform;
+        }
+        .sw-wipe.show { display: block; }
+        /* 右端＝ワイプの境界線（白い発光エッジ） */
+        .sw-wipe::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: -2px;
+            width: 3px;
+            height: 100%;
+            background: #ffffff;
+            box-shadow: 0 0 22px 6px rgba(124, 92, 196, 0.95), 0 0 8px 2px rgba(255, 255, 255, 0.95);
+        }
     `;
-    if (showButton) {
-        document.head.appendChild(style);
+    document.head.appendChild(style);
 
+    // ===== ワイプ用オーバーレイ =====
+    const wipe = document.createElement('div');
+    wipe.className = 'sw-wipe';
+    document.body.appendChild(wipe);
+
+    function setWipeX(px) {
+        wipe.style.transform = `translateX(${px}px)`;
+    }
+    function resetWipe() {
+        wipe.style.transition = 'none';
+        setWipeX(-W());
+        wipe.classList.remove('show');
+    }
+
+    // ===== 戻るボタン =====
+    if (showButton) {
         const backBtn = document.createElement('button');
         backBtn.type = 'button';
         backBtn.className = 'page-back-btn';
         backBtn.setAttribute('aria-label', '戻る');
         backBtn.innerHTML = '<i class="ph-bold ph-arrow-left" style="font-size:20px"></i>';
         document.body.appendChild(backBtn);
-        backBtn.addEventListener('click', () => slideBack());
+        backBtn.addEventListener('click', () => wipeBack());
     }
 
-    // bfcache復帰時にスタイルをリセット
-    window.addEventListener('pageshow', (e) => {
-        if (e.persisted) {
-            leaving = false;
-            pageEl.style.transition = 'none';
-            pageEl.style.transform = '';
-            pageEl.style.opacity = '';
-        }
-    });
-
-    function slideBack() {
+    // ===== 戻り（カバー）ワイプ → history.back() =====
+    function wipeBack(fromX) {
         if (leaving) return;
         leaving = true;
-        pageEl.style.transition = `transform 0.28s ${ease}, opacity 0.28s ease`;
-        pageEl.style.transform = `translateX(${window.innerWidth}px)`;
-        pageEl.style.opacity = '0';
+        wipe.classList.add('show');
+        const startX = (typeof fromX === 'number') ? fromX : -W();
+        wipe.style.transition = 'none';
+        setWipeX(startX);
+        void wipe.offsetWidth; // reflow
+        const dur = 0.32;
+        wipe.style.transition = `transform ${dur}s linear`;
+        setWipeX(0); // 完全に覆う
+        // 遷移先でリビール（同方向に走り抜け）させるためのフラグ
+        try { sessionStorage.setItem('swWipe', String(Date.now())); } catch (e) {}
         setTimeout(() => {
             if (history.length > 1) {
                 history.back();
             } else {
                 window.location.href = 'index.html';
             }
-        }, 250);
+        }, dur * 1000 * 0.9);
     }
 
+    // ===== 到着時のリビール（覆った状態 → 右へ走り抜けて新ページを出す）=====
+    function revealWipe() {
+        wipe.classList.add('show');
+        wipe.style.transition = 'none';
+        setWipeX(0);
+        void wipe.offsetWidth; // reflow
+        requestAnimationFrame(() => {
+            wipe.style.transition = 'transform 0.36s linear';
+            setWipeX(W());
+            setTimeout(resetWipe, 380);
+        });
+    }
+    function maybeReveal() {
+        try {
+            const t = parseInt(sessionStorage.getItem('swWipe') || '0', 10);
+            sessionStorage.removeItem('swWipe');
+            if (t && (Date.now() - t) < 1600) revealWipe();
+        } catch (e) {}
+    }
+    // 通常ロード時のリビール判定
+    maybeReveal();
+
+    // bfcache復帰時：状態リセット＋リビール判定
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) {
+            leaving = false;
+            resetWipe();
+            maybeReveal();
+        }
+    });
+
+    // ===== タッチでワイプ線を指に追従 =====
     let touchStartX = 0;
     let touchStartY = 0;
     let tracking = false;
@@ -114,7 +183,8 @@
                 return;
             }
             swiping = true;
-            pageEl.style.transition = 'none';
+            wipe.classList.add('show');
+            wipe.style.transition = 'none';
         }
 
         const now = Date.now();
@@ -125,8 +195,7 @@
         lastTouchTime = now;
 
         const move = Math.max(0, dx);
-        pageEl.style.transform = `translateX(${move}px)`;
-        pageEl.style.opacity = Math.max(0.4, 1 - move / window.innerWidth * 0.6);
+        setWipeX(move - W()); // 右端（ワイプ線）が指の位置に来る
         if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
@@ -136,13 +205,15 @@
         if (!swiping) return;
 
         const dx = e.changedTouches[0].clientX - touchStartX;
+        const move = Math.max(0, dx);
 
         if (dx > 60 || velocityX > 0.4) {
-            slideBack();
+            wipeBack(move - W()); // 現在位置から覆い切って遷移
         } else {
-            pageEl.style.transition = 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease';
-            pageEl.style.transform = '';
-            pageEl.style.opacity = '';
+            // しきい値未満：ワイプ線を左へ引っ込める
+            wipe.style.transition = 'transform 0.25s ease';
+            setWipeX(-W());
+            setTimeout(() => { if (!leaving) wipe.classList.remove('show'); }, 260);
         }
     }, { passive: true });
 })();

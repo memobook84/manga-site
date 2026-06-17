@@ -4,6 +4,7 @@ function getFollowedManga() {
     return stored ? JSON.parse(stored) : [];
 }
 
+
 // フォローした作品を表示
 function displayFollowedManga() {
     const followedManga = getFollowedManga();
@@ -23,45 +24,36 @@ function displayFollowedManga() {
     emptyMessage.style.display = 'none';
     grid.innerHTML = '';
 
-    followedManga.forEach((manga, idx) => {
+    followedManga.forEach((manga) => {
         const mangaItem = document.createElement('div');
         mangaItem.className = 'followed-manga-item';
 
+        const safeTitle = (manga.title || '').replace(/"/g, '&quot;');
         const imageHtml = manga.imageUrl
-            ? `<img src="${manga.imageUrl}" alt="${manga.title}" loading="lazy"
-                 onerror="this.outerHTML='<div class=\\'manga-placeholder\\' style=\\'background-color:${manga.color || '#666'};width:100px;height:140px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;text-align:center;padding:6px;\\'>${manga.title}</div>'">`
-            : `<div class="manga-placeholder" style="background-color:${manga.color || '#666'};width:100px;height:140px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;text-align:center;padding:6px;">${manga.title}</div>`;
+            ? `<img src="${manga.imageUrl}" alt="${safeTitle}" loading="lazy"
+                 onerror="this.outerHTML='<div class=\\'manga-placeholder\\' style=\\'background-color:${manga.color || '#666'};width:150px;height:225px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;text-align:center;padding:10px;\\'>${safeTitle}</div>'">`
+            : `<div class="manga-placeholder" style="background-color:${manga.color || '#666'};width:150px;height:225px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;text-align:center;padding:10px;">${safeTitle}</div>`;
 
         mangaItem.innerHTML = `
-            <div class="fav-rank">
-                <div class="fav-rank-num">${idx + 1}</div>
-            </div>
-            <div class="fav-cover">
+            <div class="fav-card-cover">
                 ${imageHtml}
             </div>
-            <div class="fav-meta">
-                <div class="fav-tag">FAVORITE</div>
-                <h3 class="fav-title">${manga.title}</h3>
-                <p class="fav-author">BY ${(manga.author || '-').toUpperCase()}</p>
-            </div>
-            <div class="fav-actions">
-                <button class="fav-action" data-act="detail" aria-label="詳細">
-                    <i class="ph-bold ph-book-open" style="font-size:16px"></i>
-                </button>
-                <button class="fav-action danger" data-act="remove" aria-label="削除">
-                    <i class="ph-bold ph-x" style="font-size:16px"></i>
-                </button>
-                <button class="fav-action" data-act="share" aria-label="共有">
-                    <i class="ph-bold ph-share-fat" style="font-size:16px"></i>
-                </button>
-            </div>
-            <div class="fav-panel">
-                <div class="fav-panel-icon">
-                    <i class="ph-fill ph-heart" style="font-size:20px;color:#fff"></i>
+            <div class="fav-card-body">
+                <div class="fav-card-titlerow">
+                    <h3 class="fav-title"></h3>
                 </div>
-                <div class="fav-panel-label">FAVORITED</div>
+                <a class="fav-author-link" data-act="author"></a>
             </div>
         `;
+
+        // テキストは textContent で安全に挿入
+        mangaItem.querySelector('.fav-title').textContent = manga.title || '';
+        const authorEl = mangaItem.querySelector('.fav-author-link');
+        if (manga.author) {
+            authorEl.textContent = manga.author;
+        } else {
+            authorEl.style.display = 'none';
+        }
 
         const goDetail = () => {
             if (manga.isbn) {
@@ -72,14 +64,16 @@ function displayFollowedManga() {
         };
 
         mangaItem.addEventListener('click', (e) => {
-            const btn = e.target.closest('.fav-action');
-            if (!btn) { goDetail(); return; }
-            e.stopPropagation();
-            const act = btn.dataset.act;
-            if (act === 'detail') goDetail();
-            else if (act === 'remove') unfollowManga(manga.id, manga.isbn);
-            else if (act === 'share' && navigator.share) {
-                navigator.share({ title: manga.title, url: location.origin + `/detail.html?isbn=${manga.isbn || ''}&title=${encodeURIComponent(manga.title)}` }).catch(()=>{});
+            const actEl = e.target.closest('[data-act]');
+            const act = actEl ? actEl.dataset.act : null;
+            if (act === 'remove') {
+                e.stopPropagation();
+                unfollowManga(manga.id, manga.isbn);
+            } else if (act === 'author') {
+                e.stopPropagation();
+                if (manga.author) window.location.href = 'author.html?name=' + encodeURIComponent(manga.author);
+            } else {
+                goDetail();
             }
         });
 

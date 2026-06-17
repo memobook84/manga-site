@@ -152,6 +152,87 @@ body.dark-mode .dark-toggle-knob {
     transform: translateX(14px);
 }
 
+/* 表紙エフェクト切替スイッチ（ハードカバー → 軽い影） */
+.pagination-row .cover-toggle {
+    position: absolute;
+    left: 0;
+}
+
+.cover-toggle {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border-radius: 2px;
+    border: none;
+    background: #ccc;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s;
+}
+
+.cover-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+body.flat-cover .cover-toggle {
+    background: #4B2C82;
+}
+
+body.flat-cover .cover-toggle-knob {
+    transform: translateX(14px);
+}
+
+/* 背景色切替スイッチ（白 ⇔ #F9F9F9） */
+.pagination-row .bg-toggle {
+    position: absolute;
+    left: 42px;
+}
+
+.bg-toggle {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border-radius: 2px;
+    border: none;
+    background: #ccc;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s;
+}
+
+.bg-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+body.bg-soft .bg-toggle {
+    background: #4B2C82;
+}
+
+body.bg-soft .bg-toggle-knob {
+    transform: translateX(14px);
+}
+
+/* 背景色：#F9F9F9（ダークモード時は適用しない） */
+body.bg-soft:not(.dark-mode) {
+    background-color: #F9F9F9;
+}
+
 /* ヘッダー */
 header {
     background-color: var(--color-header);
@@ -384,6 +465,49 @@ body.sidebar-collapsed .page-hero-caret {
     transform: rotate(180deg);
 }
 
+/* 2つ目の矢印：サイドバーを隠して6列表示に切替 */
+.page-hero-grid-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 2px;
+    cursor: pointer;
+    color: #888;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    transition: transform 0.3s ease, color 0.2s;
+}
+
+.page-hero-grid-toggle:hover {
+    color: #4B2C82;
+}
+
+body.grid-six .page-hero-grid-toggle {
+    transform: rotate(180deg);
+    color: #4B2C82;
+}
+
+/* 6列表示モード：サイドバー非表示 */
+body.grid-six .main-layout .sidebar {
+    width: 0;
+    padding: 0;
+    border-right: none;
+    overflow: hidden;
+    opacity: 0;
+    margin-right: -36px;
+}
+
+@media (min-width: 1201px) {
+    body.page-database.grid-six .manga-grid {
+        grid-template-columns: repeat(6, 1fr);
+        row-gap: 64px;
+    }
+    body.grid-six .main-layout {
+        max-width: 1040px;
+    }
+}
+
 .main-layout.sidebar-collapsed .sidebar {
     width: 0;
     padding: 0;
@@ -535,7 +659,7 @@ body.page-database .db-cover-frame {
     max-width: 100%;
     margin-top: auto;
     margin-bottom: 18px;
-    border-radius: 5px 2px 2px 5px;
+    border-radius: 2px;
     box-shadow:
         0 10px 22px rgba(0, 0, 0, 0.26),
         0 2px 5px rgba(0, 0, 0, 0.16);
@@ -603,6 +727,32 @@ body.dark-mode.page-database .db-cover-frame {
     box-shadow:
         0 10px 22px rgba(0, 0, 0, 0.50),
         0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* フラット表紙モード：ハードカバー質感を外して軽い影だけにする */
+body.flat-cover.page-database .db-cover-frame {
+    border-radius: 2px;
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.14),
+        0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+body.flat-cover.page-database .db-cover-frame::before,
+body.flat-cover.page-database .db-cover-frame::after {
+    display: none;
+}
+
+body.flat-cover.page-database .manga-item:hover .db-cover-frame {
+    transform: translateY(-3px);
+    box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.16),
+        0 2px 4px rgba(0, 0, 0, 0.10);
+}
+
+body.flat-cover.dark-mode.page-database .db-cover-frame {
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.42),
+        0 1px 2px rgba(0, 0, 0, 0.26);
 }
 
 body.page-database .manga-item h3,
@@ -824,6 +974,10 @@ body.page-database .manga-item .author {
     }
 
     .sidebar-toggle {
+        display: none;
+    }
+
+    .page-hero-grid-toggle {
         display: none;
     }
 
@@ -1541,5 +1695,16 @@ body.dark-mode .nav-menu-btn:hover {
     }
     header {
         view-transition-name: site-header;
+    }
+}
+
+/* ============================================
+   タブレット縦向き: ホーム（Databaseカタログ）は5列
+   iPad等（幅600〜1024px・縦向き）で表紙を5冊並べる。
+   既存の900px/768px=3列より後ろに置いて上書き
+   ============================================ */
+@media (min-width: 600px) and (max-width: 1024px) {
+    body.page-database .manga-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
     }
 }

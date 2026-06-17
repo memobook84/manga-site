@@ -783,7 +783,7 @@ function setupSlideNavigation() {
             if (history.length > 1) {
                 history.back();
             } else {
-                window.location.href = 'database.html';
+                window.location.href = 'home.html';
             }
         }, 250);
     }
@@ -802,12 +802,6 @@ function setupSlideNavigation() {
             window.location.href = `series-volumes.html?title=${encodeURIComponent(title)}`;
         }, 250);
     }
-
-    const backBtn = document.getElementById('page-back-btn');
-    if (backBtn) backBtn.addEventListener('click', slideBack);
-
-    const forwardBtn = document.getElementById('page-forward-btn');
-    if (forwardBtn) forwardBtn.addEventListener('click', slideForward);
 
     if (!isMobile) return;
 

@@ -24,7 +24,7 @@
       <ul class="nav-popup-list">
         <li><a href="/index.html">Pickup</a></li>
         <li><a href="/blog.html">Blog</a></li>
-        <li><a href="/database.html">Database</a></li>
+        <li><a href="/home.html">Database</a></li>
         <li><a href="/ranking.html">Popular</a></li>
         <li><a href="/new-releases.html">New Releases</a></li>
         <li><a href="/follow.html">Favorites</a></li>

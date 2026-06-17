@@ -1,9 +1,9 @@
-const CACHE_NAME = 'bookstore-v13';
+const CACHE_NAME = 'bookstore-v15';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/index.html',
-  '/database.html',
+  '/home.html',
+  '/menu.html',
   '/style.css',
   '/home-portal.css',
   '/script.js',
