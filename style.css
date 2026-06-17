@@ -1708,3 +1708,53 @@ body.dark-mode .nav-menu-btn:hover {
         grid-template-columns: repeat(5, 1fr) !important;
     }
 }
+
+/* ============================================
+   【実験】ホームPCヘッダー: ナビをアイコン角丸ボタン化
+   ダメなら本ブロックとhome.htmlのnav-ico/nav-labelを削除で戻せる
+   ============================================ */
+@media (min-width: 769px) {
+    body.page-database .header-nav {
+        gap: 8px;
+        align-items: center;
+    }
+    body.page-database .header-nav .nav-link,
+    body.page-database .header-nav .nav-menu-btn {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 4px;
+        height: auto;
+        padding: 4px 10px;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        line-height: 1;
+        font-size: 11px;
+        color: #fff !important;
+    }
+    body.page-database .header-nav .nav-ico {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        height: 26px;
+        line-height: 1;
+    }
+    body.page-database .header-nav .nav-label {
+        display: block;
+        font-size: 9px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        line-height: 1;
+        color: #fff;
+    }
+    body.page-database .header-nav .nav-link::after {
+        display: none;
+    }
+    body.page-database .header-nav .nav-link:hover,
+    body.page-database .header-nav .nav-menu-btn:hover {
+        background: transparent;
+        opacity: 0.8;
+    }
+}
