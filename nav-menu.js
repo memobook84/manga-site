@@ -31,6 +31,7 @@
       </ul>
       <div class="nav-popup-section-title">Info</div>
       <ul class="nav-popup-list">
+        <li><a href="/qr.html">QRコード</a></li>
         <li><a href="/profile.html">About Me</a></li>
         <li><a href="/about.html">運営者情報</a></li>
         <li><a href="/privacy.html">プライバシーポリシー</a></li>

@@ -125,36 +125,43 @@ body {
     font-family: var(--font-heading);
 }
 
-/* メタ情報 */
+/* メタ情報（スペックシート型） */
 .volume-meta {
     margin-bottom: 30px;
-    padding: 10px 0;
+    padding: 4px 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 28px;
+    row-gap: 18px;
 }
 
 .meta-item {
-    margin-bottom: 12px;
-    font-size: 15px;
-}
-
-.meta-item:last-child {
-    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .meta-label {
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.08em;
     color: var(--color-text-sub);
-    min-width: 100px;
-    display: inline-block;
+    opacity: 0.55;
 }
 
 .meta-value {
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 400;
     color: var(--color-text);
+    overflow-wrap: anywhere;
 }
 
 .author-link {
     color: #6cb4ee;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 400;
     transition: color 0.3s;
 }
 

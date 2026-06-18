@@ -251,22 +251,28 @@ header.header-hidden {
 
 @media (min-width: 769px) {
     header {
-        background-color: #4B2C82;
+        background-color: #644476;
     }
     header h1, header h1 a {
         color: #F7F7F7 !important;
+        font-weight: 900;
+        -webkit-text-stroke: 2px #2A1A3C;
+        paint-order: stroke fill;
+        text-shadow:
+            1px 1px 0 #2A1A3C,
+            2px 2px 2px rgba(0, 0, 0, 0.3);
     }
     header .nav-link {
-        color: #fff !important;
+        color: #D7DEDC !important;
     }
     header .nav-link:hover {
-        color: #fff !important;
+        color: #D7DEDC !important;
     }
     header .nav-link::after {
-        background: #fff;
+        background: #D7DEDC;
     }
     header .nav-menu-btn {
-        color: #fff;
+        color: #D7DEDC;
     }
     header .nav-menu-btn:hover {
         background: rgba(255,255,255,0.15);
@@ -1756,5 +1762,38 @@ body.dark-mode .nav-menu-btn:hover {
     body.page-database .header-nav .nav-menu-btn:hover {
         background: transparent;
         opacity: 0.8;
+    }
+}
+
+/* ============================================
+   スマホヘッダー: 左にATLASワードマーク画像、右に検索バー。
+   小ロゴ(logo.png)は非表示。
+   ============================================ */
+@media (max-width: 768px) {
+    header .header-logo {
+        display: none !important;
+    }
+    header .search-box {
+        display: flex;
+    }
+    header h1 {
+        display: block !important;
+        flex: 0 0 auto;
+        width: 72px;
+        height: 40px;
+        margin: 0 auto 0 0;
+        top: 0;
+        font-size: 0 !important;
+        text-shadow: none !important;
+        -webkit-text-stroke: 0 !important;
+        background: url('atlas-title.png') no-repeat left center;
+        background-size: auto 40px;
+    }
+    header h1 a {
+        display: block;
+        width: 100%;
+        height: 100%;
+        font-size: 0;
+        color: transparent;
     }
 }

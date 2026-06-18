@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookstore-v15';
+const CACHE_NAME = 'bookstore-v16';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -19,8 +19,8 @@ const STATIC_ASSETS = [
   '/ranking.css',
   '/favicon.png',
   '/header-logo.png',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icon-192.png?v=2',
+  '/icon-512.png?v=2',
 ];
 
 // インストール時に静的アセットをキャッシュ

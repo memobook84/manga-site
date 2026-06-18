@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu - ATLAS COMIC</title>
+    <title>QRコード - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <link rel="apple-touch-icon" href="/favicon.png">
+    <meta name="description" content="ATLAS COMIC のQRコード。スマホで読み取ってアクセスできます。">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
-    <link rel="preconnect" href="https://books.google.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
     <style>
@@ -22,45 +20,72 @@
             background: #fff;
             min-height: 100vh;
         }
-        .menu-main {
+        .qr-main {
             max-width: 600px;
             margin: 0 auto;
-            padding: 24px 0 100px;
-        }
-        .menu-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #999;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 24px 20px 8px;
-        }
-        .menu-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .menu-list a {
+            padding: 40px 20px 120px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            font-size: 16px;
+            text-align: center;
+        }
+        .qr-heading {
+            font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            color: #2B2B2B;
+            margin: 0 0 8px;
+        }
+        .qr-sub {
+            font-size: 14px;
+            color: #888;
+            margin: 0 0 32px;
+            line-height: 1.7;
+        }
+        .qr-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 18px 50px rgba(75, 44, 130, 0.18),
+                        0 4px 14px rgba(0, 0, 0, 0.06);
+        }
+        .qr-card img {
+            display: block;
+            width: 260px;
+            height: 260px;
+            max-width: 70vw;
+            max-height: 70vw;
+            border-radius: 12px;
+        }
+        .qr-url {
+            margin-top: 28px;
+            font-size: 14px;
             font-weight: 500;
-            color: #111;
-            text-decoration: none;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.15s;
+            color: #4B2C82;
+            word-break: break-all;
         }
-        .menu-list a:first-child {
-            border-top: 1px solid #f0f0f0;
+        .qr-copy-btn {
+            margin-top: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #4B2C82;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.15s ease;
         }
-        .menu-list a:active {
-            background: #f7f7f7;
+        .qr-copy-btn:hover {
+            background: #371F63;
         }
-        .menu-arrow {
-            color: #bbb;
-            font-size: 16px;
+        .qr-copy-btn:active {
+            transform: scale(0.96);
         }
     </style>
 </head>
@@ -84,24 +109,19 @@
         </div>
     </header>
 
-    <main class="menu-main">
-        <div class="menu-section-title">Browse</div>
-        <ul class="menu-list">
-            <li><a href="index.html">Pickup <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="home.html">Database <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="ranking.html">Popular <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="new-releases.html">New Releases <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="blog.html">Blog <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="follow.html">Favorites <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
+    <main class="qr-main">
+        <h1 class="qr-heading">QRコード</h1>
+        <p class="qr-sub">スマホのカメラで読み取って<br>ATLAS COMIC にアクセスできます。</p>
 
-        <div class="menu-section-title">Info</div>
-        <ul class="menu-list">
-            <li><a href="qr.html">QRコード <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="profile.html">About Me <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="about.html">運営者情報 <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="privacy.html">プライバシーポリシー <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
+        <div class="qr-card">
+            <img src="qr-code.png" alt="ATLAS COMIC QRコード">
+        </div>
+
+        <div class="qr-url" id="qrUrl">https://manga-site-three.vercel.app</div>
+        <button class="qr-copy-btn" id="qrCopyBtn">
+            <i class="bi bi-link-45deg" style="font-size:18px"></i>
+            <span>URLをコピー</span>
+        </button>
     </main>
 
     <nav class="bottom-nav">
@@ -127,6 +147,22 @@
         </a>
     </nav>
 
+    <script>
+    (function() {
+        var url = 'https://manga-site-three.vercel.app';
+        var btn = document.getElementById('qrCopyBtn');
+        var label = btn.querySelector('span');
+        btn.addEventListener('click', function() {
+            navigator.clipboard.writeText(url).then(function() {
+                label.textContent = 'コピーしました';
+                setTimeout(function() { label.textContent = 'URLをコピー'; }, 1800);
+            }).catch(function() {
+                label.textContent = 'コピーできません';
+                setTimeout(function() { label.textContent = 'URLをコピー'; }, 1800);
+            });
+        });
+    })();
+    </script>
     <script>
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js');
