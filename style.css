@@ -1267,7 +1267,7 @@ body.dark-mode .page-of { color: #B89DE8; }
 
 @media (max-width: 768px) {
     header {
-        background-color: #4B2C82;
+        background-color: #422476;
         box-shadow: none;
         position: fixed;
         top: 0;
@@ -1599,7 +1599,7 @@ body.dark-mode .nav-menu-btn:hover {
     position: fixed;
     top: 56px;
     right: 16px;
-    background: #4B2C82;
+    background: #422476;
     color: #fff;
     width: 280px;
     max-width: 92vw;
@@ -1684,7 +1684,7 @@ body.dark-mode .nav-menu-btn:hover {
 }
 .nav-popup-list li a:hover {
     background: #fff;
-    color: #4B2C82;
+    color: #422476;
 }
 
 /* ダークモードでもメニューはテーマカラー（紫）で統一 */

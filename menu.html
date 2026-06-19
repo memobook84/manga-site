@@ -6,7 +6,7 @@
     <title>Menu - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#FFFFFF">
+    <meta name="theme-color" content="#422476">
     <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
     <style>
         body {
-            background: #fff;
+            background: #422476;
             min-height: 100vh;
         }
         .menu-main {
@@ -30,7 +30,7 @@
         .menu-section-title {
             font-size: 11px;
             font-weight: 600;
-            color: #999;
+            color: rgba(255, 255, 255, 0.45);
             letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 24px 20px 8px;
@@ -47,19 +47,19 @@
             padding: 18px 20px;
             font-size: 16px;
             font-weight: 500;
-            color: #111;
+            color: #fff;
             text-decoration: none;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
             transition: background 0.15s;
         }
         .menu-list a:first-child {
-            border-top: 1px solid #f0f0f0;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
         .menu-list a:active {
-            background: #f7f7f7;
+            background: rgba(255, 255, 255, 0.10);
         }
         .menu-arrow {
-            color: #bbb;
+            color: rgba(255, 255, 255, 0.5);
             font-size: 16px;
         }
     </style>
@@ -106,23 +106,23 @@
 
     <nav class="bottom-nav">
         <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
-            <i class="ph-bold ph-arrow-left" style="font-size:22px"></i>
+            <i class="ph-light ph-arrow-left" style="font-size:22px"></i>
             <span>Back</span>
         </a>
         <a href="/home.html" class="bottom-nav-item" data-page="database">
-            <i class="ph-bold ph-house" style="font-size:22px"></i>
+            <i class="ph-light ph-house" style="font-size:22px"></i>
             <span>Home</span>
         </a>
         <a href="/index.html" class="bottom-nav-item" data-page="home">
-            <i class="ph-bold ph-fire" style="font-size:22px"></i>
+            <i class="ph-light ph-fire" style="font-size:22px"></i>
             <span>Pickup</span>
         </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
-            <i class="ph-bold ph-butterfly" style="font-size:22px"></i>
+            <i class="ph-light ph-butterfly" style="font-size:22px"></i>
             <span>Favorites</span>
         </a>
         <a href="/menu.html" class="bottom-nav-item active" data-page="menu">
-            <i class="ph-bold ph-list" style="font-size:22px"></i>
+            <i class="ph-light ph-list" style="font-size:22px"></i>
             <span>Menu</span>
         </a>
     </nav>

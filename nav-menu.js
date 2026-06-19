@@ -93,7 +93,7 @@
   const bottomNav = document.querySelector('.bottom-nav');
   if (bottomNav) {
     const activeIcon = bottomNav.querySelector('.bottom-nav-item.active i');
-    if (activeIcon) activeIcon.classList.replace('ph-bold', 'ph-fill');
+    if (activeIcon) activeIcon.classList.replace('ph-light', 'ph-fill');
 
     // 現在のページのアイテムはタップしても遷移しない
     bottomNav.querySelectorAll('.bottom-nav-item.active').forEach(function (item) {

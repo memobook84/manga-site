@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="legal.css">
-    <link rel="stylesheet" href="detail.css?v=20260617c">
+    <link rel="stylesheet" href="detail.css?v=20260619g">
     <script src="manga-data.js"></script>
     <script src="rakuten-adapter.js"></script>
     <script src="detail.js"></script>
@@ -78,36 +78,32 @@
             <div class="detail-info">
                 <h1 id="manga-title" class="detail-title">読み込み中...</h1>
                 <div class="detail-author-line"><span id="manga-author">-</span></div>
+
+                <!-- メタ情報（表紙の横に表示・volumeページと同レイアウト） -->
+                <div class="detail-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">出版社</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-publisher" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">レーベル</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-label" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">ジャンル</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-genre" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">全巻数</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-date" class="meta-value">-</span>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <hr class="detail-divider">
-
-        <!-- メタ情報 -->
-        <div class="detail-meta">
-            <div class="meta-item">
-                <span class="meta-label">出版社</span>
-                <span class="meta-dots"></span>
-                <span id="manga-publisher" class="meta-value">-</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">レーベル</span>
-                <span class="meta-dots"></span>
-                <span id="manga-label" class="meta-value">-</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">ジャンル</span>
-                <span class="meta-dots"></span>
-                <span id="manga-genre" class="meta-value">-</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">全巻数</span>
-                <span class="meta-dots"></span>
-                <span id="manga-date" class="meta-value">-</span>
-            </div>
-        </div>
-
-        <hr class="detail-divider">
 
         <!-- ストーリー -->
         <div class="detail-description">
@@ -203,23 +199,23 @@
     <!-- ボトムナビ -->
     <nav class="bottom-nav">
         <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
-            <i class="ph-bold ph-arrow-left" style="font-size:22px"></i>
+            <i class="ph-light ph-arrow-left" style="font-size:22px"></i>
             <span>Back</span>
         </a>
         <a href="/home.html" class="bottom-nav-item" data-page="database">
-            <i class="ph-bold ph-house" style="font-size:22px"></i>
+            <i class="ph-light ph-house" style="font-size:22px"></i>
             <span>Home</span>
         </a>
         <a href="/index.html" class="bottom-nav-item" data-page="home">
-            <i class="ph-bold ph-fire" style="font-size:22px"></i>
+            <i class="ph-light ph-fire" style="font-size:22px"></i>
             <span>Pickup</span>
         </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
-            <i class="ph-bold ph-butterfly" style="font-size:22px"></i>
+            <i class="ph-light ph-butterfly" style="font-size:22px"></i>
             <span>Favorites</span>
         </a>
         <a href="/menu.html" class="bottom-nav-item" data-page="menu">
-            <i class="ph-bold ph-list" style="font-size:22px"></i>
+            <i class="ph-light ph-list" style="font-size:22px"></i>
             <span>Menu</span>
         </a>
     </nav>

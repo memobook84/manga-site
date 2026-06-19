@@ -261,11 +261,15 @@ body.dark-mode .detail-divider {
 }
 
 /* メタ情報グリッド */
+/* メタ情報（スペックシート型 / volumeページと共通デザイン） */
 .detail-meta {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    margin: 24px 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 28px;
+    row-gap: 18px;
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--color-border, #e5e1dc);
 }
 
 .meta-item {
@@ -273,23 +277,16 @@ body.dark-mode .detail-divider {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-    padding: 4px 20px;
     min-width: 0;
-    border-left: 1px solid var(--color-border, #e5e1dc);
-}
-
-.meta-item:first-child {
-    border-left: none;
-    padding-left: 0;
 }
 
 .meta-label {
-    font-size: 10px;
-    color: #999;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    white-space: nowrap;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--color-text-sub);
+    opacity: 0.55;
 }
 
 .meta-dots {
@@ -297,18 +294,13 @@ body.dark-mode .detail-divider {
 }
 
 .meta-value {
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.45;
     font-weight: 400;
     color: var(--color-text);
     font-family: 'Noto Sans JP', sans-serif;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
     max-width: 100%;
-}
-
-body.dark-mode .meta-item {
-    border-left-color: #333;
 }
 
 .author-link {
@@ -330,16 +322,26 @@ body.dark-mode .meta-item {
 }
 
 .detail-description h2 {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     font-size: 18px;
-    color: #222;
+    color: var(--color-text);
     margin-bottom: 18px;
-    padding: 2px 0 2px 12px;
+    padding: 0;
     border: none;
-    border-left: 4px solid #422476;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
     font-weight: 800;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
     line-height: 1.15;
+}
+
+.detail-description h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border, #e5e1dc);
 }
 
 .detail-description p {
@@ -414,16 +416,28 @@ body.dark-mode .meta-item {
 }
 
 .volumes-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
     font-size: 18px;
-    color: #222;
+    color: var(--color-text);
     margin: 0;
-    padding: 2px 0 2px 12px;
+    padding: 0;
     border: none;
-    border-left: 4px solid #422476;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
     font-weight: 800;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
     line-height: 1.15;
+    white-space: nowrap;
+}
+
+.volumes-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border, #e5e1dc);
 }
 
 .volumes-header {
@@ -863,22 +877,10 @@ body.dark-mode .range-field input {
 
     .detail-meta {
         grid-template-columns: repeat(2, 1fr);
-        margin: 20px;
-        gap: 16px 0;
-    }
-
-    .meta-item {
-        padding: 4px 16px;
-        border-left: 1px solid var(--color-border, #e5e1dc);
-    }
-
-    .meta-item:first-child {
-        padding-left: 0;
-    }
-
-    .meta-item:nth-child(odd) {
-        border-left: none;
-        padding-left: 0;
+        margin-top: 18px;
+        padding-top: 18px;
+        column-gap: 20px;
+        row-gap: 16px;
     }
 
     .meta-value {
