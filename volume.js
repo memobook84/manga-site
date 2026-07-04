@@ -58,9 +58,11 @@ async function displayVolumeDetail() {
     const volumeImageContainer = document.querySelector('.volume-image');
     const arrows = volumeImageContainer.querySelectorAll('.swipe-arrow');
     const buyBtn = document.getElementById('buy-amazon');
+    const previewBtn = document.getElementById('preview-btn');
     volumeImageContainer.innerHTML = createDetailImageElement(volume);
     arrows.forEach(arrow => volumeImageContainer.appendChild(arrow));
     if (buyBtn) volumeImageContainer.appendChild(buyBtn);
+    if (previewBtn) volumeImageContainer.appendChild(previewBtn);
 
     const seriesTitle = extractSeriesName(volume.title) || volume.title;
     const volNum = extractVolumeNum(volume.title);
@@ -98,7 +100,101 @@ async function displayVolumeDetail() {
 
     // 前後巻ナビゲーションを設定
     setupVolumeSlider(seriesName, isbn, title);
+
+    // 試し読みボタンの設定（対応している巻のみ表示）
+    setupPreviewButton(volume);
 }
+
+// ===== 試し読み（Google Books Embedded Viewer） =====
+
+// Google Books Dynamic Links API（JSONP・キー不要・クォータ無し）で
+// プレビューが利用できる巻か判定してボタンを表示
+function fetchGbViewInfo(isbn) {
+    return new Promise((resolve, reject) => {
+        const cb = '__gbViewApi' + Date.now();
+        const script = document.createElement('script');
+        const cleanup = () => { try { delete window[cb]; } catch (e) {} script.remove(); };
+        window[cb] = (data) => { cleanup(); resolve(data['ISBN:' + isbn] || null); };
+        script.src = `https://books.google.com/books?bibkeys=ISBN:${isbn}&jscmd=viewapi&callback=${cb}`;
+        script.onerror = () => { cleanup(); reject(new Error('viewapi load error')); };
+        document.head.appendChild(script);
+    });
+}
+
+async function setupPreviewButton(volume) {
+    const btn = document.getElementById('preview-btn');
+    if (!btn || !volume.isbn) return;
+    try {
+        const info = await fetchGbViewInfo(volume.isbn);
+        const canPreview = info && info.embeddable &&
+            (info.preview === 'partial' || info.preview === 'full');
+        if (!canPreview) return;
+        btn.hidden = false;
+        btn.onclick = () => openPreview(volume);
+    } catch (e) {
+        // 判定に失敗した場合はボタン非表示のまま
+    }
+}
+
+// ビューアAPI(jsapi)は試し読みボタンが押された時だけ読み込む
+let gbJsApiPromise = null;
+function loadGbJsApi() {
+    if (gbJsApiPromise) return gbJsApiPromise;
+    gbJsApiPromise = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://www.google.com/books/jsapi.js';
+        s.onload = () => {
+            google.books.load();
+            google.books.setOnLoadCallback(resolve);
+        };
+        s.onerror = () => { gbJsApiPromise = null; reject(new Error('jsapi load error')); };
+        document.head.appendChild(s);
+    });
+    return gbJsApiPromise;
+}
+
+async function openPreview(volume) {
+    const overlay = document.getElementById('previewOverlay');
+    const titleEl = document.getElementById('preview-modal-title');
+    const canvas = document.getElementById('gbViewerCanvas');
+    titleEl.textContent = volume.title || '試し読み';
+    overlay.hidden = false;
+    document.body.style.overflow = 'hidden';
+    canvas.innerHTML = '<div class="preview-message">読み込み中...</div>';
+    try {
+        await loadGbJsApi();
+        canvas.innerHTML = '';
+        const viewer = new google.books.DefaultViewer(canvas);
+        viewer.load('ISBN:' + volume.isbn, () => {
+            canvas.innerHTML = '<div class="preview-message">この巻の試し読みは提供されていません。</div>';
+        });
+    } catch (e) {
+        canvas.innerHTML = '<div class="preview-message">ビューアの読み込みに失敗しました。</div>';
+    }
+}
+
+function closePreview() {
+    const overlay = document.getElementById('previewOverlay');
+    if (!overlay || overlay.hidden) return;
+    overlay.hidden = true;
+    document.body.style.overflow = '';
+    // ビューアを破棄（次回開く時に作り直す）
+    document.getElementById('gbViewerCanvas').innerHTML = '';
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('previewOverlay');
+    const closeBtn = document.getElementById('preview-close');
+    if (closeBtn) closeBtn.addEventListener('click', closePreview);
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closePreview();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePreview();
+    });
+});
 
 // シリーズの全巻を取得して前後ナビゲーションを構築
 async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {

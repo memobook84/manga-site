@@ -126,10 +126,12 @@ async function displayMangaDetail() {
         { match: 'spyfamily', url: 'https://www.youtube.com/watch?v=U_rWZK_8vUY' },
         { match: 'スパイファミリー', url: 'https://www.youtube.com/watch?v=U_rWZK_8vUY' },
     ];
+    // ※YouTube再生バッジは一旦非表示（videoLinksのデータは残してある）
+    const SHOW_VIDEO_BADGE = false;
     if (badge) {
         const key = normalize(displaySeriesName);
         const hit = videoLinks.find(v => normalize(v.match) === key);
-        if (hit) {
+        if (SHOW_VIDEO_BADGE && hit) {
             badge.dataset.videoUrl = hit.url;
             badge.hidden = false;
             badge.onclick = () => openVideoModal(hit.url);

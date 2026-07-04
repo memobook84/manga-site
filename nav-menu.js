@@ -18,24 +18,28 @@
 
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
+  function popupCard(href, cls, title) {
+    return `<a href="${href}" class="nav-popup-card ${cls}">
+      <span class="npc-title">${title}</span>
+      <span class="npc-art"></span>
+      <span class="npc-author">Atlas Comic</span>
+    </a>`;
+  }
+
   overlay.innerHTML = `
     <div id="navMenuPopup">
-      <div class="nav-popup-section-title">Browse</div>
-      <ul class="nav-popup-list">
-        <li><a href="/index.html">Pickup</a></li>
-        <li><a href="/blog.html">Blog</a></li>
-        <li><a href="/home.html">Database</a></li>
-        <li><a href="/ranking.html">Popular</a></li>
-        <li><a href="/new-releases.html">New Releases</a></li>
-        <li><a href="/follow.html">Favorites</a></li>
-      </ul>
-      <div class="nav-popup-section-title">Info</div>
-      <ul class="nav-popup-list">
-        <li><a href="/qr.html">QRコード</a></li>
-        <li><a href="/profile.html">About Me</a></li>
-        <li><a href="/about.html">運営者情報</a></li>
-        <li><a href="/privacy.html">プライバシーポリシー</a></li>
-      </ul>
+      <div class="nav-popup-grid">
+        ${popupCard('/index.html', 'npc-pickup', 'ピック<br>アップ')}
+        ${popupCard('/home.html', 'npc-database', 'データ<br>ベース')}
+        ${popupCard('/ranking.html', 'npc-ranking', 'ランキング')}
+        ${popupCard('/new-releases.html', 'npc-new', '新刊')}
+        ${popupCard('/blog.html', 'npc-blog', 'ブログ')}
+        ${popupCard('/follow.html', 'npc-fav', 'お気に入り')}
+        ${popupCard('/qr.html', 'npc-qr', 'QRコード')}
+        ${popupCard('/profile.html', 'npc-profile', '管理人紹介')}
+        ${popupCard('/about.html', 'npc-about', '運営者情報')}
+        ${popupCard('/privacy.html', 'npc-privacy', 'プライバシー<br>ポリシー')}
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -100,6 +104,44 @@
       item.addEventListener('click', function (e) {
         e.preventDefault();
       });
+    });
+  }
+
+  // ===== 収納型ボトムナビ（スマホブラウザ表示のみ、PWAは通常ナビ） =====
+  // 表示/非表示はCSSの (display-mode: browser) メディアクエリが制御。
+  // PWA（standalone）ではボタン自体を生成しない。
+  if (bottomNav && window.matchMedia('(display-mode: browser)').matches) {
+    const fab = document.createElement('button');
+    fab.type = 'button';
+    fab.className = 'bottom-nav-fab';
+    fab.setAttribute('aria-label', 'ナビゲーションを開く');
+    fab.innerHTML = '<i class="ph-bold ph-list"></i>';
+    document.body.appendChild(fab);
+
+    function closeFabNav() {
+      bottomNav.classList.remove('fab-open');
+      fab.classList.remove('open');
+      fab.querySelector('i').className = 'ph-bold ph-list';
+    }
+
+    fab.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const opened = bottomNav.classList.toggle('fab-open');
+      fab.classList.toggle('open', opened);
+      fab.querySelector('i').className = opened ? 'ph-bold ph-x' : 'ph-bold ph-list';
+    });
+
+    // ナビ外タップ・Escape・ナビ項目タップで閉じる
+    document.addEventListener('click', function (e) {
+      if (bottomNav.classList.contains('fab-open') && !bottomNav.contains(e.target)) {
+        closeFabNav();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeFabNav();
+    });
+    bottomNav.querySelectorAll('.bottom-nav-item').forEach(function (item) {
+      item.addEventListener('click', closeFabNav);
     });
   }
 

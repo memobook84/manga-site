@@ -170,3 +170,268 @@
         text-align: left;
     }
 }
+
+/* ===== 発売日カレンダー ===== */
+.calendar-container {
+    margin-bottom: 40px;
+}
+
+.calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.cal-title {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.02em;
+    min-width: 140px;
+    text-align: center;
+    color: var(--color-text, #111);
+}
+
+.cal-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e2e2e2;
+    border-radius: 50%;
+    background: #fff;
+    color: #333;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cal-nav-btn:hover {
+    background: #F2EEFB;
+    border-color: #4B2C82;
+    color: #4B2C82;
+}
+
+.cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.cal-weekdays span {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #999;
+    padding: 4px 0;
+}
+
+.cal-weekdays .cal-sun { color: #d64545; }
+.cal-weekdays .cal-sat { color: #4569d6; }
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.cal-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    aspect-ratio: 1 / 1.25;
+    padding: 4px 3px 3px;
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.cal-cell-empty {
+    background: transparent;
+    border: none;
+}
+
+.cal-cell.has-releases {
+    cursor: pointer;
+    background: #fff;
+    border-color: #e5e0f0;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cal-cell.has-releases:hover {
+    border-color: #4B2C82;
+    box-shadow: 0 2px 10px rgba(75, 44, 130, 0.12);
+}
+
+.cal-cell.cal-today {
+    border: 2px solid #4B2C82;
+}
+
+.cal-cell.cal-selected {
+    background: #F2EEFB;
+    border-color: #4B2C82;
+}
+
+.cal-daynum {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    line-height: 1;
+    margin-bottom: 3px;
+}
+
+.cal-cell.cal-sun .cal-daynum { color: #d64545; }
+.cal-cell.cal-sat .cal-daynum { color: #4569d6; }
+
+.cal-cover {
+    flex: 1;
+    width: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    min-height: 0;
+}
+
+.cal-count {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    background: #4B2C82;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 999px;
+    line-height: 1.4;
+}
+
+.cal-loading {
+    text-align: center;
+    padding: 14px;
+    font-size: 13px;
+    color: var(--color-text-sub, #888);
+}
+
+/* 選択日の新刊リスト */
+.cal-day-panel,
+.cal-unknown {
+    margin-top: 20px;
+}
+
+.cal-panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    color: var(--color-text, #111);
+}
+
+.cal-panel-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4B2C82;
+    margin-left: 6px;
+}
+
+.cal-hint {
+    text-align: center;
+    padding: 18px 10px;
+    font-size: 13px;
+    color: var(--color-text-sub, #999);
+}
+
+.cal-release-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.cal-release-row:hover {
+    background: #faf8fd;
+}
+
+.cal-release-cover {
+    width: 44px;
+    height: 62px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.cal-release-cover img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.cal-release-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.cal-release-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text, #111);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cal-release-sub {
+    font-size: 12px;
+    color: var(--color-text-sub, #777);
+    margin-top: 2px;
+}
+
+.cal-release-meta {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.cal-release-date {
+    font-size: 11px;
+    color: #999;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .calendar-grid,
+    .cal-weekdays {
+        gap: 3px;
+    }
+    .cal-cell {
+        border-radius: 5px;
+        padding: 3px 2px 2px;
+    }
+    .cal-daynum {
+        font-size: 9.5px;
+    }
+    .cal-count {
+        font-size: 8px;
+        padding: 1px 4px;
+        right: 2px;
+        bottom: 2px;
+    }
+    .cal-title {
+        font-size: 17px;
+    }
+    .cal-release-date {
+        display: none;
+    }
+}

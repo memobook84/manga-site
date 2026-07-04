@@ -42,7 +42,7 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
-            <a href="home.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <a href="home.html" class="header-logo"><img src="logo-atlas.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
@@ -61,16 +61,25 @@
 
     <section class="page-hero">
         <h2>NEW RELEASES</h2>
-        <p>最新の新刊情報をお届けします</p>
+        <p>発売日カレンダー（集英社・小学館・講談社）</p>
     </section>
 
     <!-- 新刊ページコンテンツ -->
     <main class="new-releases-main">
 
-        <div class="releases-container">
-            <div id="releases-list" class="releases-list">
-                <!-- JavaScriptで動的に生成 -->
+        <div class="calendar-container">
+            <div class="calendar-head">
+                <button id="cal-prev" class="cal-nav-btn" aria-label="前の月"><i class="ph-bold ph-caret-left"></i></button>
+                <h3 id="cal-title" class="cal-title"></h3>
+                <button id="cal-next" class="cal-nav-btn" aria-label="次の月"><i class="ph-bold ph-caret-right"></i></button>
             </div>
+            <div class="cal-weekdays">
+                <span class="cal-sun">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="cal-sat">土</span>
+            </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
+            <div id="cal-loading" class="cal-loading">新刊情報を読み込み中...</div>
+            <div id="cal-day-panel" class="cal-day-panel"></div>
+            <div id="cal-unknown" class="cal-unknown"></div>
         </div>
 
         <div class="back-button-container">

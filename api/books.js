@@ -66,7 +66,7 @@ function mapItem(item) {
 }
 
 module.exports = async function handler(req, res) {
-  const { genre = '001001', hits = '30', page = '1', isbn, sort = 'sales', keyword } = req.query;
+  const { genre = '001001', hits = '30', page = '1', isbn, sort = 'sales', keyword, publisher } = req.query;
 
   const accessKey = (process.env.RAKUTEN_APP_ID || '').trim();
   if (!accessKey) {
@@ -91,6 +91,10 @@ module.exports = async function handler(req, res) {
 
   if (keyword) {
     params.set('title', keyword);
+  }
+
+  if (publisher) {
+    params.set('publisherName', publisher);
   }
 
   try {

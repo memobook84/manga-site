@@ -365,6 +365,117 @@ body {
     stroke: currentColor;
 }
 
+/* ===== 試し読み ===== */
+.preview-button {
+    margin-top: 8px;
+    background-color: #4B2C82;
+    color: #fff;
+    border: 1px solid #4B2C82;
+    cursor: pointer;
+}
+
+.preview-button:hover {
+    background-color: #371F63;
+    border-color: #371F63;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+.preview-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.preview-overlay[hidden] {
+    display: none;
+}
+
+.preview-modal {
+    width: min(900px, 100%);
+    height: min(90vh, 100%);
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.preview-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px 10px 16px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.preview-modal-title {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Noto Sans JP', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f2f2f2;
+    color: #111;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.preview-close:hover {
+    background: #e5e5e5;
+}
+
+.preview-viewer {
+    flex: 1;
+    min-height: 0;
+}
+
+.preview-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    font-size: 14px;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 20px;
+    text-align: center;
+}
+
+/* スマホは全画面表示 */
+@media (max-width: 768px) {
+    .preview-overlay {
+        padding: 0;
+    }
+    .preview-modal {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
 @media (max-width: 768px) {
     .volume-main {
         display: flex;

@@ -1,91 +1,207 @@
-// 新刊リストを表示（メイン処理）
-async function displayNewReleases() {
-    const listContainer = document.getElementById('releases-list');
-    listContainer.innerHTML = '<p style="text-align:center;padding:40px;color:var(--color-text-sub);">新刊情報を読み込み中...</p>';
+// ===== 発売日カレンダー =====
+// 出版社別に発売日順（未来→過去）でAPIを取得し、日付ごとにバケット分けして
+// カレンダー表示する。取得は段階的（ページごとに再描画）で、今月の頭まで
+// さかのぼれたら打ち切る。
 
-    let releases = await fetchNewReleases();
+const CAL_PUBLISHERS = ['集英社', '小学館', '講談社'];
+const MAX_PAGES_PER_PUB = 6;
 
-    // APIで取得できなかった場合、ローカルデータからフォールバック
-    if (!releases || releases.length === 0) {
-        releases = generateLocalNewReleases();
+let calBuckets = {};   // 'y-m-d' -> [items]（日付確定分）
+let calUnknown = {};   // 'y-m'   -> [items]（「上旬」「頃」など日付未定分）
+let calSeenIsbn = new Set();
+let calYear = 0;
+let calMonth = 0;      // 1-12
+let calSelectedDay = null;
+let calLoading = true;
+
+// "2026年07月04日" / "2026年07月上旬" などをパース（日が無ければ d: null）
+function parseSalesDate(str) {
+    if (!str) return null;
+    const m = str.match(/(\d{4})年(\d{1,2})月(?:(\d{1,2})日)?/);
+    if (!m) return null;
+    return { y: parseInt(m[1]), mo: parseInt(m[2]), d: m[3] ? parseInt(m[3]) : null };
+}
+
+// アイテムをバケットに追加。表示中の月に該当したら true
+function bucketItem(item) {
+    const dt = parseSalesDate(item.firstReleaseDate);
+    if (!dt) return false;
+    // 「3099年」などのダミー日付を除外
+    if (dt.y > new Date().getFullYear() + 1) return false;
+    if (item.isbn) {
+        if (calSeenIsbn.has(item.isbn)) return false;
+        calSeenIsbn.add(item.isbn);
     }
+    const key = dt.d ? `${dt.y}-${dt.mo}-${dt.d}` : `${dt.y}-${dt.mo}`;
+    const bucket = dt.d ? calBuckets : calUnknown;
+    (bucket[key] = bucket[key] || []).push(item);
+    return dt.y === calYear && dt.mo === calMonth;
+}
 
-    listContainer.innerHTML = '';
-
-    releases.forEach((release, index) => {
-        const releaseItem = document.createElement('div');
-        releaseItem.className = 'release-item';
-
-        const isNew = index < 3;
-        const newBadge = isNew ? '<span class="new-badge">NEW</span>' : '<span style="width: 60px;"></span>';
-
-        const priceDisplay = release.price ? ` / ${release.price}` : '';
-
-        releaseItem.innerHTML = `
-            ${newBadge}
-            <div class="release-info">
-                <div class="release-title">${release.title}</div>
-                <div class="release-author">${release.author}</div>
-            </div>
-            <div class="release-publisher">
-                <span class="publisher-name">${release.publisher}</span>
-                <span class="label-name">${release.label || ''}${priceDisplay}</span>
-            </div>
-            <div class="release-date">${release.firstReleaseDate || ''}</div>
-        `;
-
-        releaseItem.addEventListener('click', () => {
-            if (release.isbn) {
-                window.location.href = `detail.html?isbn=${release.isbn}&title=${encodeURIComponent(release.title)}`;
-            } else {
-                window.location.href = `detail.html?id=${release.id}`;
+async function fetchCalendarData() {
+    const monthStart = new Date(calYear, calMonth - 1, 1);
+    for (const pub of CAL_PUBLISHERS) {
+        for (let page = 1; page <= MAX_PAGES_PER_PUB; page++) {
+            try {
+                const data = await cachedFetch(`/api/books?genre=001001&publisher=${encodeURIComponent(pub)}&hits=30&sort=-releaseDate&page=${page}`);
+                const adapted = adaptApiResponse(data);
+                let touchedView = false;
+                let oldest = null;
+                adapted.items.forEach(item => {
+                    if (bucketItem(item)) touchedView = true;
+                    const dt = parseSalesDate(item.firstReleaseDate);
+                    if (dt && dt.y <= new Date().getFullYear() + 1) {
+                        const d = new Date(dt.y, dt.mo - 1, dt.d || 28);
+                        if (!oldest || d < oldest) oldest = d;
+                    }
+                });
+                if (touchedView) renderCalendar();
+                // 今月の頭までさかのぼれたら、この出版社は取得完了
+                if (oldest && oldest < monthStart) break;
+                if (page >= (data.pageCount || 1)) break;
+            } catch (e) {
+                console.warn('新刊取得失敗:', pub, e);
+                break;
             }
-        });
-
-        listContainer.appendChild(releaseItem);
-    });
-}
-
-// APIから新刊を取得
-async function fetchNewReleases() {
-    try {
-        const response = await fetch('/api/books?genre=001001&hits=20&sort=sales');
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        const data = await response.json();
-        const adapted = adaptApiResponse(data);
-        return adapted.items;
-    } catch (err) {
-        console.warn('新刊取得失敗:', err);
-        return null;
+            await new Promise(r => setTimeout(r, 250));
+        }
     }
+    calLoading = false;
+    document.getElementById('cal-loading').style.display = 'none';
+    renderCalendar();
 }
 
-// ローカルデータから新刊情報を生成（フォールバック）
-function generateLocalNewReleases() {
-    const releases = mangaDatabase.map(manga => {
-        const dateMatch = (manga.firstReleaseDate || '').match(/(\d+)年(\d+)月/);
-        const startYear = dateMatch ? parseInt(dateMatch[1]) : 2020;
-        const startMonth = dateMatch ? parseInt(dateMatch[2]) : 1;
+function itemsForDay(y, mo, d) {
+    return calBuckets[`${y}-${mo}-${d}`] || [];
+}
 
-        const monthsElapsed = ((manga.totalVolumes || 1) - 1) * 3;
-        const year = startYear + Math.floor((startMonth - 1 + monthsElapsed) / 12);
-        const month = ((startMonth - 1 + monthsElapsed) % 12) + 1;
+function renderCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    const title = document.getElementById('cal-title');
+    title.textContent = `${calYear}年${calMonth}月`;
 
-        return {
-            id: manga.id,
-            title: `${manga.title} ${manga.totalVolumes}巻`,
-            author: manga.author,
-            publisher: manga.publisher,
-            label: manga.label,
-            firstReleaseDate: `${year}/${String(month).padStart(2, '0')}`,
-            isbn: '',
-            sortDate: new Date(year, month - 1, 1),
-        };
+    const firstDow = new Date(calYear, calMonth - 1, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+    const today = new Date();
+    const isThisMonth = today.getFullYear() === calYear && (today.getMonth() + 1) === calMonth;
+
+    let html = '';
+    for (let i = 0; i < firstDow; i++) {
+        html += '<div class="cal-cell cal-cell-empty"></div>';
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+        const items = itemsForDay(calYear, calMonth, d);
+        const dow = (firstDow + d - 1) % 7;
+        const classes = ['cal-cell'];
+        if (items.length > 0) classes.push('has-releases');
+        if (isThisMonth && today.getDate() === d) classes.push('cal-today');
+        if (calSelectedDay === d) classes.push('cal-selected');
+        if (dow === 0) classes.push('cal-sun');
+        if (dow === 6) classes.push('cal-sat');
+
+        let coverHtml = '';
+        if (items.length > 0) {
+            const first = items.find(it => it.imageUrl) || items[0];
+            if (first.imageUrl) {
+                coverHtml = `<img class="cal-cover" src="${withRakutenSize(first.imageUrl, 120)}" alt="" loading="lazy" onerror="this.style.display='none'">`;
+            }
+            if (items.length > 1) {
+                coverHtml += `<span class="cal-count">+${items.length - 1}</span>`;
+            }
+        }
+        html += `<div class="${classes.join(' ')}" data-day="${d}">
+            <span class="cal-daynum">${d}</span>
+            ${coverHtml}
+        </div>`;
+    }
+    grid.innerHTML = html;
+
+    grid.querySelectorAll('.cal-cell[data-day]').forEach(cell => {
+        cell.addEventListener('click', () => {
+            const d = parseInt(cell.dataset.day);
+            calSelectedDay = (calSelectedDay === d) ? null : d;
+            renderCalendar();
+        });
     });
 
-    releases.sort((a, b) => b.sortDate - a.sortDate);
-    return releases.slice(0, 20);
+    renderDayPanel();
+    renderUnknown();
 }
 
-// ページ読み込み時に実行
-window.addEventListener('DOMContentLoaded', displayNewReleases);
+function releaseRow(item) {
+    const cover = item.imageUrl
+        ? `<img src="${withRakutenSize(item.imageUrl, 160)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+        : '';
+    const price = item.price ? `${Number(item.price).toLocaleString()}円` : '';
+    return `<div class="cal-release-row" data-isbn="${item.isbn || ''}" data-title="${(item.title || '').replace(/"/g, '&quot;')}">
+        <div class="cal-release-cover">${cover}</div>
+        <div class="cal-release-info">
+            <div class="cal-release-title">${item.title}</div>
+            <div class="cal-release-sub">${item.author || ''}</div>
+            <div class="cal-release-meta">${item.publisher || ''}${item.label ? ' / ' + item.label : ''}${price ? ' / ' + price : ''}</div>
+        </div>
+        <div class="cal-release-date">${item.firstReleaseDate || ''}</div>
+    </div>`;
+}
+
+function bindReleaseRows(container) {
+    container.querySelectorAll('.cal-release-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const title = row.dataset.title;
+            const isbn = row.dataset.isbn;
+            window.location.href = `detail.html?isbn=${isbn}&title=${encodeURIComponent(title)}`;
+        });
+    });
+}
+
+function renderDayPanel() {
+    const panel = document.getElementById('cal-day-panel');
+    if (calSelectedDay === null) {
+        const monthHasData = Object.keys(calBuckets).some(k => k.startsWith(`${calYear}-${calMonth}-`)) ||
+                             calUnknown[`${calYear}-${calMonth}`];
+        if (!calLoading && !monthHasData) {
+            panel.innerHTML = '<p class="cal-hint">この月の新刊データはありません（取得範囲は今月以降です）</p>';
+        } else {
+            panel.innerHTML = '<p class="cal-hint">日付をタップするとその日の新刊が表示されます</p>';
+        }
+        return;
+    }
+    const items = itemsForDay(calYear, calMonth, calSelectedDay);
+    let html = `<h4 class="cal-panel-title">${calMonth}月${calSelectedDay}日の新刊 <span class="cal-panel-count">${items.length}冊</span></h4>`;
+    if (items.length === 0) {
+        html += '<p class="cal-hint">この日の新刊はありません</p>';
+    } else {
+        html += items.map(releaseRow).join('');
+    }
+    panel.innerHTML = html;
+    bindReleaseRows(panel);
+}
+
+function renderUnknown() {
+    const box = document.getElementById('cal-unknown');
+    const items = calUnknown[`${calYear}-${calMonth}`] || [];
+    if (items.length === 0) {
+        box.innerHTML = '';
+        return;
+    }
+    box.innerHTML = `<h4 class="cal-panel-title">日付未定（${calMonth}月中）</h4>` + items.map(releaseRow).join('');
+    bindReleaseRows(box);
+}
+
+function moveMonth(delta) {
+    calMonth += delta;
+    if (calMonth < 1) { calMonth = 12; calYear--; }
+    if (calMonth > 12) { calMonth = 1; calYear++; }
+    calSelectedDay = null;
+    renderCalendar();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    calYear = now.getFullYear();
+    calMonth = now.getMonth() + 1;
+    document.getElementById('cal-prev').addEventListener('click', () => moveMonth(-1));
+    document.getElementById('cal-next').addEventListener('click', () => moveMonth(1));
+    renderCalendar();
+    fetchCalendarData();
+});

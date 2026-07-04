@@ -6,7 +6,7 @@
     <title>Menu - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#422476">
+    <meta name="theme-color" content="#644476">
     <link rel="apple-touch-icon" href="/favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
     <style>
         body {
-            background: #422476;
+            background: #ffffff;
             min-height: 100vh;
         }
         .menu-main {
@@ -30,44 +30,59 @@
         .menu-section-title {
             font-size: 11px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.45);
-            letter-spacing: 0.08em;
+            color: #aaa;
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            padding: 24px 20px 8px;
+            padding: 28px 20px 14px;
+            border-bottom: none;
         }
-        .menu-list {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+        /* カードグリッド（3列・単行本の表紙風） */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 14px;
+            padding: 0 20px;
         }
-        .menu-list a {
+        .menu-card {
+            position: relative;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 20px;
-            font-size: 16px;
-            font-weight: 500;
-            color: #fff;
+            flex-direction: column;
+            aspect-ratio: 1 / 1.45;
             text-decoration: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            transition: background 0.15s;
+            background: var(--bg, #ffffff);
+            /* 左は背表紙側＝角を立て、右＝小口側だけ丸める */
+            border-radius: 2px 7px 7px 2px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
         }
-        .menu-list a:first-child {
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        /* 背表紙の折り目（左端の綴じ） */
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(90deg,
+                rgba(0, 0, 0, 0.08) 0%,
+                rgba(0, 0, 0, 0.02) 60%,
+                rgba(0, 0, 0, 0.00) 100%);
+            z-index: 2;
         }
-        .menu-list a:active {
-            background: rgba(255, 255, 255, 0.10);
+        .menu-card:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
         }
-        .menu-arrow {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 16px;
-        }
+        /* 装丁の中身（.npc-title / .npc-art / .npc-author と各巻の
+           カバー配色・図案は style.css の共通定義を使用） */
     </style>
 </head>
 <body>
     <header>
         <div class="header-container">
-            <a href="home.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <a href="home.html" class="header-logo"><img src="logo-atlas.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
@@ -86,22 +101,62 @@
 
     <main class="menu-main">
         <div class="menu-section-title">Browse</div>
-        <ul class="menu-list">
-            <li><a href="index.html">Pickup <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="home.html">Database <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="ranking.html">Popular <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="new-releases.html">New Releases <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="blog.html">Blog <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="follow.html">Favorites <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
+        <div class="menu-grid">
+            <a href="index.html" class="menu-card npc-pickup">
+                <span class="npc-title">ピック<br>アップ</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="home.html" class="menu-card npc-database">
+                <span class="npc-title">データ<br>ベース</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="ranking.html" class="menu-card npc-ranking">
+                <span class="npc-title">ランキング</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="new-releases.html" class="menu-card npc-new">
+                <span class="npc-title">新刊</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="blog.html" class="menu-card npc-blog">
+                <span class="npc-title">ブログ</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="follow.html" class="menu-card npc-fav">
+                <span class="npc-title">お気に入り</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+        </div>
 
         <div class="menu-section-title">Info</div>
-        <ul class="menu-list">
-            <li><a href="qr.html">QRコード <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="profile.html">About Me <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="about.html">運営者情報 <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-            <li><a href="privacy.html">プライバシーポリシー <span class="menu-arrow"><i class="ph-bold ph-caret-right"></i></span></a></li>
-        </ul>
+        <div class="menu-grid">
+            <a href="qr.html" class="menu-card npc-qr">
+                <span class="npc-title">QRコード</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="profile.html" class="menu-card npc-profile">
+                <span class="npc-title">管理人紹介</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="about.html" class="menu-card npc-about">
+                <span class="npc-title">運営者情報</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+            <a href="privacy.html" class="menu-card npc-privacy">
+                <span class="npc-title">プライバシー<br>ポリシー</span>
+                <span class="npc-art"></span>
+                <span class="npc-author">Atlas Comic</span>
+            </a>
+        </div>
     </main>
 
     <nav class="bottom-nav">

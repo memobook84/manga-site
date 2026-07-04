@@ -190,10 +190,21 @@ body.page-follow {
         padding: 12px 12px 60px;
     }
 
-    /* スマホ：画像を左、タイトル/著者を右の横並びに */
+    /* スマホ：画像を左、タイトル/著者を右の横並びに（カードの下地なし） */
     .followed-manga-item {
         flex-direction: row;
         align-items: stretch;
+        border: none;
+        background: transparent;
+    }
+
+    .followed-manga-item:hover {
+        box-shadow: none;
+        transform: none;
+    }
+
+    body.dark-mode .followed-manga-item {
+        background: transparent;
     }
 
     .fav-card-cover {

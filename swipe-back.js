@@ -1,12 +1,29 @@
 // 左→右スワイプで前のページに戻る（モバイル共通ジェスチャー）
-// 戻り演出はスターウォーズ風ワイプ（紫の面＋白い発光エッジが左→右に画面を横切る）
+// 戻り演出：ページ自体が指に追従して右へスライドするだけのシンプルな動き。
+// （※以前のスターウォーズ風の発光エッジ／宇宙グラデ／リビール光線は廃止）
 // 独自のスワイプ処理を持つページ（detail / volume / series-volumes）と
 // トップページ（index）には読み込まないこと
 (function () {
     if (!window.matchMedia('(max-width: 768px)').matches) return;
 
-    const pageEl = document.querySelector('main, .blog-container, .blog-post-container, .legal-content');
-    if (!pageEl) return;
+    const bodyEl = document.body;
+    if (!bodyEl) return;
+
+    // 「戻れる」場合だけスワイプバックを有効化する。
+    // アプリ内（同一オリジン）から遷移してきて履歴がある時のみ。
+    // 直接URL / QR / 共有リンク / PWA起動 / 外部サイトからの着地は無効
+    // （= スワイプしても何も起きない。index.html へ飛ばすフォールバックはしない）
+    function canGoBack() {
+        if (history.length <= 1) return false;
+        const ref = document.referrer;
+        if (!ref) return false;
+        try {
+            return new URL(ref).origin === location.origin;
+        } catch (e) {
+            return false;
+        }
+    }
+    if (!canGoBack()) return;
 
     const W = () => window.innerWidth;
     let leaving = false;
@@ -41,44 +58,20 @@
         .page-back-btn:active {
             transform: scale(0.9);
         }
-        /* スターウォーズ風ワイプ */
-        .sw-wipe {
-            position: fixed;
-            inset: 0;
-            z-index: 100000;
-            pointer-events: none;
-            background: #4B2C82;
-            transform: translateX(-100%);
-            display: none;
-            will-change: transform;
-        }
-        .sw-wipe.show { display: block; }
-        /* 右端＝ワイプの境界線（白い発光エッジ） */
-        .sw-wipe::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: -2px;
-            width: 3px;
-            height: 100%;
-            background: #ffffff;
-            box-shadow: 0 0 22px 6px rgba(124, 92, 196, 0.95), 0 0 8px 2px rgba(255, 255, 255, 0.95);
-        }
     `;
     document.head.appendChild(style);
 
-    // ===== ワイプ用オーバーレイ =====
-    const wipe = document.createElement('div');
-    wipe.className = 'sw-wipe';
-    document.body.appendChild(wipe);
-
-    function setWipeX(px) {
-        wipe.style.transform = `translateX(${px}px)`;
+    function setPageX(px) {
+        if (px) {
+            bodyEl.style.transform = `translateX(${px}px)`;
+        } else {
+            bodyEl.style.transform = '';
+        }
     }
-    function resetWipe() {
-        wipe.style.transition = 'none';
-        setWipeX(-W());
-        wipe.classList.remove('show');
+    function resetSlide() {
+        bodyEl.style.transition = 'none';
+        setPageX(0);
+        bodyEl.style.willChange = '';
     }
 
     // ===== 戻るボタン =====
@@ -89,64 +82,35 @@
         backBtn.setAttribute('aria-label', '戻る');
         backBtn.innerHTML = '<i class="ph-bold ph-arrow-left" style="font-size:20px"></i>';
         document.body.appendChild(backBtn);
-        backBtn.addEventListener('click', () => wipeBack());
+        backBtn.addEventListener('click', () => slideBack());
     }
 
-    // ===== 戻り（カバー）ワイプ → history.back() =====
-    function wipeBack(fromX) {
+    // ===== 戻り：ページを右へ滑らせて history.back() =====
+    function slideBack(fromX) {
         if (leaving) return;
         leaving = true;
-        wipe.classList.add('show');
-        const startX = (typeof fromX === 'number') ? fromX : -W();
-        wipe.style.transition = 'none';
-        setWipeX(startX);
-        void wipe.offsetWidth; // reflow
-        const dur = 0.32;
-        wipe.style.transition = `transform ${dur}s linear`;
-        setWipeX(0); // 完全に覆う
-        // 遷移先でリビール（同方向に走り抜け）させるためのフラグ
-        try { sessionStorage.setItem('swWipe', String(Date.now())); } catch (e) {}
+        bodyEl.style.willChange = 'transform';
+        const startX = (typeof fromX === 'number') ? Math.max(0, fromX) : 0;
+        bodyEl.style.transition = 'none';
+        setPageX(startX);
+        void bodyEl.offsetWidth; // reflow
+        const dur = 0.3;
+        bodyEl.style.transition = `transform ${dur}s cubic-bezier(0.4, 0, 0.2, 1)`;
+        setPageX(W()); // ページを画面右外へ送り出す
         setTimeout(() => {
-            if (history.length > 1) {
-                history.back();
-            } else {
-                window.location.href = 'index.html';
-            }
+            history.back();
         }, dur * 1000 * 0.9);
     }
 
-    // ===== 到着時のリビール（覆った状態 → 右へ走り抜けて新ページを出す）=====
-    function revealWipe() {
-        wipe.classList.add('show');
-        wipe.style.transition = 'none';
-        setWipeX(0);
-        void wipe.offsetWidth; // reflow
-        requestAnimationFrame(() => {
-            wipe.style.transition = 'transform 0.36s linear';
-            setWipeX(W());
-            setTimeout(resetWipe, 380);
-        });
-    }
-    function maybeReveal() {
-        try {
-            const t = parseInt(sessionStorage.getItem('swWipe') || '0', 10);
-            sessionStorage.removeItem('swWipe');
-            if (t && (Date.now() - t) < 1600) revealWipe();
-        } catch (e) {}
-    }
-    // 通常ロード時のリビール判定
-    maybeReveal();
-
-    // bfcache復帰時：状態リセット＋リビール判定
+    // bfcache復帰時：状態リセット
     window.addEventListener('pageshow', (e) => {
         if (e.persisted) {
             leaving = false;
-            resetWipe();
-            maybeReveal();
+            resetSlide();
         }
     });
 
-    // ===== タッチでワイプ線を指に追従 =====
+    // ===== タッチでページを指に追従 =====
     let touchStartX = 0;
     let touchStartY = 0;
     let tracking = false;
@@ -183,8 +147,8 @@
                 return;
             }
             swiping = true;
-            wipe.classList.add('show');
-            wipe.style.transition = 'none';
+            bodyEl.style.willChange = 'transform';
+            bodyEl.style.transition = 'none';
         }
 
         const now = Date.now();
@@ -195,7 +159,7 @@
         lastTouchTime = now;
 
         const move = Math.max(0, dx);
-        setWipeX(move - W()); // 右端（ワイプ線）が指の位置に来る
+        setPageX(move); // ページが指に追従
         if (e.cancelable) e.preventDefault();
     }, { passive: false });
 
@@ -208,12 +172,12 @@
         const move = Math.max(0, dx);
 
         if (dx > 60 || velocityX > 0.4) {
-            wipeBack(move - W()); // 現在位置から覆い切って遷移
+            slideBack(move); // 現在位置から右へ送り出して遷移
         } else {
-            // しきい値未満：ワイプ線を左へ引っ込める
-            wipe.style.transition = 'transform 0.25s ease';
-            setWipeX(-W());
-            setTimeout(() => { if (!leaving) wipe.classList.remove('show'); }, 260);
+            // しきい値未満：ページを元の位置へ戻す
+            bodyEl.style.transition = 'transform 0.25s ease';
+            setPageX(0);
+            setTimeout(() => { if (!leaving) resetSlide(); }, 260);
         }
     }, { passive: true });
 })();

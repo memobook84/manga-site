@@ -13,7 +13,6 @@
 }
 
 .author-header {
-    border-bottom: 2px solid var(--color-border);
     padding-bottom: 20px;
     margin-bottom: 30px;
 }
@@ -48,14 +47,29 @@
     margin-bottom: 30px;
 }
 
-.author-profile h2 {
-    font-size: 20px;
+.author-profile h2,
+.author-representative h2 {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 18px;
     color: var(--color-text);
     margin-bottom: 15px;
-    border-left: 3px solid var(--color-text);
-    padding-left: 12px;
-    font-family: var(--font-heading);
-    font-weight: 600;
+    padding: 0;
+    border: none;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.15;
+}
+
+.author-profile h2::after,
+.author-representative h2::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border, #e5e1dc);
 }
 
 .author-profile p {
@@ -67,16 +81,6 @@
 /* 代表作品 */
 .author-representative {
     margin-bottom: 20px;
-}
-
-.author-representative h2 {
-    font-size: 20px;
-    color: var(--color-text);
-    margin-bottom: 15px;
-    border-left: 3px solid var(--color-text);
-    padding-left: 12px;
-    font-family: var(--font-heading);
-    font-weight: 600;
 }
 
 .author-representative ul {
@@ -103,18 +107,31 @@
 
 /* 作品一覧セクション */
 .author-works-section {
-    padding: 20px 0;
+    padding: 20px 30px;
     margin-bottom: 40px;
 }
 
 .section-title {
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 18px;
     color: var(--color-text);
     margin-bottom: 30px;
-    border-left: 3px solid var(--color-text);
-    padding-left: 12px;
-    font-family: var(--font-heading);
-    font-weight: 600;
+    padding: 0;
+    border: none;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.15;
+}
+
+.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border, #e5e1dc);
 }
 
 .author-works-grid {

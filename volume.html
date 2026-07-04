@@ -41,7 +41,7 @@
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
-            <a href="home.html" class="header-logo"><img src="logo.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <a href="home.html" class="header-logo"><img src="logo-atlas.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link">Pickup</a>
@@ -76,6 +76,10 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                     Amazonで購入
                 </a>
+                <button type="button" id="preview-btn" class="buy-button preview-button" hidden>
+                    <i class="ph-bold ph-book-open" style="font-size:16px"></i>
+                    試し読み
+                </button>
             </div>
 
             <!-- 右側：詳細情報 -->
@@ -155,6 +159,19 @@
             </div>
         </div>
     </main>
+
+    <!-- 試し読みビューア（Google Books Embedded Viewer） -->
+    <div id="previewOverlay" class="preview-overlay" hidden>
+        <div class="preview-modal">
+            <div class="preview-modal-head">
+                <span id="preview-modal-title" class="preview-modal-title">試し読み</span>
+                <button type="button" id="preview-close" class="preview-close" aria-label="閉じる">
+                    <i class="ph-bold ph-x" style="font-size:20px"></i>
+                </button>
+            </div>
+            <div id="gbViewerCanvas" class="preview-viewer"></div>
+        </div>
+    </div>
 
     <!-- サイトフッター -->
     <div class="site-footer">

@@ -53,8 +53,8 @@
 - スプラッシュ: sessionStorage制御で同一セッション内1回のみ表示（index.html と home.html=ホーム に設置）
 - スワイプナビ: volume.htmlで左右スワイプによる巻移動（指を右→左に動かす＝次の巻、左→右に動かす＝前の巻。ユーザーの言う「右にスワイプ＝次」は“ページが右に進む”の意）
 - ページスライド遷移（モバイル）: ホーム（home.html＝Databaseカタログ）→detail.htmlは右からスライドイン。detail.htmlは左→右スワイプで戻る、右→左スワイプでseries-volumes.html（全巻一覧）へ（上部の左右ページ送り矢印ボタンは廃止＝スワイプのみ）。一覧から左→右スワイプで作品ページに戻る。sessionStorageフラグ（detailSlideIn/volumesSlideIn）で入場演出を制御
-- スワイプ戻る（モバイル共通）: swipe-back.js で左→右スワイプ＝戻るを全ページ標準化。組み込み対象外は index.html（トップ）と独自スワイプ持ちの detail/volume/series-volumes
-- 戻り演出: スターウォーズ風ワイプ。紫(#4B2C82)の面＋白い発光エッジ（ワイプ線）が左→右へ画面を横切って現在ページを覆い history.back()。遷移先（swipe-back.js を読むページ）では sessionStorage フラグ `swWipe`（1.6秒以内有効）を見て、覆った状態から同方向に走り抜けて新ページをリビール＝連続したワイプになる。指ドラッグ中はワイプ線が指に追従、しきい値（60px / 速度0.4）未満は左へ引っ込む
+- スワイプ戻る（モバイル共通）: swipe-back.js で左→右スワイプ＝戻るを全ページ標準化。組み込み対象外は index.html（トップ）と独自スワイプ持ちの detail/volume/series-volumes。※「戻れる時だけ」有効＝`history.length>1` かつ 同一オリジンの `document.referrer` がある場合のみ初期化（直接URL/QR/共有リンク/PWA起動/外部着地では無効。index.htmlへ飛ばすフォールバックは無し）
+- 戻り演出: シンプルなスライドのみ。ページ自体（document.body をtransform、fixedヘッダー/ボトムナビも一緒に動く）が指に追従して右へスライドし、しきい値（60px / 速度0.4）超で右外へ送り出し history.back()。しきい値未満は元位置へ戻す。※以前のスターウォーズ風演出（ライトセーバー風発光エッジ .sw-edge／暗い宇宙グラデ .sw-space／到着時に光線が走るリビール .sw-sweep ＋ sessionStorageフラグ swWipe）は全廃した
 - クイックビュー: detail.htmlのシリーズ一覧で巻カバーをホバー（タッチ端末は常時表示）するとNetflix風の丸ボタンが出現、クリックで簡易ポップアップ（表紙・発売日・価格・レーベル・あらすじ・巻ページリンク・巻位置カウンター）。モバイルはポップアップを左右スワイプで前後の巻に切替（指を右→左＝次、左→右＝前。巻ページと同じ向き）。下スワイプで閉じる（90px超で確定、未満はバウンスで復帰）。アクセントカラーはテーマ紫 #4B2C82（ホバー #371F63）、表示中は背面スクロールをtouchmove preventDefaultで固定
 - ホーム: 正式ホームは `home.html`（Databaseカタログの内容）。ルート「/」は home.html へリダイレクト（vercel.json）、PWAの start_url も /home.html。ヘッダーロゴ/サイトタイトル/BASEリンクは全ページ home.html。旧 database.html は home.html へのリダイレクト（vercel.json の /database.html→/home.html ＋ ファイル自体も meta refresh スタブ）。index.html（検索ページ＝Pickup）はナビのPickupリンク等から到達（※リライトは静的index.htmlが優先され効かないためリダイレクト必須）
 - メニュー: 旧 home.html のメニューは menu.html に移設。ボトムナビ「Menu」は /menu.html

@@ -972,7 +972,7 @@ body.dark-mode .range-field input {
 
 @media (max-width: 480px) {
     .volumes-section {
-        padding: 12px 8px;
+        padding: 12px 20px;
     }
 
     .volumes-grid {

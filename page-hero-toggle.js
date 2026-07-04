@@ -13,7 +13,7 @@
         'box-shadow:0 4px 14px rgba(0,0,0,.18);transition:transform .15s ease,background .15s ease;}' +
         '#pageHeroToggle:hover{transform:scale(1.08);background:#F2EEFB;}' +
         '#pageHeroToggle svg{width:22px;height:22px;}' +
-        '@media (max-width:768px){#pageHeroToggle{bottom:74px;width:40px;height:40px;}}';
+        '@media (max-width:768px){#pageHeroToggle{display:none !important;}}';
     var style = document.createElement('style');
     style.textContent = css;
     (document.head || document.documentElement).appendChild(style);
