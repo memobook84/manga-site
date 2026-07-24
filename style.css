@@ -2089,17 +2089,17 @@ body.dark-mode .nav-menu-btn:hover {
 }
 
 /* ============================================
-   PC: テーマ紫のカスタムカーソル（矢印のみ差し替え。
-   リンク上の指カーソルやテキストのIビームはOS標準のまま）
+   PC: 黒のカスタムカーソル（矢印のみ差し替え。
+   テキストのIビームはOS標準のまま）
    ============================================ */
 @media (min-width: 1025px) and (pointer: fine) {
     html,
     body {
-        cursor: url('cursor-arrow.png') 1 1, auto;
+        cursor: url('cursor-arrow-black-small.png') 1 1, auto;
     }
 }
 
-/* クリック可能な要素はテーマ紫の指カーソル
+/* クリック可能な要素も同じ黒矢印（指カーソルにしない）
    （!important: 各ページCSSの cursor:pointer 指定より優先させるため） */
 @media (min-width: 1025px) and (pointer: fine) {
     a, button, select, summary, label, [role="button"], [onclick],
@@ -2112,6 +2112,6 @@ body.dark-mode .nav-menu-btn:hover {
     .series-vol-item, .genre-top3-item, .newrelease-item,
     .pickup-card, .portal-ranking-item, .theme-card,
     .page-hero-toggle, .search-clear {
-        cursor: url('cursor-pointer2.png') 10 2, pointer !important;
+        cursor: url('cursor-arrow-black-small.png') 1 1, default !important;
     }
 }
