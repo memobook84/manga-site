@@ -530,18 +530,15 @@ function setupCartButtons(sortedVolumes, seriesName) {
     const allBtn = document.getElementById('cart-all-btn');
     const rangeBtn = document.getElementById('cart-range-btn');
 
-    if (toggleBtn && actions) {
-        toggleBtn.onclick = () => {
-            const open = actions.hasAttribute('hidden');
-            if (open) {
-                actions.removeAttribute('hidden');
-                toggleBtn.setAttribute('aria-expanded', 'true');
-            } else {
-                actions.setAttribute('hidden', '');
-                toggleBtn.setAttribute('aria-expanded', 'false');
-            }
-        };
+    // カートボタンはメニューを開かず、そのまま「全巻カートに入れる」を実行する。
+    // メニュー（.volumes-actions）は hidden のまま使わない。
+    if (toggleBtn) {
+        toggleBtn.removeAttribute('aria-expanded');
+        toggleBtn.setAttribute('aria-label', '全巻カートに入れる');
+        toggleBtn.title = '全巻カートに入れる';
+        toggleBtn.onclick = () => openAmazonCart(sortedVolumes.filter(v => v.isbn), seriesName);
     }
+    if (actions) actions.setAttribute('hidden', '');
     const modal = document.getElementById('range-modal');
     const closeBtn = document.getElementById('range-modal-close');
     const fromInput = document.getElementById('range-from');

@@ -181,7 +181,7 @@
 /* 戻るボタン */
 .back-button-container {
     margin-top: 32px;
-    text-align: center;
+    text-align: left;
 }
 
 .back-button {
@@ -191,8 +191,8 @@
 }
 
 .back-button:hover {
-    color: #4a9de0;
-    text-decoration: underline;
+    color: #4B2C82;
+    text-decoration: none;
 }
 
 /* レスポンシブ - Apple風デザイン */

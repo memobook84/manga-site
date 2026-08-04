@@ -331,7 +331,7 @@ body.dark-mode .detail-divider {
     padding: 0;
     border: none;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    font-weight: 800;
+    font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     line-height: 1.15;
@@ -426,7 +426,7 @@ body.dark-mode .detail-divider {
     padding: 0;
     border: none;
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    font-weight: 800;
+    font-weight: 400;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     line-height: 1.15;
@@ -498,56 +498,54 @@ body.dark-mode .detail-divider {
     display: none;
 }
 
+/* 幾何学的な見た目に統一：角は立てる／柔らかい影とぼかしは使わない／
+   線一本の枠から、ホバーで塗りに反転する */
 .cart-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    height: 38px;
-    padding: 0 18px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Noto Sans JP', sans-serif;
+    gap: 9px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 0;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
     cursor: pointer;
-    transition: background 0.22s ease, box-shadow 0.22s ease, transform 0.15s ease;
+    transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     line-height: 1;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    background: rgba(255, 255, 255, 0.92);
-    color: #1d1d1f;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid #4B2C82;
+    background: transparent;
+    color: #4B2C82;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     -webkit-appearance: none;
     appearance: none;
 }
 
 .cart-btn i {
-    color: #422476;
-    font-size: 14px;
+    color: currentColor;
+    font-size: 13px;
 }
 
-.cart-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(66, 36, 118, 0.18);
-    transform: translateY(-1px);
+.cart-btn:hover:not(:disabled) {
+    background: #4B2C82;
+    color: #fff;
+    box-shadow: none;
+    transform: none;
 }
 
-.cart-btn:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+.cart-btn:active:not(:disabled) {
+    background: #371F63;
+    border-color: #371F63;
+    transform: none;
 }
 
 .cart-btn:disabled {
     cursor: default;
-    opacity: 0.42;
-}
-
-.cart-btn:disabled:hover {
-    background: rgba(255, 255, 255, 0.92);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
-    transform: none;
+    opacity: 0.3;
 }
 
 .cart-btn-primary,
@@ -927,46 +925,61 @@ body.dark-mode .range-field input {
         flex-direction: column;
         align-items: stretch;
         gap: 6px;
+        gap: 0;
         white-space: normal;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: saturate(180%) blur(20px);
-        -webkit-backdrop-filter: saturate(180%) blur(20px);
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        padding: 8px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+        background: #fff;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: 1px solid #4B2C82;
+        border-radius: 0;
+        padding: 0;
+        /* ぼかさず、真横にずらした角ばった影 */
+        box-shadow: 6px 6px 0 rgba(75, 44, 130, 0.15);
         z-index: 50;
         min-width: 240px;
         max-width: calc(100vw - 40px);
     }
 
+    /* 項目は枠を持たず、1本の罫線で区切る */
     .volumes-actions .cart-btn {
         flex: 1 1 auto;
         min-width: 0;
         width: 100%;
         justify-content: flex-start;
-        height: 40px;
+        height: 44px;
+        padding: 0 14px;
         border: none;
+        border-bottom: 1px solid rgba(75, 44, 130, 0.18);
+        border-radius: 0;
         box-shadow: none;
         background: transparent;
-        backdrop-filter: none;
-        -webkit-backdrop-filter: none;
-        border-radius: 8px;
     }
 
-    .volumes-actions .cart-btn:hover {
-        background: rgba(0, 0, 0, 0.04);
+    .volumes-actions .cart-btn:last-child {
+        border-bottom: none;
+    }
+
+    .volumes-actions .cart-btn:hover:not(:disabled) {
+        background: #4B2C82;
+        color: #fff;
         box-shadow: none;
         transform: none;
     }
 
     body.dark-mode .volumes-actions {
-        background: rgba(28, 28, 30, 0.98);
-        border-color: rgba(255, 255, 255, 0.08);
+        background: #1C1C1E;
+        border-color: #7B5BB0;
+        box-shadow: 6px 6px 0 rgba(123, 91, 176, 0.22);
     }
 
-    body.dark-mode .volumes-actions .cart-btn:hover {
-        background: rgba(255, 255, 255, 0.06);
+    body.dark-mode .volumes-actions .cart-btn {
+        color: #C7B0EC;
+        border-bottom-color: rgba(199, 176, 236, 0.18);
+    }
+
+    body.dark-mode .volumes-actions .cart-btn:hover:not(:disabled) {
+        background: #4B2C82;
+        color: #fff;
     }
 }
 

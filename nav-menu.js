@@ -47,14 +47,35 @@
     const btn = document.getElementById('navMenuBtn');
     if (!btn) return;
     const rect = btn.getBoundingClientRect();
-    popup.style.top = (rect.bottom + 8) + 'px';
-    const rightOffset = Math.max(8, window.innerWidth - rect.right);
+
+    // 三角は上に約9.5px飛び出すので、ヘッダーの下端より下に収まる位置に開く。
+    // （ボタン基準だけだとヘッダーの下パディングに三角が食い込む）
+    const header = btn.closest('header');
+    const headerBottom = header ? header.getBoundingClientRect().bottom : rect.bottom;
+    popup.style.top = Math.max(rect.bottom + 12, headerBottom + 12) + 'px';
+
+    // CSSの right は「スクロールバーを含まない」幅が基準（＝clientWidth）。
+    // window.innerWidth はスクロールバーを含むので、それで計算すると
+    // バーの幅ぶん（約15px）左にずれる。
+    const viewportW = document.documentElement.clientWidth;
+
+    const rightOffset = Math.max(8, viewportW - rect.right);
     popup.style.right = rightOffset + 'px';
 
-    // 三角の先端をメニューボタンの中心に合わせる
-    // （right は「ポップアップの右端からの距離」なので、そこからの差分で出す）
-    const btnCenterFromRight = window.innerWidth - (rect.left + rect.width / 2);
-    popup.style.setProperty('--arrow-right', (btnCenterFromRight - rightOffset - 6) + 'px');
+    // 三角の先端をアイコンの中心に合わせる。
+    // ボタンには左右パディングがあるので、中心はボタンの箱ではなく
+    // アイコン（.nav-caret）の実寸から取る。
+    const icon = btn.querySelector('.nav-caret') || btn;
+    const iconRect = icon.getBoundingClientRect();
+    const iconCenterFromRight = viewportW - (iconRect.left + iconRect.width / 2);
+    // right は padding box 基準なので枠線1pxぶんを差し引き、
+    // さらに三角(12px)の半分を引いて「中心」を合わせる
+    const ARROW_HALF = 6;
+    const BORDER = 1;
+    popup.style.setProperty(
+      '--arrow-right',
+      (iconCenterFromRight - rightOffset - ARROW_HALF - BORDER) + 'px'
+    );
   }
 
   function open() {
@@ -177,6 +198,23 @@
         // 各ページの検索ハンドラが走った後に閉じる
         setTimeout(closeSearch, 0);
       });
+    }
+
+    // 自前の検索処理を持たないページでは、検索結果ページへ遷移させる。
+    // database.js を読むページ（home / search-results）はグローバルに
+    // performSearch を持つので、その有無で二重登録を避ける
+    if (typeof performSearch !== 'function') {
+      const gotoSearch = function () {
+        const q = searchInput ? searchInput.value.trim() : '';
+        if (!q) return;
+        location.href = '/search-results.html?search=' + encodeURIComponent(q);
+      };
+      if (searchInput) {
+        searchInput.addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') gotoSearch();
+        });
+      }
+      if (searchButton) searchButton.addEventListener('click', gotoSearch);
     }
   }
 

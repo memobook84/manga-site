@@ -346,6 +346,13 @@ async function fetchFromApi(page = 1, keyword = '') {
             const publisherFilter = (currentFilter && currentFilter.type === 'publisher') ? currentFilter.value : null;
             const series = groupBySeries(allItems, publisherFilter);
 
+            // ヒットした巻数が多いシリーズを上に（長期連載＝人気作の近似）。
+            // 同数ならタイトル順で並びを安定させる
+            series.sort((a, b) =>
+                (b.volumeCount || 0) - (a.volumeCount || 0) ||
+                (a.title || '').localeCompare(b.title || '', 'ja')
+            );
+
             displayMangaItems(series);
             updatePagination();
             upgradeCovers();
@@ -430,18 +437,13 @@ function setupSearch() {
     });
 }
 
+// 検索結果は専用ページ（search-results.html）で表示する。
+// このページ自体が検索結果ページの場合も、新しいキーワードで開き直す。
 function performSearch() {
     const searchInput = document.querySelector('.search-box input');
     const keyword = searchInput.value.trim();
-    currentKeyword = keyword;
-    currentPage = 1;
-
-    if (!keyword) {
-        fetchFromApi(1);
-        return;
-    }
-
-    fetchFromApi(1, keyword);
+    if (!keyword) return;
+    location.href = '/search-results.html?search=' + encodeURIComponent(keyword);
 }
 
 // サイドバーのフィルタ機能

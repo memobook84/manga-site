@@ -72,7 +72,9 @@ function mapItem(item) {
 }
 
 module.exports = async function handler(req, res) {
-  const { keyword, page = '1', hits = '30' } = req.query;
+  // sort: 既定は楽天の標準順。並べ替えはクライアント側（巻数の多い順）で行う。
+  // 'sales'（売れている順）などを試したい場合はクエリで上書きできる
+  const { keyword, page = '1', hits = '30', sort = 'standard' } = req.query;
 
   if (!keyword) {
     return res.status(400).json({ error: 'keyword parameter is required' });
@@ -92,6 +94,7 @@ module.exports = async function handler(req, res) {
     booksGenreId: '001001',
     hits: String(Math.min(parseInt(hits), 30)),
     page: page,
+    sort: sort,
   });
 
   try {
@@ -107,6 +110,7 @@ module.exports = async function handler(req, res) {
         booksGenreId: '001',
         hits: String(Math.min(parseInt(hits), 30)),
         page: page,
+        sort: sort,
       });
       data = await rakutenFetch(`${RAKUTEN_TOTAL}?${totalParams}`);
     }

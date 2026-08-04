@@ -124,21 +124,24 @@
 
 /* 戻るボタン */
 .back-button-container {
-    text-align: center;
+    text-align: left;
     margin-top: 30px;
 }
 
 .back-button {
-    display: inline-block;
-    color: #6cb4ee;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-sub);
     text-decoration: none;
-    font-size: 15px;
-    transition: color 0.3s;
+    font-size: 24px;
+    line-height: 1;
+    transition: color 0.2s;
 }
 
 .back-button:hover {
-    color: #4a9de0;
-    text-decoration: underline;
+    color: #4B2C82;
+    text-decoration: none;
 }
 
 /* レスポンシブデザイン */
@@ -210,10 +213,16 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.cal-nav-btn:hover {
+.cal-nav-btn:hover:not(:disabled) {
     background: #F2EEFB;
     border-color: #4B2C82;
     color: #4B2C82;
+}
+
+/* 今月が下限。それ以上さかのぼれないときの「前の月」 */
+.cal-nav-btn:disabled {
+    opacity: 0.28;
+    cursor: default;
 }
 
 .cal-weekdays {
@@ -433,5 +442,83 @@
     }
     .cal-release-date {
         display: none;
+    }
+}
+
+/* ============================================
+   PC: カレンダーを数字だけの横並びに
+   （曜日の列合わせ・表紙サムネイルはやめて、1〜31を一列に流す）
+   ============================================ */
+@media (min-width: 769px) {
+    .cal-weekdays {
+        display: none;
+    }
+
+    .calendar-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+    }
+
+    /* 月初の空きマスは不要 */
+    .cal-cell-empty {
+        display: none;
+    }
+
+    .cal-cell {
+        width: 34px;
+        height: 34px;
+        aspect-ratio: auto;
+        padding: 0;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 50%;
+    }
+
+    /* 表紙サムネイルと「+N」バッジは出さない */
+    .cal-cover,
+    .cal-count {
+        display: none;
+    }
+
+    .cal-daynum {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 0;
+        color: #C3C3C7;
+    }
+    /* 曜日の色分けは列が揃わないので無効化 */
+    .cal-cell.cal-sun .cal-daynum,
+    .cal-cell.cal-sat .cal-daynum {
+        color: #C3C3C7;
+    }
+
+    /* 新刊がある日だけ濃く出す */
+    .cal-cell.has-releases {
+        background: transparent;
+        border-color: transparent;
+    }
+    .cal-cell.has-releases .cal-daynum {
+        color: #4B2C82;
+        font-weight: 700;
+    }
+    .cal-cell.has-releases:hover {
+        background: #F2EEFB;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .cal-cell.cal-today {
+        border: 1px solid #4B2C82;
+    }
+
+    .cal-cell.cal-selected {
+        background: #4B2C82;
+        border-color: #4B2C82;
+    }
+    .cal-cell.cal-selected .cal-daynum {
+        color: #fff;
     }
 }

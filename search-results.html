@@ -2,42 +2,38 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <script>if(localStorage.getItem('darkMode')==='true')document.documentElement.classList.add('dark-mode-pending');</script>
+    <script>
+    // キーワードなしで直接開かれた場合はホームへ戻す
+    // （database.js が全カタログを読み込んでしまうため、その前に判定する）
+    if (!new URLSearchParams(location.search).get('search')) location.replace('/home.html');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>著者詳細 - ATLAS COMIC</title>
+    <title>検索結果 - ATLAS COMIC</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="/favicon.png">
-    <meta name="description" content="著者の作品一覧 - ATLAS COMIC。この著者の全作品をまとめてチェックできます。">
-    <!-- OGP -->
-    <meta property="og:type" content="profile">
-    <meta property="og:site_name" content="ATLAS COMIC">
-    <meta property="og:title" content="著者詳細 - ATLAS COMIC">
-    <meta property="og:description" content="著者の作品一覧 - ATLAS COMIC。この著者の全作品をまとめてチェックできます。">
-    <meta property="og:url" content="https://manga-site-three.vercel.app/author.html">
-    <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="著者詳細 - ATLAS COMIC">
-    <meta name="twitter:description" content="著者の作品一覧 - ATLAS COMIC。この著者の全作品をまとめてチェックできます。">
-    <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <meta name="description" content="ATLAS COMICの漫画検索結果。">
+    <meta name="robots" content="noindex">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="legal.css">
-    <link rel="stylesheet" href="author.css">
     <script src="manga-data.js"></script>
     <script src="rakuten-adapter.js"></script>
-    <script src="author.js"></script>
+    <script src="database.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
+    <script src="page-hero-toggle.js"></script>
 </head>
-<body>
+<body class="page-database">
     <!-- ヘッダー -->
     <header>
         <div class="header-container">
@@ -58,43 +54,23 @@
         </div>
     </header>
 
-    <!-- 著者詳細ページコンテンツ -->
-    <main class="author-main">
-        <!-- 著者情報セクション -->
-        <div class="author-info-section">
-            <div class="author-header">
-                <h1 id="author-name" class="author-name">読み込み中...</h1>
-                <p id="author-description" class="author-description"></p>
-                <div class="author-meta">
-                    <span id="author-works-count" class="works-count">-</span>
-                </div>
-            </div>
+    <section class="page-hero">
+        <h2>検索結果</h2>
+        <p id="search-keyword-label"></p>
+    </section>
 
-            <div class="author-profile">
-                <h2>プロフィール</h2>
-                <p id="author-bio">読み込み中...</p>
+    <!-- メインコンテンツ（サイドバーなし・全幅） -->
+    <div class="main-layout">
+        <main>
+            <div class="manga-grid">
+                <!-- database.js が動的に表示 -->
             </div>
+            <!-- ページネーションは置かない。
+                 database.js の renderPagination() は対象要素が無ければ
+                 何もしないので、この要素を省くだけでよい -->
 
-            <div class="author-representative">
-                <h2>代表作品</h2>
-                <ul id="representative-works">
-                    <!-- JavaScriptで動的に生成 -->
-                </ul>
-            </div>
-        </div>
-
-        <!-- この著者の作品一覧 -->
-        <div class="author-works-section">
-            <h2 class="section-title">この著者の作品</h2>
-            <div id="author-works-grid" class="author-works-grid">
-                <!-- JavaScriptで動的に生成 -->
-            </div>
-        </div>
-
-        <div class="back-button-container">
-            <a href="home.html" class="back-button" aria-label="トップページに戻る" title="トップページに戻る"><i class="ph-light ph-arrow-left"></i></a>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- サイトフッター -->
     <div class="site-footer">
@@ -130,19 +106,22 @@
     </nav>
 
     <script>
+    // 見出しに検索キーワードを出す
     (function() {
-        var path = location.pathname;
-        var items = document.querySelectorAll('.bottom-nav-item');
-        items.forEach(function(item) {
-            var page = item.dataset.page;
-            if ((page === 'home' && (path === '/' || path === '/index.html')) ||
-                (page === 'database' && path.includes('database')) ||
-                (page === 'ranking' && path.includes('ranking')) ||
-                (page === 'blog' && path.includes('blog')) ||
-                (page === 'follow' && path.includes('follow'))) {
-                item.classList.add('active');
-            }
-        });
+        var q = new URLSearchParams(location.search).get('search') || '';
+        var el = document.getElementById('search-keyword-label');
+        if (el) el.textContent = '「' + q + '」の検索結果';
+        document.title = q + ' の検索結果 - ATLAS COMIC';
+    })();
+    </script>
+
+    <script>
+    // 表示設定の反映（切替UIは profile.html にある）
+    (function() {
+        var body = document.body;
+        if (localStorage.getItem('darkMode') === 'true') body.classList.add('dark-mode');
+        if (localStorage.getItem('dbFlatCover') !== 'false') body.classList.add('flat-cover');
+        if (localStorage.getItem('dbBgSoft') === 'true') body.classList.add('bg-soft');
     })();
     </script>
 

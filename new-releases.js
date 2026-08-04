@@ -80,6 +80,10 @@ function renderCalendar() {
     const title = document.getElementById('cal-title');
     title.textContent = `${calYear}年${calMonth}月`;
 
+    // 今月が下限なので、今月を表示中は「前の月」を無効化
+    const prevBtn = document.getElementById('cal-prev');
+    if (prevBtn) prevBtn.disabled = monthIndex(calYear, calMonth) <= currentMonthIndex();
+
     const firstDow = new Date(calYear, calMonth - 1, 1).getDay();
     const daysInMonth = new Date(calYear, calMonth, 0).getDate();
     const today = new Date();
@@ -188,10 +192,25 @@ function renderUnknown() {
     bindReleaseRows(box);
 }
 
+// 年月を比較用の通し番号に（2026年8月 → 24320）
+function monthIndex(y, mo) {
+    return y * 12 + mo;
+}
+
+function currentMonthIndex() {
+    const now = new Date();
+    return monthIndex(now.getFullYear(), now.getMonth() + 1);
+}
+
 function moveMonth(delta) {
-    calMonth += delta;
-    if (calMonth < 1) { calMonth = 12; calYear--; }
-    if (calMonth > 12) { calMonth = 1; calYear++; }
+    let y = calYear;
+    let m = calMonth + delta;
+    if (m < 1) { m = 12; y--; }
+    if (m > 12) { m = 1; y++; }
+    // APIの取得範囲が今月以降なので、先月より前には戻さない
+    if (monthIndex(y, m) < currentMonthIndex()) return;
+    calYear = y;
+    calMonth = m;
     calSelectedDay = null;
     renderCalendar();
 }

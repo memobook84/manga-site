@@ -322,6 +322,13 @@ async function fetchFromApi(page = 1, keyword = '') {
             const publisherFilter = (currentFilter && currentFilter.type === 'publisher') ? currentFilter.value : null;
             const series = groupBySeries(allItems, publisherFilter);
 
+            // ヒットした巻数が多いシリーズを上に（長期連載＝人気作の近似）。
+            // 同数ならタイトル順で並びを安定させる
+            series.sort((a, b) =>
+                (b.volumeCount || 0) - (a.volumeCount || 0) ||
+                (a.title || '').localeCompare(b.title || '', 'ja')
+            );
+
             displayMangaItems(series);
             updatePagination();
             upgradeCovers();
