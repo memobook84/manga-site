@@ -246,17 +246,19 @@ function ensureQuickViewModal() {
                 <span class="quickview-vol-tag" hidden></span>
             </div>
             <div class="quickview-info">
-                <div class="quickview-eyebrow">
-                    <span>Quick View</span>
-                    <span class="quickview-counter"></span>
-                </div>
                 <h3 class="quickview-title"></h3>
                 <dl class="quickview-meta"></dl>
                 <p class="quickview-desc"></p>
-                <a class="quickview-link" href="#">
-                    <span>View Volume</span>
-                    <i class="ph-bold ph-arrow-right" style="font-size:14px"></i>
-                </a>
+                <div class="quickview-actions">
+                    <a class="quickview-link" href="#">
+                        <span>View Volume</span>
+                        <i class="ph-bold ph-arrow-right" style="font-size:14px"></i>
+                    </a>
+                    <a class="quickview-buy" href="#" target="_blank" rel="noopener noreferrer"
+                       aria-label="Amazonで購入" title="Amazonで購入">
+                        <i class="fa-brands fa-amazon"></i>
+                    </a>
+                </div>
                 <div class="quickview-swipe-hint">
                     <i class="ph-bold ph-caret-left" style="font-size:11px"></i>
                     <span>スワイプで前後の巻へ</span>
@@ -301,22 +303,16 @@ function renderQuickView() {
 
     const baseName = qvState.seriesName || extractSeriesName(vol.title) || vol.title || '';
     const volumeLabel = vol.volumeNum !== null && vol.volumeNum !== undefined
-        ? `${baseName}（${vol.volumeNum}巻）`
+        ? `${baseName}（${vol.volumeNum}）`
         : (vol.title || baseName);
 
     overlay.querySelector('.quickview-cover-img').innerHTML = createImageElement(vol, 400);
     overlay.querySelector('.quickview-title').textContent = volumeLabel;
-    overlay.querySelector('.quickview-counter').textContent =
-        `${qvState.index + 1} / ${qvState.volumes.length}`;
 
-    // VOL.タグ（巻数があるときのみ表示）
+    // 表紙左下のタグ＝巻位置カウンター（例: 1 / 17）
     const volTag = overlay.querySelector('.quickview-vol-tag');
-    if (vol.volumeNum !== null && vol.volumeNum !== undefined) {
-        volTag.textContent = `VOL.${String(vol.volumeNum).padStart(2, '0')}`;
-        volTag.hidden = false;
-    } else {
-        volTag.hidden = true;
-    }
+    volTag.textContent = `${qvState.index + 1} / ${qvState.volumes.length}`;
+    volTag.hidden = false;
 
     const metaRows = [
         ['Release', formatQuickViewDate(vol.firstReleaseDate)],
@@ -340,6 +336,10 @@ function renderQuickView() {
     } else {
         link.hidden = true;
     }
+
+    // Amazon購入リンク（ISBNがあればISBN検索、なければタイトル検索）
+    const buyLink = overlay.querySelector('.quickview-buy');
+    buyLink.href = getAmazonBuyUrl(vol);
 }
 
 function closeQuickView() {
@@ -648,16 +648,17 @@ function setupFollowButton(manga) {
 function updateFollowButtonText(button) {
     const textEl = button.querySelector('.follow-button-text');
     if (textEl) {
-        textEl.textContent = button.classList.contains('followed') ? 'Favorited' : 'Favorite';
+        textEl.textContent = button.classList.contains('followed') ? 'Bookmarked' : 'Bookmark';
     }
     const iconEl = button.querySelector('.follow-icon');
     if (iconEl) {
+        // 未登録＝細線（ph-light）、登録済＝塗りつぶし（ph-fill）
         if (button.classList.contains('followed')) {
-            iconEl.classList.remove('ph-bold');
+            iconEl.classList.remove('ph-light');
             iconEl.classList.add('ph-fill');
         } else {
             iconEl.classList.remove('ph-fill');
-            iconEl.classList.add('ph-bold');
+            iconEl.classList.add('ph-light');
         }
     }
 }

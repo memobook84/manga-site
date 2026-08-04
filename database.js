@@ -3,7 +3,7 @@ let currentPage = 1;
 let totalPages = 1;
 let isLoading = false;
 let currentKeyword = '';
-let currentFilter = null; // { type: 'publisher'|'genre'|'ranking', value: string }
+let currentFilter = null; // { type: 'publisher'|'genre'|'label'|'ranking', value: string }
 
 // キャッシュ済み全データ（フィルタ用）
 let cachedAllData = null;
@@ -239,6 +239,11 @@ function displayMangaItems(items) {
     });
 }
 
+// レーベル名の表記ゆれを吸収（中黒・全角/半角スペースを除去）
+function normalizeLabel(label) {
+    return (label || '').replace(/[・\s　]/g, '');
+}
+
 // フィルタキーを生成（キャッシュ判定用）
 function getFilterKey() {
     if (!currentFilter) return 'all';
@@ -277,6 +282,15 @@ async function getFilteredData() {
                 const itemGenreId = item.genreId || '';
                 return itemGenreId.startsWith(genreId);
             });
+        } else if (currentFilter.type === 'label') {
+            // 前方一致で判定する。includes だと「ジャンプコミックス」が
+            // 「ヤングジャンプコミックス」まで拾ってしまうため。
+            // 「ジャンプ・コミックス」「モーニング　KC」のような
+            // 中黒・空白ゆれは正規化して吸収する
+            const target = normalizeLabel(currentFilter.value);
+            filtered = allData.filter(item =>
+                normalizeLabel(item.label).startsWith(target)
+            );
         }
         // ranking: データは既に売上順なのでそのまま
     }
@@ -289,7 +303,9 @@ async function getFilteredData() {
 // JSONキャッシュからページデータを取得
 async function fetchFromJson(page) {
     const needsFilter = currentFilter &&
-        (currentFilter.type === 'publisher' || currentFilter.type === 'genre');
+        (currentFilter.type === 'publisher' ||
+         currentFilter.type === 'genre' ||
+         currentFilter.type === 'label');
 
     if (needsFilter) {
         // フィルタ時: 全データからフィルタしてページネーション

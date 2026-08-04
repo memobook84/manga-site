@@ -780,7 +780,7 @@ body.dark-mode .range-field input {
 }
 
 .volume-number {
-    font-size: 15px;
+    font-size: 11px;
     font-weight: 400;
     color: var(--color-text);
     margin-bottom: 5px;
@@ -1144,10 +1144,25 @@ body.dark-mode .range-field input {
     bottom: 14px;
     background: #4B2C82;
     color: #fff;
-    font-family: 'Michroma', 'Montserrat', sans-serif;
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    padding: 6px 14px 6px 12px;
+    /* 右の VIEW VOLUME ボタンと同じ書体・字送りにそろえる */
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    /* 高さを固定して、PCでは右のボタン列と中心をそろえる */
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 14px 0 12px;
+}
+
+/* PC: 左下のVOL.タグと、右下の VIEW VOLUME / Amazon を同じ高さに。
+   情報パネルの下余白24px + ボタン高40px の中心 = 下から44px
+   → タグ(高さ26px)の中心を合わせるには bottom: 31px */
+@media (min-width: 1025px) {
+    .quickview-vol-tag {
+        bottom: 31px;
+    }
 }
 
 /* 右: 情報パネル */
@@ -1159,43 +1174,10 @@ body.dark-mode .range-field input {
     padding: 26px 28px 24px 26px;
 }
 
-.quickview-eyebrow {
-    font-family: 'Michroma', 'Montserrat', sans-serif;
-    font-size: 9.5px;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: #4B2C82;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.quickview-eyebrow::after {
-    content: '';
-    order: 1;
-    flex: 1;
-    max-width: 46px;
-    height: 1px;
-    background: #4B2C82;
-    opacity: 0.5;
-}
-
-/* 現在の巻位置（3 / 12）— 行の右端に表示 */
-.quickview-counter {
-    order: 2;
-    margin-left: auto;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    color: #B5B5B5;
-}
-
 .quickview-title {
     font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 400;
     color: #111;
     margin: 0 30px 14px 0;
     line-height: 1.35;
@@ -1211,7 +1193,6 @@ body.dark-mode .range-field input {
     align-items: baseline;
     gap: 12px;
     padding: 7px 0;
-    border-bottom: 1px solid #ECECEC;
 }
 
 .quickview-meta-row dt {
@@ -1245,18 +1226,47 @@ body.dark-mode .range-field input {
     color: #AAA;
 }
 
-.quickview-link {
+/* 巻ページリンク ＋ Amazon購入アイコンの行 */
+.quickview-actions {
     margin-top: auto;
-    align-self: flex-start;
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+/* Amazonで直接購入（ISBN検索）。
+   主張を抑えるため、左のカバーパネルと同じクリーム色にそろえる */
+.quickview-buy {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    flex: 0 0 44px;
+    background: linear-gradient(160deg, #F4F3F0 0%, #E9E7E2 100%);
+    border: 1px solid #E2DFD9;
+    color: #3A3A3E;
+    font-size: 18px;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background 0.18s ease;
+}
+
+.quickview-buy:hover {
+    background: linear-gradient(160deg, #ECEBE7 0%, #DFDDD7 100%);
+}
+
+.quickview-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 11px 22px;
+    /* VOL.タグと高さをそろえる計算の基準になるので固定値にする */
+    height: 40px;
+    padding: 0 22px;
     background: #4B2C82;
     color: #fff;
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 400;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     text-decoration: none;
@@ -1306,8 +1316,7 @@ body.dark-mode .range-field input {
         padding: 20px 22px 22px;
     }
     .quickview-link {
-        align-self: stretch;
-        justify-content: center;
+        flex: 1;
     }
 }
 

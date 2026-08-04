@@ -52,10 +52,10 @@
             <a href="home.html" class="header-logo"><img src="logo-atlas.png" alt="ATLAS COMIC" class="header-logo-img"></a>
             <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
-                <a href="index.html" class="nav-link"><i class="ph-light ph-fire nav-ico"></i><span class="nav-label">ピックアップ</span></a>
-                <a href="blog.html" class="nav-link"><i class="ph-light ph-article nav-ico"></i><span class="nav-label">ブログ</span></a>
-                <a href="follow.html" class="nav-link follow-link"><i class="ph-light ph-heart nav-ico"></i><span class="nav-label">お気に入り</span></a>
-                <button class="nav-menu-btn" id="navMenuBtn"><i class="ph-light ph-squares-four nav-ico"></i><span class="nav-label">メニュー</span></button>
+                <a href="index.html" class="nav-link">ピックアップ</a>
+                <a href="blog.html" class="nav-link">ブログ</a>
+                <a href="follow.html" class="nav-link follow-link">ブックマーク</a>
+                <button class="nav-menu-btn" id="navMenuBtn"><svg viewBox="0 0 448 512" class="nav-caret" aria-hidden="true"><path d="M384 480c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0zM224 352c-6.7 0-13-2.8-17.6-7.7l-104-112c-6.5-7-8.2-17.2-4.4-25.9s12.5-14.4 22-14.4l208 0c9.5 0 18.2 5.7 22 14.4s2.1 18.9-4.4 25.9l-104 112c-4.5 4.9-10.9 7.7-17.6 7.7z"/></svg></button>
             </nav>
             <div class="search-box">
                 <input type="text" placeholder="Search manga...">
@@ -109,6 +109,25 @@
                 </div>
                 <div class="sidebar-section">
                     <h3 class="sidebar-heading">
+                        Label
+                    </h3>
+                    <ul class="sidebar-list">
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ジャンプコミックス">ジャンプコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ヤングジャンプコミックス">ヤングジャンプコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="マーガレットコミックス">マーガレットコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="りぼんマスコットコミックス">りぼんコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="少年サンデーコミックス">少年サンデーコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ビッグコミックス">ビッグコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="フラワーコミックス">フラワーコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ちゃおコミックス">ちゃおコミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="モーニングKC">モーニングKC</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ヤンマガKCスペシャル">ヤンマガKCスペシャル</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="講談社コミックス">講談社コミックス</a></li>
+                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="アフタヌーンKC">アフタヌーンKC</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-section">
+                    <h3 class="sidebar-heading">
                         Discover
                     </h3>
                     <ul class="sidebar-list">
@@ -127,18 +146,10 @@
                 <!-- JavaScriptで動的に漫画が表示されます -->
             </div>
             <div class="pagination-row">
-                <button id="cover-toggle" class="cover-toggle" aria-label="表紙エフェクト切替（ハードカバー／影）">
-                    <span class="cover-toggle-knob"></span>
-                </button>
-                <button id="bg-toggle" class="bg-toggle" aria-label="背景色切替（白／#F9F9F9）">
-                    <span class="bg-toggle-knob"></span>
-                </button>
+                <!-- 表示設定の3つのトグルは profile.html（管理人紹介）に移設 -->
                 <div id="pagination" class="pagination" style="display: none;">
                     <!-- JavaScriptで動的に生成 -->
                 </div>
-                <button id="dark-toggle" class="dark-toggle" aria-label="ダークモード切替">
-                    <span class="dark-toggle-knob"></span>
-                </button>
             </div>
         </main>
     </div>
@@ -168,8 +179,8 @@
             <span>Pickup</span>
         </a>
         <a href="/follow.html" class="bottom-nav-item" data-page="follow">
-            <i class="ph-light ph-butterfly" style="font-size:22px"></i>
-            <span>Favorites</span>
+            <i class="ph-light ph-bookmark" style="font-size:22px"></i>
+            <span>Bookmark</span>
         </a>
         <a href="/menu.html" class="bottom-nav-item" data-page="menu">
             <i class="ph-light ph-list" style="font-size:22px"></i>
@@ -194,18 +205,14 @@
     </script>
 
     <script>
-    // ダークモード
+    // 表示設定の反映（切替UIは profile.html にある）
+    // ダークモード / 表紙の質感 / 背景色 の3つを localStorage から適用する
     (function() {
-        var isDark = localStorage.getItem('darkMode') === 'true';
         var body = document.body;
-        var btn = document.getElementById('dark-toggle');
-
-        if (isDark) body.classList.add('dark-mode');
-
-        btn.addEventListener('click', function() {
-            body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
-        });
+        if (localStorage.getItem('darkMode') === 'true') body.classList.add('dark-mode');
+        // 表紙: 未設定ならオン（軽い影）。明示的にオフにした場合だけ切る
+        if (localStorage.getItem('dbFlatCover') !== 'false') body.classList.add('flat-cover');
+        if (localStorage.getItem('dbBgSoft') === 'true') body.classList.add('bg-soft');
     })();
     </script>
 
@@ -215,15 +222,11 @@
         var layout = document.querySelector('.main-layout');
         var btn = document.getElementById('sidebar-toggle');
         if (!btn || !layout) return;
-        var collapsed = localStorage.getItem('dbSidebarCollapsed') === 'true';
-        if (collapsed) {
-            layout.classList.add('sidebar-collapsed');
-            document.body.classList.add('sidebar-collapsed');
-        }
+        // 読み込み時は常に開いた状態。折りたたみは保存せずその場限りにする
+        localStorage.removeItem('dbSidebarCollapsed');
         btn.addEventListener('click', function() {
             var on = layout.classList.toggle('sidebar-collapsed');
             document.body.classList.toggle('sidebar-collapsed', on);
-            localStorage.setItem('dbSidebarCollapsed', on);
         });
     })();
     </script>
@@ -233,42 +236,11 @@
     (function() {
         var btn = document.getElementById('grid-toggle');
         if (!btn) return;
-        if (localStorage.getItem('dbGridSix') === 'true') {
-            document.body.classList.add('grid-six');
-        }
+        // 6列表示はサイドバーを隠すため、読み込み時は常にオフ（＝サイドバーを出す）。
+        // 切替はその場限りで保存しない
+        localStorage.removeItem('dbGridSix');
         btn.addEventListener('click', function() {
-            var on = document.body.classList.toggle('grid-six');
-            localStorage.setItem('dbGridSix', on);
-        });
-    })();
-    </script>
-
-    <script>
-    // 表紙エフェクト切替（ハードカバー → 軽い影）
-    (function() {
-        var btn = document.getElementById('cover-toggle');
-        if (!btn) return;
-        if (localStorage.getItem('dbFlatCover') === 'true') {
-            document.body.classList.add('flat-cover');
-        }
-        btn.addEventListener('click', function() {
-            var on = document.body.classList.toggle('flat-cover');
-            localStorage.setItem('dbFlatCover', on);
-        });
-    })();
-    </script>
-
-    <script>
-    // 背景色切替（白 ⇔ #F9F9F9）
-    (function() {
-        var btn = document.getElementById('bg-toggle');
-        if (!btn) return;
-        if (localStorage.getItem('dbBgSoft') === 'true') {
-            document.body.classList.add('bg-soft');
-        }
-        btn.addEventListener('click', function() {
-            var on = document.body.classList.toggle('bg-soft');
-            localStorage.setItem('dbBgSoft', on);
+            document.body.classList.toggle('grid-six');
         });
     })();
     </script>

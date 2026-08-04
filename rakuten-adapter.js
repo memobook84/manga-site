@@ -357,32 +357,39 @@ function renderPagination(container, currentPage, totalPages, onChange) {
   if (!container) return;
   if (totalPages <= 1) { container.style.display = 'none'; return; }
   container.style.display = 'flex';
-  const icons = {
-    first: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="6" width="2" height="12"/><path d="M19 6l-7 6 7 6V6z"/></svg>',
-    prev:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6l-7 6 7 6V6z"/></svg>',
-    next:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 6l7 6-7 6V6z"/></svg>',
-    last:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 6l7 6-7 6V6z"/><rect x="17" y="6" width="2" height="12"/></svg>',
-  };
+  const chevron = (d) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"` +
+    ` stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+
+  // 現在ページを中心に最大5個の番号を並べる
+  const WINDOW = 5;
+  let start = Math.max(1, currentPage - Math.floor(WINDOW / 2));
+  const end = Math.min(totalPages, start + WINDOW - 1);
+  start = Math.max(1, end - WINDOW + 1);
+
   const atFirst = currentPage <= 1;
   const atLast = currentPage >= totalPages;
-  container.innerHTML = `
-    <button class="page-btn" data-action="first" ${atFirst ? 'disabled' : ''} aria-label="最初のページ">${icons.first}</button>
-    <button class="page-btn" data-action="prev"  ${atFirst ? 'disabled' : ''} aria-label="前のページ">${icons.prev}</button>
-    <div class="page-current-pill">
-      <span class="page-current">${currentPage}</span>
-      <span class="page-of">of ${totalPages}</span>
-    </div>
-    <button class="page-btn" data-action="next" ${atLast ? 'disabled' : ''} aria-label="次のページ">${icons.next}</button>
-    <button class="page-btn" data-action="last" ${atLast ? 'disabled' : ''} aria-label="最後のページ">${icons.last}</button>
-  `;
-  container.querySelectorAll('button[data-action]').forEach(btn => {
+
+  let html =
+    `<button class="page-btn page-nav" data-action="prev" ${atFirst ? 'disabled' : ''}` +
+    ` aria-label="前のページ">${chevron('M15 18l-6-6 6-6')}</button>`;
+  for (let p = start; p <= end; p++) {
+    const isCurrent = p === currentPage;
+    html +=
+      `<button class="page-btn page-num${isCurrent ? ' is-current' : ''}" data-page="${p}"` +
+      `${isCurrent ? ' aria-current="page"' : ''}>${p}</button>`;
+  }
+  html +=
+    `<button class="page-btn page-nav" data-action="next" ${atLast ? 'disabled' : ''}` +
+    ` aria-label="次のページ">${chevron('M9 18l6-6-6-6')}</button>`;
+  container.innerHTML = html;
+
+  container.querySelectorAll('.page-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const action = btn.dataset.action;
-      let next = currentPage;
-      if (action === 'first') next = 1;
-      else if (action === 'prev') next = currentPage - 1;
-      else if (action === 'next') next = currentPage + 1;
-      else if (action === 'last') next = totalPages;
+      let next;
+      if (btn.dataset.page) next = parseInt(btn.dataset.page, 10);
+      else if (btn.dataset.action === 'prev') next = currentPage - 1;
+      else next = currentPage + 1;
       if (next !== currentPage && next >= 1 && next <= totalPages) {
         onChange(next);
         window.scrollTo(0, 0);
