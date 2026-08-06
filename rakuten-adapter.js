@@ -117,12 +117,24 @@ function adaptApiResponse(response) {
   };
 }
 
-// 表示高さから楽天 _ex サイズを決定（retina対応で2倍、刻みを固定）
+// 表示高さから楽天 _ex サイズを決定（実DPRを上限2で見て、刻みを固定）
 function pickRakutenSize(height) {
-  const target = Math.round(height * 2);
+  const dpr = Math.min((typeof window !== 'undefined' && window.devicePixelRatio) || 1, 2);
+  const target = Math.round(height * dpr);
   const steps = [240, 320, 480, 640, 800];
   for (const s of steps) if (target <= s) return s;
   return 800;
+}
+
+// グリッドの実表示高さ。モバイルは3列なので1枚あたりが小さく、
+// PCと同じ解像度を落とすと無駄が大きいため実寸から算出する
+function gridCoverHeight(height) {
+  if (typeof window === 'undefined') return height;
+  const w = window.innerWidth;
+  if (w > 768) return height;
+  const colWidth = (w - 32 - 28) / 3; // コンテナ左右padding + 列間gap(14px×2)
+  // 上限320 = 従来の_ex=640相当。この変更でデータ量が増える端末が出ないようにする
+  return Math.min(320, Math.max(120, Math.round(colWidth * 1.5)));
 }
 
 function withRakutenSize(url, size) {
@@ -143,7 +155,7 @@ function createImageElement(item, height = 320) {
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
   const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
-  const size = pickRakutenSize(height);
+  const size = pickRakutenSize(gridCoverHeight(height));
   const sizedUrl = withRakutenSize(item.imageUrl, size);
   // 先頭6枚は eager + 高優先度、それ以降は lazy
   const idx = __imgIndex++;
