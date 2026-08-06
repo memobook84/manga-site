@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bookstore-v16';
+const CACHE_NAME = 'bookstore-v17';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -17,10 +17,13 @@ const STATIC_ASSETS = [
   '/ranking.html',
   '/ranking.js',
   '/ranking.css',
-  '/favicon.png',
+  '/favicon.png?v=5',
   '/header-logo.png',
-  '/icon-192.png?v=2',
-  '/icon-512.png?v=2',
+  '/apple-touch-icon.png?v=5',
+  '/icon-192.png?v=4',
+  '/icon-512.png?v=4',
+  '/icon-maskable-192.png?v=5',
+  '/icon-maskable-512.png?v=5',
 ];
 
 // インストール時に静的アセットをキャッシュ

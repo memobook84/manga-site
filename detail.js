@@ -265,6 +265,8 @@ function ensureQuickViewModal() {
                     <i class="ph-bold ph-caret-right" style="font-size:11px"></i>
                 </div>
             </div>
+            <button type="button" class="quickview-nav quickview-prev" aria-label="前の巻"></button>
+            <button type="button" class="quickview-nav quickview-next" aria-label="次の巻"></button>
         </div>
     `;
     document.body.appendChild(overlay);
@@ -278,6 +280,9 @@ function ensureQuickViewModal() {
         e.preventDefault();
     }, { passive: false });
     overlay.querySelector('.quickview-close').addEventListener('click', closeQuickView);
+    // 左右ボタン（PCのみ表示）。モバイルのスワイプと同じ slideQuickView を呼ぶ
+    overlay.querySelector('.quickview-prev').addEventListener('click', () => slideQuickView(-1));
+    overlay.querySelector('.quickview-next').addEventListener('click', () => slideQuickView(1));
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeQuickView();
     });
@@ -287,6 +292,43 @@ function ensureQuickViewModal() {
 
 // クイックビューの状態（巻リスト・シリーズ名・現在の巻）
 let qvState = null;
+// 巻の切り替え／閉じるアニメーション中フラグ。スワイプと左右ボタンで共有する
+let qvAnimating = false;
+
+// 前後の巻へ切り替える共通処理。dir: 1 = 次の巻 / -1 = 前の巻
+// 端に達しているときや、アニメーション中は何もしない
+function slideQuickView(dir) {
+    if (!qvState || qvAnimating) return;
+    const nextIndex = qvState.index + dir;
+    if (nextIndex < 0 || nextIndex >= qvState.volumes.length) return;
+
+    const overlay = ensureQuickViewModal();
+    const content = overlay.querySelector('.quickview-content');
+    qvAnimating = true;
+
+    // 進む向きへ滑らせて消し、中身を差し替えてから反対側から滑り込ませる
+    const outX = dir > 0 ? -window.innerWidth * 0.55 : window.innerWidth * 0.55;
+    content.style.transition = 'transform 0.18s ease-in, opacity 0.18s ease-in';
+    content.style.transform = `translateX(${outX}px)`;
+    content.style.opacity = '0';
+    setTimeout(() => {
+        qvState.index = nextIndex;
+        renderQuickView();
+        content.style.transition = 'none';
+        content.style.transform = `translateX(${-outX}px)`;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                content.style.transition = 'transform 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.24s ease';
+                content.style.transform = '';
+                content.style.opacity = '';
+                setTimeout(() => {
+                    content.style.transition = '';
+                    qvAnimating = false;
+                }, 260);
+            });
+        });
+    }, 180);
+}
 
 function openQuickView(volumes, seriesName, index) {
     qvState = { volumes, seriesName, index };
@@ -313,6 +355,10 @@ function renderQuickView() {
     const volTag = overlay.querySelector('.quickview-vol-tag');
     volTag.textContent = `${qvState.index + 1} / ${qvState.volumes.length}`;
     volTag.hidden = false;
+
+    // 前後ボタンは端の巻で無効化
+    overlay.querySelector('.quickview-prev').disabled = qvState.index === 0;
+    overlay.querySelector('.quickview-next').disabled = qvState.index >= qvState.volumes.length - 1;
 
     // Release / Price / Label は非表示にした（2026-08-05・ユーザー指示）。
     // 復活させる場合は下の3行のコメントを戻すだけ。削除しないこと。
@@ -366,10 +412,9 @@ function setupQuickViewSwipe(overlay) {
     let startY = 0;
     let tracking = false;
     let mode = null; // 'horizontal' | 'down' | null
-    let animating = false;
 
     content.addEventListener('touchstart', (e) => {
-        if (animating) return;
+        if (qvAnimating) return;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         tracking = true;
@@ -429,13 +474,13 @@ function setupQuickViewSwipe(overlay) {
         // 下スワイプ: 一定量を超えたら閉じる
         if (endMode === 'down') {
             if (dy > 90) {
-                animating = true;
+                qvAnimating = true;
                 content.style.transition = 'transform 0.22s ease-in, opacity 0.22s ease-in';
                 content.style.transform = `translateY(${window.innerHeight * 0.5}px)`;
                 content.style.opacity = '0';
                 setTimeout(() => {
                     closeQuickView();
-                    animating = false;
+                    qvAnimating = false;
                 }, 210);
             } else {
                 content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
@@ -451,28 +496,8 @@ function setupQuickViewSwipe(overlay) {
         const goPrev = endMode === 'horizontal' && dx > 60 && hasPrev;
 
         if (goNext || goPrev) {
-            animating = true;
-            const outX = goNext ? -window.innerWidth * 0.55 : window.innerWidth * 0.55;
-            content.style.transition = 'transform 0.18s ease-in, opacity 0.18s ease-in';
-            content.style.transform = `translateX(${outX}px)`;
-            content.style.opacity = '0';
-            setTimeout(() => {
-                qvState.index += goNext ? 1 : -1;
-                renderQuickView();
-                content.style.transition = 'none';
-                content.style.transform = `translateX(${-outX}px)`;
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        content.style.transition = 'transform 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.24s ease';
-                        content.style.transform = '';
-                        content.style.opacity = '';
-                        setTimeout(() => {
-                            content.style.transition = '';
-                            animating = false;
-                        }, 260);
-                    });
-                });
-            }, 180);
+            // 切り替えの演出は左右ボタンと共通
+            slideQuickView(goNext ? 1 : -1);
         } else {
             content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
             content.style.transform = '';

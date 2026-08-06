@@ -145,28 +145,6 @@
     background-color: #3f2470;
 }
 
-/* 戻るボタン */
-.back-button-container {
-    text-align: left;
-    margin-top: 30px;
-}
-
-.back-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-sub);
-    text-decoration: none;
-    font-size: 24px;
-    line-height: 1;
-    transition: color 0.2s;
-}
-
-.back-button:hover {
-    color: #4B2C82;
-    text-decoration: none;
-}
-
 /* レスポンシブ */
 @media (max-width: 1100px) {
     .followed-manga-grid {

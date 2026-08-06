@@ -267,17 +267,22 @@ header.header-hidden {
     header .nav-link {
         color: #F7F7F7 !important;
     }
+
+    /* ホバー: 一瞬だけ上に跳ね上がって戻る。
+       transition ではなく animation にして、ホバーした瞬間に1回だけ再生する */
     header .nav-link:hover {
-        color: #F7F7F7 !important;
-    }
-    header .nav-link::after {
-        background: #F7F7F7;
+        color: #FFFFFF !important;
+        animation: navLinkPop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
     }
     header .nav-menu-btn {
         color: #F7F7F7;
     }
+    /* メニューボタンもナビリンクと同じ跳ね方にそろえる。
+       背景の枠は出さない（transparent にしないと素の .nav-menu-btn:hover の
+       グレーが効いてしまうので、明示的に打ち消す） */
     header .nav-menu-btn:hover {
-        background: rgba(255,255,255,0.15);
+        animation: navLinkPop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+        background: transparent;
     }
     header .search-box input {
         background-color: #fff;
@@ -286,6 +291,8 @@ header.header-hidden {
         /* 隣のアイコンナビ（アイコン上端〜ラベル下端＝約40px）に高さをそろえる */
         height: 40px;
         padding: 0 44px 0 16px;
+        /* 検索バーはヘッダー右端に固定されているので、幅を足すと左に伸びる */
+        width: 300px;
     }
     header .search-box input::placeholder {
         color: #999;
@@ -364,32 +371,33 @@ header h1 a {
 }
 
 
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: #D8052E;
-    transition: width 0.3s ease, left 0.3s ease;
-}
-
 .nav-link:hover {
     color: #2B2B2B;
     background: transparent;
 }
 
-/* アクティブ: 下線（アンダーバー） */
-.nav-link.active::after {
-    left: 14px;
-    width: calc(100% - 28px);
+/* アクティブページの下線（.nav-link::after / .nav-link.active::after）は廃止 */
+
+/* 初回ロード時はnav-linkのトランジションを無効化（チラつき防止） */
+body:not(.nav-ready) .nav-link {
+    transition: none !important;
 }
 
-/* 初回ロード時はnav-linkのトランジションを無効化（active付与時のチラつき防止） */
-body:not(.nav-ready) .nav-link,
-body:not(.nav-ready) .nav-link::after {
-    transition: none !important;
+/* ナビリンクのホバー演出：ぴょんと上に跳ねて、少し沈んでから戻る */
+@keyframes navLinkPop {
+    0%   { transform: translateY(0); }
+    32%  { transform: translateY(-1px); }
+    62%  { transform: translateY(0.5px); }
+    84%  { transform: translateY(-0.25px); }
+    100% { transform: translateY(0); }
+}
+
+/* 動きを抑える設定の環境では跳ねさせない */
+@media (prefers-reduced-motion: reduce) {
+    header .nav-link:hover,
+    header .nav-menu-btn:hover {
+        animation: none;
+    }
 }
 
 
@@ -2238,38 +2246,65 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
     /* 検索バー本体：ヘッダー直下に開くパネル */
     header .search-box {
         display: flex;
+        align-items: center;
         position: absolute;
         top: calc(100% + 10px);
         left: 12px;
         right: 12px;
         margin: 0;
-        padding: 8px;
+        padding: 10px;
         background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+        border-radius: 14px;
+        box-shadow: 0 14px 34px rgba(31, 18, 58, 0.26);
         opacity: 0;
         visibility: hidden;
-        transform: translateY(-8px);
-        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+        transform: translateY(-10px);
+        transition: opacity 0.18s ease, transform 0.22s ease, visibility 0.18s;
     }
+
     body.search-open header .search-box {
         opacity: 1;
         visibility: visible;
         transform: none;
     }
+
     header .search-box input {
         width: 100%;
-        padding: 11px 44px 11px 14px;
-        border: 1px solid #E5E1DC;
-        border-radius: 8px;
+        height: 44px;
+        padding: 0 54px 0 14px;
+        border: 1px solid #E7E2EF;
+        border-radius: 10px;
         /* 16px未満だとiOSがフォーカス時に自動ズームする */
         font-size: 16px;
         background: #fff;
         color: #2B2B2B;
+        transition: border-color 0.18s ease;
     }
+
+    header .search-box input:focus {
+        border-color: #4B2C82;
+    }
+
+    header .search-box input::placeholder {
+        color: #AAA;
+    }
+
+    /* 検索ボタンは虫眼鏡アイコンのみ（丸い背景なし）。
+       縦中央そろえは margin-top（ボタン高34pxの半分）で行う */
     header .search-box .search-icon {
         right: 16px;
-        color: #888;
+        top: 50%;
+        margin-top: -17px;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        background: transparent;
+        color: #4B2C82;
+        transition: color 0.18s ease;
+    }
+
+    header .search-box .search-icon:active {
+        color: #371F63;
     }
 
     body.dark-mode header .search-box {
@@ -2280,6 +2315,9 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         background: #2A2A2E;
         border-color: #3A3A3F;
         color: #E2E2E4;
+    }
+    body.dark-mode header .search-box input:focus {
+        border-color: #7B57B8;
     }
     header h1 {
         display: block !important;
