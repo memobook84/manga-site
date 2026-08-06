@@ -14,6 +14,9 @@
 /* === CSS Variables === */
 :root {
     --color-header: #422476;
+    /* テーマ紫（ヘッダーと同色）。ダークモードでも紫のまま維持する */
+    --color-accent: #422476;
+    --color-accent-hover: #351c5e;
     --color-bg: #FFFFFF;
     --color-card: #FFFFFF;
     --color-text: #2B2B2B;
@@ -580,7 +583,7 @@ body.grid-six .main-layout .sidebar {
 .sidebar-heading::after {
     content: '';
     flex: 1;
-    /* 端まで伸ばさず短いあしらいにする（見出しの長短にかかわらず一定） */
+    /* 端まで伸ばさず短いあしらいにする */
     max-width: 26px;
     height: 1px;
     /* リンクのホバー時に出る線と同じ描き方（文字色の55%）にそろえる */
@@ -600,7 +603,8 @@ body.grid-six .main-layout .sidebar {
 }
 
 .sidebar-link {
-    display: flex;
+    /* 文字幅に合わせて縮む（ホバー線を文字の長さと同じにするため） */
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 8px 10px;
@@ -617,13 +621,15 @@ body.grid-six .main-layout .sidebar {
     display: none;
 }
 
-/* ホバー: グレーの面ではなく、文字の高さ中央に細い線を左から引く */
+/* ホバー: グレーの面ではなく、文字の下に細い線を左から引く
+   （文字に重ならないよう、中央ではなく下端に置く） */
 .sidebar-link::after {
     content: '';
     position: absolute;
+    /* 左右のパディングぶんだけ内側 ＝ ちょうど文字の幅になる */
     left: 10px;
     right: 10px;
-    top: 50%;
+    bottom: 5px;
     height: 1px;
     background-color: currentColor;
     opacity: 0.55;
@@ -1412,6 +1418,15 @@ body.dark-mode .page-btn.is-current::after {
         font-size: 25px !important;
     }
 
+    /* インラインSVGアイコン（Lucide等）をアイコンフォントと同じ見え方に揃える */
+    .bottom-nav-item svg {
+        width: 25px;
+        height: 25px;
+        display: block;
+        stroke: currentColor;
+        fill: none;
+    }
+
     .bottom-nav-item:active {
         transform: scale(0.88);
     }
@@ -1469,6 +1484,10 @@ body.dark-mode .page-btn.is-current::after {
     }
     .bottom-nav-item i {
         font-size: 20px !important;
+    }
+    .bottom-nav-item svg {
+        width: 20px;
+        height: 20px;
     }
 
     .bottom-nav-fab {
@@ -1722,16 +1741,19 @@ body.dark-mode .page-btn.is-current::after {
     background: rgba(0,0,0,0.06);
 }
 .nav-menu-btn .nav-caret {
-    /* FaSquareCaretDown は viewBox 448x512 のほぼ正方形なので縦横そろえる */
-    width: 1em;
-    height: 1em;
+    /* CgMenuCheese（css.gg）は viewBox 24x24 の正方形＝3本線＋中央線に下向きの切り欠き */
+    width: 1.25em;
+    height: 1.25em;
     fill: currentColor;
+    stroke: none;
     display: block;
+    transform-origin: center;
     transition: transform 0.18s ease;
 }
 .nav-menu-btn.open {
     background: rgba(0, 0, 0, 0.06);
 }
+/* 図案は中心対称なので、開いた時はアイコン全体を180°回して切り欠きを上向きにする */
 .nav-menu-btn.open .nav-caret {
     transform: rotate(180deg);
 }
@@ -1762,44 +1784,71 @@ body.dark-mode .nav-menu-btn:hover {
     display: block;
 }
 
-/* 縦並びのシンプルなドロップダウン（macOS風） */
+/* 2カラムのカード型ドロップダウン。
+   上端に紫のバーを一本通し、左＝さがす／右＝サイト情報で分ける */
 #navMenuPopup {
     position: fixed;
     top: 56px;
     right: 16px;
-    background: rgba(255, 255, 255, 0.94);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+    background: #FFFFFF;
     color: #1D1D1F;
     width: auto;
-    min-width: 264px;
     max-width: 92vw;
     max-height: calc(100vh - 80px);
-    padding: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 6px;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18),
-                0 2px 6px rgba(0, 0, 0, 0.06);
-    /* 上の三角（吹き出しの尻尾）を出すため visible */
+    padding: 0;
+    border-radius: 14px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16),
+                0 3px 10px rgba(0, 0, 0, 0.06);
+    /* しっぽ（::before）を外に出すため visible */
     overflow: visible;
     transform-origin: top right;
     /* ふわっと浮き上がるように、長めのイージングでゆっくり収束させる */
     animation: navDropDown 0.34s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* メニューボタンから出ていることを示す三角。
+/* メニューボタンとカードをつなぐしっぽ。
    位置(--arrow-right)はボタンの中心に合わせてJSが設定する */
 #navMenuPopup::before {
     content: '';
     position: absolute;
-    top: -7px;
+    top: -6px;
     right: var(--arrow-right, 16px);
-    width: 12px;
-    height: 12px;
-    background: #FBFBFC;
-    border-left: 1px solid rgba(0, 0, 0, 0.08);
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    width: 14px;
+    height: 14px;
+    background: #FFFFFF;
+    border-radius: 3px 0 0 0;
     transform: rotate(45deg);
+}
+
+/* カラム本体 */
+.nav-menu-cols {
+    display: flex;
+    align-items: stretch;
+    padding: 24px 26px;
+    gap: 28px;
+}
+.nav-menu-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 150px;
+}
+/* 右カラム（サイト情報）は縦線で区切る */
+.nav-menu-col-sub {
+    padding-left: 28px;
+    border-left: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+/* カラム見出し（さがす / サイト情報） */
+.nav-menu-head {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    color: #A0A0A8;
+    padding: 0 4px;
+    margin-bottom: 12px;
+    white-space: nowrap;
 }
 
 @keyframes navDropDown {
@@ -1833,54 +1882,76 @@ body.dark-mode .nav-menu-btn:hover {
     border-color: #111;
 }
 
-/* ドロップダウンの項目 */
+/* ドロップダウンの項目。
+   面で塗らず、文字色の変化だけで反応させる（行頭のドットは廃止） */
 .nav-menu-item {
+    position: relative;
     display: block;
-    padding: 11px 16px;
+    padding: 10px 4px;
     border-radius: 0;
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 15px;
     font-weight: 400;
     line-height: 1.4;
-    color: #1D1D1F;
+    color: #2B2B2B;
     text-decoration: none;
     white-space: nowrap;
-    transition: background 0.12s ease, color 0.12s ease;
+    transition: color 0.15s ease;
 }
 .nav-menu-item:hover {
-    background: #4B2C82;
-    color: #fff;
-}
-/* 現在開いているページ */
-.nav-menu-item.current {
     color: #4B2C82;
-    font-weight: 500;
 }
-.nav-menu-item.current:hover {
-    color: #fff;
+
+/* 現在開いているページは太字で示す */
+.nav-menu-item.current {
+    color: #1D1D1F;
+    font-weight: 700;
 }
-/* グループの区切り線 */
-.nav-menu-sep {
-    height: 1px;
-    margin: 7px 12px;
-    background: rgba(0, 0, 0, 0.10);
+
+/* ===== 右カラム＝情報系のサブ項目 ===== */
+.nav-menu-col-sub .nav-menu-item {
+    font-size: 14px;
+    padding: 9px 4px;
+    color: #8B7FA8;
+}
+.nav-menu-col-sub .nav-menu-item:hover {
+    color: #4B2C82;
+}
+.nav-menu-col-sub .nav-menu-item.current {
+    color: #4B2C82;
+    font-weight: 700;
 }
 
 body.dark-mode #navMenuPopup {
-    background: rgba(32, 32, 34, 0.94);
-    border-color: rgba(255, 255, 255, 0.10);
+    background: #202022;
     color: #E8E8EA;
 }
 body.dark-mode #navMenuPopup::before {
     background: #202022;
-    border-left-color: rgba(255, 255, 255, 0.10);
-    border-top-color: rgba(255, 255, 255, 0.10);
+}
+body.dark-mode .nav-menu-head {
+    color: #78787E;
+}
+body.dark-mode .nav-menu-col-sub {
+    border-left-color: rgba(255, 255, 255, 0.12);
 }
 body.dark-mode .nav-menu-item {
     color: #E8E8EA;
 }
-body.dark-mode .nav-menu-sep {
-    background: rgba(255, 255, 255, 0.12);
+/* ダークでは紫が沈むので明るいラベンダーにする */
+body.dark-mode .nav-menu-item:hover {
+    color: #B89DE8;
+}
+body.dark-mode .nav-menu-item.current {
+    color: #FFFFFF;
+}
+/* サブ項目はメインより一段落とす */
+body.dark-mode .nav-menu-col-sub .nav-menu-item {
+    color: #8A8296;
+}
+body.dark-mode .nav-menu-col-sub .nav-menu-item:hover,
+body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
+    color: #B89DE8;
 }
 
 .npc-title {
@@ -2220,7 +2291,7 @@ body.dark-mode .nav-menu-sep {
         font-size: 0 !important;
         text-shadow: none !important;
         -webkit-text-stroke: 0 !important;
-        background: url('icon-192.png') no-repeat left center;
+        background: url('logo-header-mobile.png') no-repeat left center;
         background-size: contain;
         border-radius: 8px;
         overflow: hidden;

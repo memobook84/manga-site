@@ -18,19 +18,21 @@ function getAuthorNameFromUrl() {
 async function displayAuthorDetail() {
     const authorName = decodeURIComponent(getAuthorNameFromUrl());
 
+    const nameEl = document.getElementById('author-name');
+    const romajiEl = document.getElementById('author-romaji');
+
     if (!authorName) {
-        document.getElementById('author-name').textContent = '著者が指定されていません';
+        nameEl.textContent = '著者が指定されていません';
         return;
     }
 
     // ページタイトルを更新
     document.title = `${authorName} - THE MANGA STORE`;
-    document.getElementById('author-name').textContent = authorName;
+    nameEl.textContent = authorName;
 
     // Wikipedia APIから著者情報を取得
     const cleanName = authorName.replace(/[\s\u3000]+/g, '');
     let bio = authorBiosFallback[authorName] || authorBiosFallback[cleanName] || '';
-    let wikipediaUrl = '';
     try {
         const wikiResp = await fetch(`/api/author?name=${encodeURIComponent(authorName)}`);
         if (wikiResp.ok) {
@@ -38,12 +40,9 @@ async function displayAuthorDetail() {
             if (wikiData.extract) {
                 bio = wikiData.extract;
             }
-            if (wikiData.description) {
-                document.getElementById('author-name').textContent = `${authorName}`;
-                const descEl = document.getElementById('author-description');
-                if (descEl) descEl.textContent = wikiData.description;
+            if (wikiData.romaji && romajiEl) {
+                romajiEl.textContent = wikiData.romaji;
             }
-            wikipediaUrl = wikiData.wikipediaUrl || '';
         }
     } catch (err) {
         console.warn('Wikipedia情報取得失敗:', err);
@@ -76,16 +75,6 @@ async function displayAuthorDetail() {
         }
     });
 
-    if (wikipediaUrl) {
-        const wikiLink = document.createElement('a');
-        wikiLink.href = wikipediaUrl;
-        wikiLink.target = '_blank';
-        wikiLink.rel = 'noopener noreferrer';
-        wikiLink.textContent = 'Wikipedia で詳しく見る →';
-        wikiLink.style.cssText = 'display:inline-block;margin-top:12px;color:var(--color-link);font-size:13px;text-decoration:none;border-bottom:1px solid var(--color-link);';
-        bioEl.appendChild(wikiLink);
-    }
-
     // APIから著者の作品を取得
     let works = await fetchAuthorWorks(authorName);
 
@@ -110,12 +99,9 @@ async function displayAuthorDetail() {
     });
 
     if (works.length === 0) {
-        document.getElementById('author-works-count').textContent = '作品数: 0作品';
         document.getElementById('representative-works').innerHTML = '<li>作品が見つかりませんでした</li>';
         return;
     }
-
-    document.getElementById('author-works-count').textContent = `作品数: ${works.length}作品`;
 
     // 代表作品リストを表示
     const representativeWorksList = document.getElementById('representative-works');
@@ -154,25 +140,33 @@ function displayAuthorWorks(works) {
     const worksGrid = document.getElementById('author-works-grid');
     worksGrid.innerHTML = '';
 
-    // シリーズ名でグループ化し、代表（1巻目 or 先頭）を取得
+    // シリーズ名でグループ化し、代表（1巻目 or 先頭）と巻数を集計する
     const seriesMap = new Map();
     works.forEach(item => {
         const seriesName = extractSeriesName(item.title) || item.title;
         if (!seriesMap.has(seriesName)) {
-            seriesMap.set(seriesName, item);
-        } else {
-            // より小さい巻数のものを代表にする
-            const extractNum = t => { const m = t.match(/(\d+)[巻\s　）)]/); return m ? parseInt(m[1]) : null; };
-            const current = seriesMap.get(seriesName);
-            const currentNum = extractNum(current.title);
-            const itemNum = extractNum(item.title);
-            if (itemNum !== null && (currentNum === null || itemNum < currentNum)) {
-                seriesMap.set(seriesName, item);
-            }
+            seriesMap.set(seriesName, { seriesName, item, volumeCount: 1 });
+            return;
+        }
+        const entry = seriesMap.get(seriesName);
+        entry.volumeCount++;
+        // より小さい巻数のものを代表にする
+        const extractNum = t => { const m = t.match(/(\d+)[巻\s　）)]/); return m ? parseInt(m[1]) : null; };
+        const currentNum = extractNum(entry.item.title);
+        const itemNum = extractNum(item.title);
+        if (itemNum !== null && (currentNum === null || itemNum < currentNum)) {
+            entry.item = item;
         }
     });
 
-    seriesMap.forEach((item, seriesName) => {
+    // 検索結果と同じ並び：ヒットした巻数が多いシリーズを上に。
+    // 同数ならタイトル順で並びを安定させる
+    const seriesList = [...seriesMap.values()].sort((a, b) =>
+        b.volumeCount - a.volumeCount ||
+        a.seriesName.localeCompare(b.seriesName, 'ja')
+    );
+
+    seriesList.forEach(({ seriesName, item }) => {
         const workItem = document.createElement('div');
         workItem.className = 'work-item';
 

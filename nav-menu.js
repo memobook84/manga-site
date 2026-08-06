@@ -23,19 +23,27 @@
     return `<a href="${href}" class="nav-menu-item${isCurrent ? ' current' : ''}">${title}</a>`;
   }
 
+  // 2カラム構成（左＝さがす／右＝サイト情報）。上端に紫のバーが入るカード型
   overlay.innerHTML = `
     <div id="navMenuPopup">
-      ${popupItem('/index.html', 'ピックアップ')}
-      ${popupItem('/home.html', 'データベース')}
-      ${popupItem('/ranking.html', 'ランキング')}
-      ${popupItem('/new-releases.html', '新刊')}
-      ${popupItem('/blog.html', 'ブログ')}
-      ${popupItem('/follow.html', 'ブックマーク')}
-      <div class="nav-menu-sep"></div>
-      ${popupItem('/qr.html', 'QRコード')}
-      ${popupItem('/profile.html', '管理人紹介')}
-      ${popupItem('/about.html', '運営者情報')}
-      ${popupItem('/privacy.html', 'プライバシーポリシー')}
+      <div class="nav-menu-cols">
+        <div class="nav-menu-col">
+          <div class="nav-menu-head">さがす</div>
+          ${popupItem('/index.html', 'ピックアップ')}
+          ${popupItem('/home.html', 'データベース')}
+          ${popupItem('/ranking.html', 'ランキング')}
+          ${popupItem('/new-releases.html', '新刊')}
+          ${popupItem('/blog.html', 'ブログ')}
+          ${popupItem('/follow.html', 'ブックマーク')}
+        </div>
+        <div class="nav-menu-col nav-menu-col-sub">
+          <div class="nav-menu-head">サイト情報</div>
+          ${popupItem('/qr.html', 'QRコード')}
+          ${popupItem('/profile.html', '管理人紹介')}
+          ${popupItem('/about.html', '運営者情報')}
+          ${popupItem('/privacy.html', 'プライバシーポリシー')}
+        </div>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -48,8 +56,8 @@
     if (!btn) return;
     const rect = btn.getBoundingClientRect();
 
-    // 三角は上に約9.5px飛び出すので、ヘッダーの下端より下に収まる位置に開く。
-    // （ボタン基準だけだとヘッダーの下パディングに三角が食い込む）
+    // しっぽは上に約10px飛び出すので、ヘッダーの下端より下に収まる位置に開く。
+    // （ボタン基準だけだとヘッダーの下パディングにしっぽが食い込む）
     const header = btn.closest('header');
     const headerBottom = header ? header.getBoundingClientRect().bottom : rect.bottom;
     popup.style.top = Math.max(rect.bottom + 12, headerBottom + 12) + 'px';
@@ -62,19 +70,17 @@
     const rightOffset = Math.max(8, viewportW - rect.right);
     popup.style.right = rightOffset + 'px';
 
-    // 三角の先端をアイコンの中心に合わせる。
+    // しっぽの先端をアイコンの中心に合わせる。
     // ボタンには左右パディングがあるので、中心はボタンの箱ではなく
     // アイコン（.nav-caret）の実寸から取る。
     const icon = btn.querySelector('.nav-caret') || btn;
     const iconRect = icon.getBoundingClientRect();
     const iconCenterFromRight = viewportW - (iconRect.left + iconRect.width / 2);
-    // right は padding box 基準なので枠線1pxぶんを差し引き、
-    // さらに三角(12px)の半分を引いて「中心」を合わせる
-    const ARROW_HALF = 6;
-    const BORDER = 1;
+    // しっぽ(14px)の半分を引いて「中心」を合わせる
+    const ARROW_HALF = 7;
     popup.style.setProperty(
       '--arrow-right',
-      (iconCenterFromRight - rightOffset - ARROW_HALF - BORDER) + 'px'
+      (iconCenterFromRight - rightOffset - ARROW_HALF) + 'px'
     );
   }
 

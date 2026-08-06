@@ -18,8 +18,17 @@
     style.textContent = css;
     (document.head || document.documentElement).appendChild(style);
 
+    // ホーム（home.html＝Databaseカタログ。ルート「/」もここへリダイレクト）だけは
+    // タイトル帯を隠した状態＝トグルOFFを初期値にする。他ページの初期値は「表示」のまま。
+    function defaultHidden() {
+        var p = location.pathname;
+        return p === '/' || /\/home\.html$/.test(p);
+    }
+
     // --- 早期にクラス適用（チラ見え防止） ---
-    if (localStorage.getItem(KEY) === 'true') {
+    var saved = localStorage.getItem(KEY);
+    var hidden = saved === null ? defaultHidden() : saved === 'true';
+    if (hidden) {
         document.documentElement.classList.add('hide-page-hero');
     }
 

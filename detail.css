@@ -18,13 +18,27 @@
     width: 300px;
 }
 
+/* ============================================================
+   作品ページ 表紙の「紙の本風エフェクト」＝ 一時停止中（2026-08-05）
+   ユーザーが「復活します」と言ったら、下の ①②③ の
+   コメントアウトを解除するだけで元に戻る。削除しないこと。
+     ① .detail-cover-frame の box-shadow ... 浮かせる2段の影
+     ② ::before ................. 背表紙側の溝（ヒンジ・右綴じなので右側）
+     ③ ::after .................. カバー表面の光沢とエッジのハイライト
+   ※ 角丸は元は border-radius: 7px 2px 2px 7px（左＝小口側だけ7px）だったが、
+      エフェクト停止で左だけ丸いのが不自然になったため、右側の 2px に揃えた。
+      エフェクト復活時に元の非対称角丸に戻すなら 7px 2px 2px 7px へ
+   ============================================================ */
 .detail-cover-frame {
     position: relative;
     width: 100%;
-    border-radius: 7px 2px 2px 7px;
+    /* 左右の角を揃える（右側の 2px が基準） */
+    border-radius: 2px;
+    /* ① 停止中
     box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.30),
         0 3px 8px rgba(0, 0, 0, 0.18);
+    */
 }
 
 .detail-cover-frame img {
@@ -32,7 +46,7 @@
     border-radius: inherit;
 }
 
-/* 背表紙側の溝（ヒンジ・右綴じなので右側） */
+/* ② 停止中 — 背表紙側の溝（ヒンジ・右綴じなので右側）
 .detail-cover-frame::before {
     content: '';
     position: absolute;
@@ -48,8 +62,9 @@
         rgba(0, 0, 0, 0.06) 13px,
         transparent 17px);
 }
+*/
 
-/* カバー表面の光沢とエッジのハイライト */
+/* ③ 停止中 — カバー表面の光沢とエッジのハイライト
 .detail-cover-frame::after {
     content: '';
     position: absolute;
@@ -67,6 +82,7 @@
         inset 1px 0 0 rgba(0, 0, 0, 0.18),
         inset 0 -1px 0 rgba(0, 0, 0, 0.22);
 }
+*/
 
 .detail-image-badge {
     position: absolute;
@@ -163,7 +179,7 @@
 }
 
 .detail-image img {
-    border-radius: 7px 2px 2px 7px;
+    border-radius: 2px;
 }
 
 .manga-detail-placeholder {
@@ -218,10 +234,10 @@
     gap: 8px;
     width: 100%;
     background: transparent;
-    border: 1.5px solid #4B2C82;
+    border: 1.5px solid var(--color-accent);
     border-radius: 999px;
     cursor: pointer;
-    color: #4B2C82;
+    color: var(--color-accent);
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -233,19 +249,19 @@
 }
 
 .follow-button:hover {
-    background: rgba(75, 44, 130, 0.08);
-    color: #4B2C82;
+    background: rgba(66, 36, 118, 0.08);
+    color: var(--color-accent);
 }
 
 .follow-button.followed {
-    background: #4B2C82;
+    background: var(--color-accent);
     color: #fff;
-    border-color: #4B2C82;
+    border-color: var(--color-accent);
 }
 
 .follow-button.followed:hover {
-    background: #3f2470;
-    border-color: #3f2470;
+    background: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
     color: #fff;
 }
 
@@ -757,7 +773,8 @@ body.dark-mode .range-field input {
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
     background-color: var(--color-card);
-    border-radius: 3px;
+    /* メイン表紙（.detail-cover-frame）と同じ 2px に統一 */
+    border-radius: 2px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
@@ -834,9 +851,16 @@ body.dark-mode .range-field input {
         transform: scale(0.9);
     }
 
+    /* ヘッダーと表紙の間が空きすぎるので上だけ詰める
+       （PCは .detail-main の margin 40px ＋ .detail-container の padding 20px＝60px） */
+    .detail-main {
+        margin-top: 12px;
+    }
+
     .detail-container {
         flex-direction: column;
-        padding: 20px;
+        /* 上だけ8pxに（左右下は従来どおり20px）→ ヘッダーからの余白は計20px */
+        padding: 8px 20px 20px;
     }
 
     .detail-image {
@@ -1167,6 +1191,8 @@ body.dark-mode .range-field input {
     align-items: center;
     height: 26px;
     padding: 0 14px 0 12px;
+    /* 左端は面に接するので角丸なし、右側だけ3px */
+    border-radius: 0 3px 3px 0;
 }
 
 /* PC: 左下のVOL.タグと、右下の VIEW VOLUME / Amazon を同じ高さに。
@@ -1199,6 +1225,12 @@ body.dark-mode .range-field input {
 .quickview-meta {
     margin: 0 0 14px;
     border-top: 1px solid #ECECEC;
+}
+
+/* 行が1つも無いとき（Release/Price/Label 非表示中）は
+   区切り線と余白だけが残ってしまうので消す */
+.quickview-meta:empty {
+    display: none;
 }
 
 .quickview-meta-row {
@@ -1259,7 +1291,7 @@ body.dark-mode .range-field input {
     color: #3A3A3E;
     font-size: 18px;
     text-decoration: none;
-    border-radius: 2px;
+    border-radius: 3px;
     transition: background 0.18s ease;
 }
 
@@ -1283,7 +1315,7 @@ body.dark-mode .range-field input {
     letter-spacing: 0.18em;
     text-transform: uppercase;
     text-decoration: none;
-    border-radius: 2px;
+    border-radius: 3px;
     transition: background 0.18s ease, gap 0.18s ease;
 }
 

@@ -1,6 +1,8 @@
 // 左→右スワイプで前のページに戻る（モバイル共通ジェスチャー）
 // 戻り演出：ページ自体が指に追従して右へスライドするだけのシンプルな動き。
 // （※以前のスターウォーズ風の発光エッジ／宇宙グラデ／リビール光線は廃止）
+// （※画面左上に出していたフローティング戻るボタン .page-back-btn も廃止。
+//    戻る手段はこのスワイプとボトムナビの Back。ジェスチャーのみでDOMは足さない）
 // 独自のスワイプ処理を持つページ（detail / volume / series-volumes）と
 // トップページ（index）には読み込まないこと
 (function () {
@@ -28,39 +30,6 @@
     const W = () => window.innerWidth;
     let leaving = false;
 
-    // ボトムナビから直接行くハブページには戻るボタンを出さない（スワイプ戻るのみ有効）
-    const file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-    const noButtonPages = ['home.html', 'menu.html', 'follow.html'];
-    const showButton = !noButtonPages.includes(file);
-
-    // ===== スタイル =====
-    const style = document.createElement('style');
-    style.textContent = `
-        .page-back-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: absolute;
-            top: 72px;
-            left: 14px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.92);
-            color: #1a1a1a;
-            border: 1px solid var(--color-border, #e5e1dc);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            z-index: 90;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            transition: transform 0.15s ease;
-        }
-        .page-back-btn:active {
-            transform: scale(0.9);
-        }
-    `;
-    document.head.appendChild(style);
-
     function setPageX(px) {
         if (px) {
             bodyEl.style.transform = `translateX(${px}px)`;
@@ -72,17 +41,6 @@
         bodyEl.style.transition = 'none';
         setPageX(0);
         bodyEl.style.willChange = '';
-    }
-
-    // ===== 戻るボタン =====
-    if (showButton) {
-        const backBtn = document.createElement('button');
-        backBtn.type = 'button';
-        backBtn.className = 'page-back-btn';
-        backBtn.setAttribute('aria-label', '戻る');
-        backBtn.innerHTML = '<i class="ph-bold ph-arrow-left" style="font-size:20px"></i>';
-        document.body.appendChild(backBtn);
-        backBtn.addEventListener('click', () => slideBack());
     }
 
     // ===== 戻り：ページを右へ滑らせて history.back() =====

@@ -314,10 +314,13 @@ function renderQuickView() {
     volTag.textContent = `${qvState.index + 1} / ${qvState.volumes.length}`;
     volTag.hidden = false;
 
+    // Release / Price / Label は非表示にした（2026-08-05・ユーザー指示）。
+    // 復活させる場合は下の3行のコメントを戻すだけ。削除しないこと。
+    // （空になった .quickview-meta は detail.css の :empty で消える）
     const metaRows = [
-        ['Release', formatQuickViewDate(vol.firstReleaseDate)],
-        ['Price', vol.price],
-        ['Label', vol.label],
+        // ['Release', formatQuickViewDate(vol.firstReleaseDate)],
+        // ['Price', vol.price],
+        // ['Label', vol.label],
     ].filter(([, v]) => v);
     overlay.querySelector('.quickview-meta').innerHTML = metaRows
         .map(([k, v]) => `<div class="quickview-meta-row"><dt>${k}</dt><dd>${v}</dd></div>`)

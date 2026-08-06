@@ -74,6 +74,24 @@ function groupBySeries(items) {
     return result;
 }
 
+// ---- PC表示で使う補助パーツ ----
+// いずれも .rank-* クラス。スマホでは ranking.css の既定で display:none にしてあるので、
+// 既存のスマホデザインには一切影響しない。
+
+// 発売日の見出し（参考デザインの「N weeks on the list」の位置）。日付だけを出す
+function rankEyebrow(item) {
+    var date = (item && item.firstReleaseDate) || '';
+    return '<div class="rank-eyebrow">' + escapeHtml(date) + '</div>';
+}
+
+// 出版社・レーベル
+function rankMeta(item) {
+    var parts = [];
+    if (item && item.publisher) parts.push(escapeHtml(item.publisher));
+    if (item && item.label) parts.push(escapeHtml(item.label));
+    return '<div class="rank-meta">' + parts.join('<span class="rank-meta-sep">/</span>') + '</div>';
+}
+
 function renderRanking(seriesList, container) {
     var html = '';
 
@@ -82,7 +100,7 @@ function renderRanking(seriesList, container) {
     for (var i = 0; i < Math.min(3, seriesList.length); i++) {
         var s = seriesList[i];
         var item = s.representative;
-        var coverHtml = createImageElement(item, 200);
+        var coverHtml = createImageElement(item, 240);
         var titleEncoded = encodeURIComponent(s.seriesName);
 
         html += '<div class="ranking-top3-item" onclick="window.location.href=\'detail.html?title=' + titleEncoded + '\'">'
@@ -90,6 +108,8 @@ function renderRanking(seriesList, container) {
               + '<div class="ranking-top3-cover">' + coverHtml + '</div>'
               + '<div class="ranking-top3-title">' + escapeHtml(s.seriesName) + '</div>'
               + '<div class="ranking-top3-author">' + escapeHtml(s.author || '') + '</div>'
+              + rankMeta(item)
+              + '<div class="rank-footer">' + rankEyebrow(item) + '</div>'
               + '</div>';
     }
     html += '</div>';
@@ -100,16 +120,18 @@ function renderRanking(seriesList, container) {
         for (var j = 3; j < seriesList.length; j++) {
             var s2 = seriesList[j];
             var item2 = s2.representative;
-            var coverHtml2 = createImageElement(item2, 140);
+            var coverHtml2 = createImageElement(item2, 240);
             var titleEncoded2 = encodeURIComponent(s2.seriesName);
 
             html += '<div class="ranking-list-item" onclick="window.location.href=\'detail.html?title=' + titleEncoded2 + '\'">'
                   + '<div class="ranking-list-number">' + (j + 1) + '</div>'
                   + '<div class="ranking-list-cover">' + coverHtml2 + '</div>'
                   + '<div class="ranking-list-info">'
+                  + rankEyebrow(item2)
                   + '<div class="ranking-list-title">' + escapeHtml(s2.seriesName) + '</div>'
                   + '<div class="ranking-list-author">' + escapeHtml(s2.author || '') + '</div>'
                   + '</div>'
+                  + rankMeta(item2)
                   + '</div>';
         }
         html += '</div>';

@@ -5,10 +5,7 @@
     --fav-heart: #c0453f;
 }
 
-/* ページ背景をライトグレーに */
-body.page-follow {
-    background-color: #f4f4f4;
-}
+/* ページ背景は style.css の共通指定（--color-bg / bg-soft トグル）に従う */
 
 .follow-main {
     max-width: 1200px;
@@ -241,11 +238,7 @@ body.page-follow {
     }
 }
 
-/* ダークモード対応 */
-body.dark-mode.page-follow {
-    background-color: #121212;
-}
-
+/* ダークモード対応（body背景は style.css 共通） */
 body.dark-mode .followed-manga-item {
     background: #1e1e1e;
     border-color: #333;
