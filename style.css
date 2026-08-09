@@ -742,10 +742,8 @@ body.page-database .db-cover-frame {
 body.page-database .db-cover-frame img {
     display: block;
     width: auto;
-    /* 高さを固定して読み込み前から行の高さを確保する。height:auto のままだと未読込のimgが
-       高さ0に潰れ、グリッド全体が短くなって loading="lazy" が「全部ビューポート内」と
-       判定し60枚を一括読込してしまう。幅はautoのままなので読込後の見た目は従来と同じ */
-    height: 280px;
+    height: auto;
+    max-height: 280px;
     max-width: 100%;
     border-radius: inherit;
 }
@@ -861,9 +859,7 @@ body.page-database .manga-item h3 {
             0 1px 3px rgba(0, 0, 0, 0.14);
     }
     body.page-database .db-cover-frame img {
-        width: 100%;
         height: auto;
-        aspect-ratio: 2 / 3; /* 読み込み前の高さ確保（lazy loadingを機能させる） */
         max-width: 100%;
     }
     body.page-database .db-cover-frame .manga-cover-placeholder {
@@ -1039,7 +1035,6 @@ body.page-database .manga-item h3 {
 
     .manga-item img {
         height: auto;
-        aspect-ratio: 2 / 3; /* 読み込み前の高さ確保（lazy loadingを機能させる） */
         object-fit: cover;
         object-position: center;
     }
@@ -1921,6 +1916,16 @@ body.dark-mode .nav-menu-btn:hover {
     font-weight: 700;
 }
 
+/* ピックアップ／ブログを上の項目群から切り離す区切りライン */
+.nav-menu-sep {
+    height: 1px;
+    background: #E0DCD6;
+    margin: 8px 4px 9px;
+}
+body.dark-mode .nav-menu-sep {
+    background: rgba(255, 255, 255, 0.16);
+}
+
 /* ===== 右カラム＝情報系のサブ項目 ===== */
 .nav-menu-col-sub .nav-menu-item {
     font-size: 14px;
@@ -2428,6 +2433,18 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
 .mm-row:active {
     background: #FAFAFA;
 }
+
+/* 行間ヘアラインより強い区切り（ピックアップ／ブログの上） */
+.mm-sep {
+    height: 7px;
+    background: #F2F1F4;
+    border-top: 1px solid #E4E2E7;
+    border-bottom: 1px solid #E4E2E7;
+}
+/* 区切りの直前の行はヘアラインを重ねない */
+.mm-row:has(+ .mm-sep) {
+    border-bottom: none;
+}
 .mm-label {
     flex: 1;
 }
@@ -2476,6 +2493,10 @@ body.dark-mode .mm-row {
 }
 body.dark-mode .mm-row:active {
     background: #262629;
+}
+body.dark-mode .mm-sep {
+    background: #161618;
+    border-color: #2C2C30;
 }
 body.dark-mode .mm-row.current .mm-label,
 body.dark-mode .mm-row.current .mm-value {

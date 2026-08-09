@@ -99,39 +99,49 @@ async function displayAuthorDetail() {
     });
 
     if (works.length === 0) {
-        document.getElementById('representative-works').innerHTML = '<li>作品が見つかりませんでした</li>';
+        document.getElementById('author-works-grid').innerHTML = '<p class="author-works-empty">作品が見つかりませんでした</p>';
         return;
     }
-
-    // 代表作品リストを表示
-    const representativeWorksList = document.getElementById('representative-works');
-    representativeWorksList.innerHTML = '';
-    works.slice(0, 3).forEach(work => {
-        const li = document.createElement('li');
-        li.textContent = work.title;
-        representativeWorksList.appendChild(li);
-    });
 
     // 作品一覧を表示
     displayAuthorWorks(works);
 
 }
 
-// APIから著者の作品を検索
+// 著者名の表記ゆれ吸収（楽天は「尾田 栄一郎」のように姓名の間に空白が入る）
+function normalizeAuthorName(name) {
+    return (name || '').replace(/[\s　]/g, '');
+}
+
+// APIから著者の作品を検索。
+// タイトル検索だと著者名がタイトルに入っている本しか当たらないので、
+// 楽天の author 検索を使う（例: 尾田栄一郎 → title検索7件 / author検索204件）
+const AUTHOR_MAX_PAGES = 4;
+
 async function fetchAuthorWorks(authorName) {
+    const target = normalizeAuthorName(authorName);
+    const works = [];
+    const seen = new Set();
     try {
-        const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(authorName)}&hits=30`);
-        const adapted = adaptApiResponse(data);
-        // 著者名でフィルタリング（API結果が著者名以外にもマッチする可能性があるため）
-        return adapted.items.filter(item => {
-            if (!item.author || !item.author.includes(authorName)) return false;
-            const t = item.title || '';
-            if (/セット|全巻|BOX|ボックス|合本|一括/i.test(t)) return false;
-            return true;
-        });
+        for (let page = 1; page <= AUTHOR_MAX_PAGES; page++) {
+            const data = await cachedFetch(`/api/search?author=${encodeURIComponent(authorName)}&hits=30&page=${page}`);
+            const adapted = adaptApiResponse(data);
+            adapted.items.forEach(item => {
+                // 共著（「岩崎 優次/芥見 下々」）も拾えるよう、空白を除いた部分一致で判定
+                if (!item.author || !normalizeAuthorName(item.author).includes(target)) return;
+                const t = item.title || '';
+                if (/セット|全巻|BOX|ボックス|合本|一括/i.test(t)) return;
+                const key = item.isbn || t;
+                if (seen.has(key)) return;
+                seen.add(key);
+                works.push(item);
+            });
+            if (page >= (data.pageCount || 1)) break;
+        }
+        return works;
     } catch (err) {
         console.warn('著者検索失敗:', err);
-        return null;
+        return works.length ? works : null;
     }
 }
 

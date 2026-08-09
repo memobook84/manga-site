@@ -54,8 +54,7 @@
     margin-bottom: 30px;
 }
 
-.author-profile h2,
-.author-representative h2 {
+.author-profile h2 {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -71,8 +70,7 @@
     line-height: 1.15;
 }
 
-.author-profile h2::after,
-.author-representative h2::after {
+.author-profile h2::after {
     content: '';
     flex: 1;
     height: 1px;
@@ -83,33 +81,6 @@
     font-size: 15px;
     line-height: 1.9;
     color: var(--color-text);
-}
-
-/* 代表作品 */
-.author-representative {
-    margin-bottom: 20px;
-}
-
-.author-representative ul {
-    list-style: none;
-    padding: 0;
-}
-
-.author-representative li {
-    font-size: 15px;
-    padding: 10px 0;
-    color: var(--color-text);
-    border-bottom: 1px solid var(--color-border);
-}
-
-.author-representative li:last-child {
-    border-bottom: none;
-}
-
-.author-representative li::before {
-    content: "\2014\00a0";
-    color: var(--color-text-sub);
-    margin-right: 4px;
 }
 
 /* 作品一覧セクション */
@@ -205,4 +176,11 @@
     .author-works-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* 作品が取れなかったとき */
+.author-works-empty {
+    padding: 20px 0;
+    font-size: 14px;
+    color: var(--color-text-sub, #999);
 }

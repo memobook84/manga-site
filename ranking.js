@@ -2,7 +2,8 @@
 
 async function displayRanking() {
     var container = document.querySelector('.ranking-container');
-    container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--color-text-sub);">ランキングを読み込み中...</p>';
+    // 読み込み中の文言は出さず、取得できた時点で一気に描画する
+    container.innerHTML = '';
 
     try {
         var response = await fetch('/api/books?genre=001001&hits=30&sort=sales');

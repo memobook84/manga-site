@@ -29,12 +29,13 @@
       <div class="nav-menu-cols">
         <div class="nav-menu-col">
           <div class="nav-menu-head">さがす</div>
-          ${popupItem('/index.html', 'ピックアップ')}
-          ${popupItem('/home.html', 'データベース')}
-          ${popupItem('/ranking.html', 'ランキング')}
+          ${popupItem('/home.html', 'ホーム')}
           ${popupItem('/new-releases.html', '新刊')}
-          ${popupItem('/blog.html', 'ブログ')}
+          ${popupItem('/ranking.html', 'ランキング')}
           ${popupItem('/follow.html', 'ブックマーク')}
+          <div class="nav-menu-sep"></div>
+          ${popupItem('/index.html', 'ピックアップ')}
+          ${popupItem('/blog.html', 'ブログ')}
         </div>
         <div class="nav-menu-col nav-menu-col-sub">
           <div class="nav-menu-head">サイト情報</div>
@@ -227,13 +228,15 @@
   // ===== モバイル: メニューポップアップ（ボトムナビ Menu） =====
   // menu.html へ遷移せず、その場でリスト型のポップアップを開く。
   if (bottomNav) {
+    // 'sep' は行ではなく区切りライン（ピックアップ／ブログの上に入れる）
     const MENU_ITEMS = [
-      ['/index.html', 'ピックアップ'],
-      ['/home.html', 'データベース'],
-      ['/ranking.html', 'ランキング'],
+      ['/home.html', 'ホーム'],
       ['/new-releases.html', '新刊'],
+      ['/ranking.html', 'ランキング'],
+      ['/follow.html', 'ブックマーク'],
+      'sep',
+      ['/index.html', 'ピックアップ'],
       ['/blog.html', 'ブログ'],
-      ['/follow.html', 'お気に入り'],
       ['/qr.html', 'QRコード'],
       ['/profile.html', '管理人紹介'],
       ['/about.html', '運営者情報'],
@@ -247,6 +250,7 @@
       <div class="mm-wrap">
         <nav class="mm-card">
           ${MENU_ITEMS.map(function (item) {
+            if (item === 'sep') return '<div class="mm-sep"></div>';
             const isCurrent = item[0].slice(1).toLowerCase() === file;
             return `<a href="${item[0]}" class="mm-row${isCurrent ? ' current' : ''}">
               <span class="mm-label">${item[1]}</span>

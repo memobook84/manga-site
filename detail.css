@@ -1113,7 +1113,9 @@ body.dark-mode .range-field input {
     animation: quickviewIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* 雑誌の背表紙風のアクセントライン（テーマカラー紫） */
+/* 雑誌の背表紙風のアクセントライン（テーマカラー紫）は廃止。
+   PCでは元々非表示、モバイルでは上端の横バーとして出ていたものを削除した。
+   復活させる場合は以下のコメントを戻す（モバイル側の上書きは @media max-width:1024px にある）
 .quickview-content::before {
     content: '';
     position: absolute;
@@ -1124,6 +1126,7 @@ body.dark-mode .range-field input {
     background: #4B2C82;
     z-index: 1;
 }
+*/
 
 @keyframes quickviewIn {
     from { transform: translateY(18px) scale(0.96); opacity: 0; }
@@ -1202,10 +1205,11 @@ body.dark-mode .range-field input {
         max-width: 880px;
     }
 
-    /* 左端の紫のアクセントライン（雑誌の背表紙風）は出さない */
+    /* 左端の紫のアクセントライン（雑誌の背表紙風）は廃止済み（本体をコメントアウト）
     .quickview-content::before {
         display: none;
     }
+    */
 
     .quickview-cover {
         flex: 0 0 300px;
@@ -1450,12 +1454,14 @@ body.dark-mode .range-field input {
         flex-direction: column !important;
         max-width: 360px;
     }
+    /* 上端の紫の横バーは廃止（本体をコメントアウト済み）
     .quickview-content::before {
         right: 0;
         bottom: auto;
         width: auto;
         height: 5px;
     }
+    */
     .quickview-cover {
         flex: none;
         padding: 26px 20px 30px;

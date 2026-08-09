@@ -225,3 +225,21 @@ body.dark-mode .followed-manga-item {
 body.dark-mode .fav-title {
     color: #eee;
 }
+
+/* PC・タブレット（縦型カード）は表紙が中央なので、タイトルと著者も中央に揃える。
+   スマホ（560px以下）は画像左・テキスト右の横並びなので左寄せのまま */
+@media (min-width: 561px) {
+    .fav-card-body {
+        align-items: center;
+        text-align: center;
+    }
+
+    .fav-card-titlerow {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .fav-author-link {
+        align-self: center;
+    }
+}

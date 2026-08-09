@@ -74,10 +74,11 @@ function mapItem(item) {
 module.exports = async function handler(req, res) {
   // sort: 既定は楽天の標準順。並べ替えはクライアント側（巻数の多い順）で行う。
   // 'sales'（売れている順）などを試したい場合はクエリで上書きできる
-  const { keyword, page = '1', hits = '30', sort = 'standard' } = req.query;
+  // author を渡すと楽天の著者名検索（title検索より正確）になる
+  const { keyword, author, page = '1', hits = '30', sort = 'standard' } = req.query;
 
-  if (!keyword) {
-    return res.status(400).json({ error: 'keyword parameter is required' });
+  if (!keyword && !author) {
+    return res.status(400).json({ error: 'keyword or author parameter is required' });
   }
 
   const accessKey = (process.env.RAKUTEN_APP_ID || '').trim();
@@ -90,12 +91,16 @@ module.exports = async function handler(req, res) {
     applicationId: APP_ID,
     accessKey: accessKey,
     formatVersion: '2',
-    title: keyword,
     booksGenreId: '001001',
     hits: String(Math.min(parseInt(hits), 30)),
     page: page,
     sort: sort,
   });
+  if (author) {
+    bookParams.set('author', author);
+  } else {
+    bookParams.set('title', keyword);
+  }
 
   try {
     let data = await rakutenFetch(`${RAKUTEN_BOOK}?${bookParams}`);
@@ -106,7 +111,7 @@ module.exports = async function handler(req, res) {
         applicationId: APP_ID,
         accessKey: accessKey,
         formatVersion: '2',
-        keyword: keyword,
+        keyword: author || keyword,
         booksGenreId: '001',
         hits: String(Math.min(parseInt(hits), 30)),
         page: page,
