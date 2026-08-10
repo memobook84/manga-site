@@ -794,7 +794,11 @@ body.page-database .db-cover-frame::after {
 }
 
 body.page-database .db-cover-frame .manga-cover-placeholder {
-    width: 187px;
+    /* createImageElement が付けるインラインの height（既定320px）を打ち消す。
+       実表紙は max-height:280px だが、その上限いっぱいだと白い面が目立つので
+       単行本の判型に近い比率（およそ0.72）で一回り小さくしている */
+    width: 178px;
+    height: 248px !important;
     border-radius: inherit;
 }
 
@@ -954,7 +958,9 @@ body.page-database .manga-item h3 {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    /* 白紙のカバー。実表紙に混ざっても浮かないよう、輪郭は淡い線だけで示す */
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 .manga-cover-placeholder .cover-spine {
@@ -963,7 +969,7 @@ body.page-database .manga-item h3 {
     top: 0;
     bottom: 0;
     width: 6px;
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.06);
 }
 
 .manga-cover-placeholder .cover-content {
@@ -972,21 +978,49 @@ body.page-database .manga-item h3 {
     z-index: 1;
 }
 
+/* 巻一覧のグリッド（作品ページ／単行本ページ／全巻一覧）では、実表紙が
+   width:100% + height:auto で列幅に追従する。プレースホルダーだけ
+   インラインの height（280px）で固定されると一つだけ縦に長くなるので、
+   高さを解除して単行本の判型（新書判 112:176）で決めさせる */
+.volume-cover-wrap .manga-cover-placeholder,
+.volume-item > .manga-cover-placeholder,
+.sv-cover .manga-cover-placeholder {
+    height: auto !important;
+    aspect-ratio: 112 / 176;
+}
+
+/* 白地になったので文字は黒。影は不要。書影の代わりなので主張は控えめに */
 .manga-cover-placeholder .cover-title {
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.5;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    color: #2B2B2B;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
     word-break: break-word;
     font-family: var(--font-heading);
 }
 
 .manga-cover-placeholder .cover-author {
-    color: rgba(255,255,255,0.85);
-    font-size: 12px;
+    color: #8A8A8F;
+    font-size: 11px;
     margin-top: 10px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ダークモードでは白い板が眩しいので、紙色を落として文字を反転する */
+body.dark-mode .manga-cover-placeholder {
+    background: #2A2A2E;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .manga-cover-placeholder .cover-spine {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .manga-cover-placeholder .cover-title {
+    color: #E8E8EA;
+}
+
+body.dark-mode .manga-cover-placeholder .cover-author {
+    color: #8A8A8F;
 }
 
 .manga-item h3 {

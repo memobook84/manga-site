@@ -103,6 +103,9 @@ async function displayVolumeDetail() {
     document.querySelectorAll('.js-buy-amazon').forEach(a => {
         a.href = getAmazonBuyUrl(volume);
     });
+    document.querySelectorAll('.js-buy-rakuten').forEach(a => {
+        a.href = getRakutenBuyUrl(volume);
+    });
 
     // 作品ページに戻るリンクを設定
     const seriesName = series || extractSeriesName(volume.title) || volume.title;

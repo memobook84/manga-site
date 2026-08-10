@@ -80,6 +80,8 @@
                             aria-label="試し読み" title="試し読み">
                         <i class="ph-bold ph-book-open" aria-hidden="true"></i>
                     </button>
+                    <!-- 購入ボタン（アイコン版）は購入リンクをメタ欄のテキストリンクに
+                         移したため休止中。戻す時はこのコメントを外すだけでよい
                     <a href="#" class="buy-icon-btn js-buy-amazon" target="_blank" rel="noopener"
                        aria-label="Amazonで購入" title="Amazonで購入">
                         <svg class="amazon-mark amazon-mark-a" viewBox="0 0 32 32" aria-hidden="true">
@@ -90,6 +92,13 @@
                             <path d="M23.4 26.6l4.4-2.4-.4 4.4z" fill="currentColor"/>
                         </svg>
                     </a>
+                    <a href="#" class="buy-icon-btn js-buy-rakuten" target="_blank" rel="noopener"
+                       aria-label="楽天ブックスで購入" title="楽天ブックスで購入">
+                        <svg class="rakuten-mark rakuten-mark-r" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill="currentColor" d="M23.277 21.3L3.939 24 .722 21.3h22.555zM7.6 19.276H3.939V0h6.052a6.653 6.653 0 0 1 6.65 6.646c0 2.234-1.108 4.204-2.799 5.418l5.418 7.211h-4.585l-4.486-5.979H7.6v5.98zm0-9.64h2.392a2.992 2.992 0 0 0 2.989-2.989 2.994 2.994 0 0 0-2.989-2.986H7.6v5.975z"/>
+                        </svg>
+                    </a>
+                    -->
                 </div>
             </div>
 
@@ -135,6 +144,20 @@
                         <span class="meta-label">価格</span>
                         <span id="volume-price" class="meta-value">-</span>
                     </div>
+
+                    <!-- 購入先は他のメタ項目と同じ体裁のテキストリンク。
+                         外部サイトへ出ることが分かるようにアイコンを添える -->
+                    <div class="meta-item">
+                        <span class="meta-label">購入</span>
+                        <span class="meta-value buy-links">
+                            <a href="#" class="buy-text-link buy-text-link--amazon js-buy-amazon" target="_blank" rel="noopener">
+                                Amazon<i class="ph-bold ph-arrow-square-out" aria-hidden="true"></i>
+                            </a>
+                            <a href="#" class="buy-text-link buy-text-link--rakuten js-buy-rakuten" target="_blank" rel="noopener">
+                                楽天ブックス<i class="ph-bold ph-arrow-square-out" aria-hidden="true"></i>
+                            </a>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- PC: 下端をそろえる行（左＝購入ボタン、右＝前後ナビ） -->
@@ -144,6 +167,8 @@
                         <span>試し読み</span>
                         <i class="ph-bold ph-arrow-right" aria-hidden="true"></i>
                     </button>
+                    <!-- 購入ボタン（アイコン版）は購入リンクをメタ欄のテキストリンクに
+                         移したため休止中。戻す時はこのコメントを外すだけでよい
                     <a href="#" class="buy-icon-btn js-buy-amazon" target="_blank" rel="noopener"
                        aria-label="Amazonで購入" title="Amazonで購入">
                         <svg class="amazon-mark" viewBox="0 0 100 40" aria-hidden="true">
@@ -154,6 +179,14 @@
                             <path d="M68.2 31.6L76 25.4L74.6 34.4Z" fill="currentColor"/>
                         </svg>
                     </a>
+                    <a href="#" class="buy-icon-btn js-buy-rakuten" target="_blank" rel="noopener"
+                       aria-label="楽天ブックスで購入" title="楽天ブックスで購入">
+                        <svg class="rakuten-mark" viewBox="0 0 100 40" aria-hidden="true">
+                            <text x="50" y="27" text-anchor="middle" fill="currentColor"
+                                  font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Rakuten</text>
+                        </svg>
+                    </a>
+                    -->
                 </div>
 
                 <!-- PC用前後ナビ -->

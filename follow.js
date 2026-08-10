@@ -24,7 +24,9 @@ function displayFollowedManga() {
     emptyMessage.style.display = 'none';
     grid.innerHTML = '';
 
-    followedManga.forEach((manga) => {
+    // 保存は追加順（古い順）なので、新しく登録したものが上に来るよう反転して並べる。
+    // slice() で複製してから reverse（元の配列は保存順のまま保つ）
+    followedManga.slice().reverse().forEach((manga) => {
         const mangaItem = document.createElement('div');
         mangaItem.className = 'followed-manga-item';
 

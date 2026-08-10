@@ -1,31 +1,42 @@
 #!/usr/bin/env node
-// 作品ページ用キャッシュ（data/series/*.json）の巻の穴を埋めるバッチ。
+// 「別レーベルの版が正巻の座に収まっている」巻を、APIから取り直した正しい版に差し替える。
 //
-//   API_BASE=http://localhost:3000 node scripts/fill-series-gaps.js
+//   API_BASE=http://localhost:3001 node scripts/fix-wrong-editions.js
 //
-// build-search-index.js は「出版社ごとに売れている順」で集めるため、
-// 旧巻や地味な巻を取りこぼす（例: カグラバチが10〜12巻しか入らない）。
-// ここでは巻番号に穴があるシリーズだけを対象に、タイトル検索を
-// 打ち切りなしで回して、取れた巻をキャッシュに足し込む。
+// 背景:
+// fill-series-gaps.js が ISBN違い＝別物として無条件に足していたため、
+// 本来の巻が取れなかったシリーズで別版が代わりに入っている。
+// （例: ONE PIECE の2巻が「集英社ジャンプリミックス」版になっている）
+//
+// dedupe-series-editions.js は「同じ巻番号に正しい版も居る」場合の重複を消すだけなので、
+// 正しい版が手元に無いこちらのケースは、APIから取り直すしかない。
+//
+// 方針:
+//   - 見つかった時だけ差し替える。見つからなければ元のまま残す（欠番を作らない）
+//   - 主レーベルを断定できないシリーズ（レーベルが拮抗）は最初から対象外
 //
 // 環境変数:
-//   API_BASE   /api/search を持つURL（ローカル or 本番）※必須
+//   API_BASE   /api/search を持つURL ※必須
 //   DELAY_MS   リクエスト間隔（既定1000ms）
 //   MAX_PAGES  1シリーズあたりの最大ページ数（既定15）
-//   LIMIT      処理するシリーズ数の上限（分割実行用。既定は無制限）
-//   OFFSET     何件目から処理するか（分割実行用。既定0）
+//   LIMIT      処理するシリーズ数の上限（分割実行用）
+//   OFFSET     何件目から処理するか（分割実行用）
+//   DRY_RUN    1 なら書き換えず件数だけ出す
 
 const https = require('https');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { normalizeSearchKey, seriesBucketPath } = require('../search-normalize.js');
+const { normalizeSearchKey } = require('../search-normalize.js');
 
 const API_BASE = (process.env.API_BASE || '').replace(/\/$/, '');
 const DELAY_MS = parseInt(process.env.DELAY_MS || '1000', 10);
 const MAX_PAGES = parseInt(process.env.MAX_PAGES || '15', 10);
 const LIMIT = parseInt(process.env.LIMIT || '0', 10);
 const OFFSET = parseInt(process.env.OFFSET || '0', 10);
+const DRY_RUN = process.env.DRY_RUN === '1';
+// 動作確認用。指定するとそのキーのシリーズだけを処理する（例: ONLY=onepiece）
+const ONLY = process.env.ONLY || '';
 
 const COVER_BASE = 'https://thumbnail.image.rakuten.co.jp/@0_mall/book/cabinet/';
 const SERIES_DIR = path.join(__dirname, '..', 'data', 'series');
@@ -50,7 +61,8 @@ function getJson(url) {
     });
 }
 
-// rakuten-adapter.js / build-search-index.js と同じ規則
+// --- fill-series-gaps.js と同じ規則（重複しているが、片方を直しても他方が壊れないよう独立させている）
+
 function extractSeriesName(title) {
     if (!title) return '';
     let name = title;
@@ -94,8 +106,6 @@ function cleanText(s) {
     return s ? String(s).replace(/�+/g, '').trim() : '';
 }
 
-// レーベル名の表記ゆれを吸収する（「ジャンプ・コミックス」＝「ジャンプコミックス」）。
-// dedupe-series-editions.js と同じ規則
 function normLabel(s) {
     return String(s || '')
         .replace(/[\s　・･\-–—ー]/g, '')
@@ -103,8 +113,6 @@ function normLabel(s) {
         .toLowerCase();
 }
 
-// そのシリーズの「本来のレーベル」。最多が2件以上あり2位を上回る時だけ採用し、
-// 拮抗している場合は null（＝レーベルで絞り込まない）
 function mainLabel(rows) {
     const count = {};
     rows.forEach(r => {
@@ -119,22 +127,9 @@ function mainLabel(rows) {
     return ranked[0];
 }
 
-// 巻番号に穴があるか（1から始まっていない／途中が抜けている）
-function hasGap(rows) {
-    const nums = [];
-    rows.forEach(r => {
-        if (typeof r[0] === 'number' && r[0] > 0 && nums.indexOf(r[0]) === -1) nums.push(r[0]);
-    });
-    if (nums.length === 0) return false;   // 巻番号が無いシリーズは対象外
-    let min = nums[0];
-    let max = nums[0];
-    nums.forEach(n => { if (n < min) min = n; if (n > max) max = n; });
-    return min > 1 || (max - min + 1 !== nums.length);
-}
-
-// タイトル検索を打ち切りなしで回す
-async function fetchAllVolumes(seriesTitle, key) {
-    const rows = [];
+// シリーズ名で検索し、主レーベルの巻だけを 巻番号→行 で返す
+async function fetchCorrectVolumes(seriesTitle, key, main) {
+    const found = {};
     for (let page = 1; page <= MAX_PAGES; page++) {
         const url = `${API_BASE}/api/search?keyword=${encodeURIComponent(seriesTitle)}&hits=30&page=${page}`;
         let data;
@@ -149,8 +144,12 @@ async function fetchAllVolumes(seriesTitle, key) {
             if (!title) return;
             if (/セット|全巻|ボックス|合本|一括/.test(title)) return;
             if (normalizeSearchKey(extractSeriesName(title)) !== key) return;
-            rows.push([
-                extractVolumeNumber(title),
+            if (normLabel(it.label || it.seriesName) !== main) return;
+            const num = extractVolumeNumber(title);
+            if (num === null) return;
+            if (found[num]) return;   // 同じ巻番号は先に見つかったものを使う
+            found[num] = [
+                num,
                 title,
                 it.isbn || '',
                 it.firstReleaseDate || '',
@@ -158,78 +157,93 @@ async function fetchAllVolumes(seriesTitle, key) {
                 it.price || 0,
                 cleanText(it.label || it.seriesName),
                 cleanText(it.description),
-            ]);
+            ];
         });
         if (page >= (data.pageCount || 1)) break;
         await sleep(DELAY_MS);
     }
-    return rows;
+    return found;
 }
 
 async function main() {
     if (!API_BASE) {
-        console.error('API_BASE が必要です（例: API_BASE=http://localhost:3000）');
+        console.error('API_BASE が必要です（例: API_BASE=http://localhost:3001）');
         process.exit(1);
     }
 
     const bucketFiles = fs.readdirSync(SERIES_DIR).filter(f => f.endsWith('.json'));
-
-    // 穴のあるシリーズを洗い出す
-    const targets = [];
     const buckets = {};
+    const targets = [];
+
+    // 「主レーベルと違う版が、その巻番号の唯一の行になっている」シリーズを洗い出す
     bucketFiles.forEach(f => {
-        const p = path.join(SERIES_DIR, f);
-        const b = JSON.parse(fs.readFileSync(p, 'utf8'));
+        const b = JSON.parse(fs.readFileSync(path.join(SERIES_DIR, f), 'utf8'));
         buckets[f] = b;
         Object.keys(b).forEach(key => {
-            if (hasGap(b[key].v)) targets.push({ file: f, key: key, title: b[key].t });
+            const rows = b[key].v || [];
+            if (!rows.length) return;
+            const main = mainLabel(rows);
+            if (main === null) return;
+
+            const covered = {};
+            rows.forEach(r => {
+                if (r[0] === null || r[0] === undefined) return;
+                if (normLabel(r[6]) === main) covered[r[0]] = true;
+            });
+
+            const badNums = [];
+            rows.forEach(r => {
+                if (r[0] === null || r[0] === undefined) return;
+                if (normLabel(r[6]) === main) return;
+                if (covered[r[0]]) return;   // 正しい版が既にある＝dedupe側の担当
+                if (badNums.indexOf(r[0]) === -1) badNums.push(r[0]);
+            });
+
+            if (badNums.length) {
+                targets.push({ file: f, key: key, title: b[key].t, main: main, nums: badNums });
+            }
         });
     });
 
-    const slice = targets.slice(OFFSET, LIMIT ? OFFSET + LIMIT : undefined);
-    console.log(`穴のあるシリーズ: ${targets.length}件 / 今回処理: ${slice.length}件`);
+    const filtered = ONLY ? targets.filter(t => t.key === ONLY) : targets;
+    const slice = filtered.slice(OFFSET, LIMIT ? OFFSET + LIMIT : undefined);
+    const totalBad = slice.reduce((s, t) => s + t.nums.length, 0);
+    console.log(`対象シリーズ: ${filtered.length}件 / 今回処理: ${slice.length}件（差し替え候補 ${totalBad}巻）`);
+    if (DRY_RUN) {
+        slice.slice(0, 10).forEach(t => console.log(`  ${t.title} → ${t.nums.join(',')}巻（主=${t.main}）`));
+        console.log('DRY_RUN のため終了');
+        return;
+    }
 
-    let filled = 0;
-    let added = 0;
+    let replaced = 0;
+    let missed = 0;
     const touched = new Set();
 
     for (let i = 0; i < slice.length; i++) {
         const t = slice[i];
         const entry = buckets[t.file][t.key];
-        const before = entry.v.length;
 
-        const rows = await fetchAllVolumes(t.title, t.key);
-        if (rows.length === 0) continue;
-
-        // ISBNで重複を除いて足し込む。
-        // このとき、そのシリーズの本来のレーベルと違う版（文庫版・リミックス版など）は
-        // 採用しない。以前はISBNが違えば別物として無条件に足していたため、
-        // 同じ巻番号に複数の版が並んだり、別版が正巻の座に収まったりしていた
-        const main = mainLabel(entry.v);
-        const seen = {};
-        entry.v.forEach(v => { if (v[2]) seen[v[2]] = true; });
-        rows.forEach(r => {
-            if (r[2] && seen[r[2]]) return;
-            if (main !== null && normLabel(r[6]) !== main) return;
-            if (r[2]) seen[r[2]] = true;
-            entry.v.push(r);
-        });
-
-        // 巻数順に並べ直す（番号なしは末尾）
-        entry.v.sort((a, b) => {
-            if (a[0] !== null && b[0] !== null) return a[0] - b[0];
-            if (a[0] === null && b[0] === null) return (a[3] || '').localeCompare(b[3] || '');
-            return a[0] === null ? 1 : -1;
-        });
-
-        if (entry.v.length > before) {
-            filled++;
-            added += entry.v.length - before;
-            touched.add(t.file);
+        let correct;
+        try {
+            correct = await fetchCorrectVolumes(t.title, t.key, t.main);
+        } catch (e) {
+            console.log(`  取得失敗: ${t.title}`);
+            await sleep(DELAY_MS);
+            continue;
         }
 
-        if ((i + 1) % 50 === 0) {
-            console.log(`  ${i + 1}/${slice.length} … ${filled}作品に${added}巻追加`);
+        t.nums.forEach(num => {
+            const good = correct[num];
+            if (!good) { missed++; return; }   // 見つからない → 元のまま残す
+            const idx = entry.v.findIndex(r => r[0] === num && normLabel(r[6]) !== t.main);
+            if (idx === -1) return;
+            entry.v[idx] = good;
+            replaced++;
+            touched.add(t.file);
+        });
+
+        if ((i + 1) % 25 === 0) {
+            console.log(`  ${i + 1}/${slice.length} … ${replaced}巻を差し替え / ${missed}巻は見つからず`);
             touched.forEach(f => {
                 fs.writeFileSync(path.join(SERIES_DIR, f), JSON.stringify(buckets[f]), 'utf8');
             });
@@ -238,15 +252,11 @@ async function main() {
         await sleep(DELAY_MS);
     }
 
-    // 残りを書き出し
     touched.forEach(f => {
         fs.writeFileSync(path.join(SERIES_DIR, f), JSON.stringify(buckets[f]), 'utf8');
     });
 
-    console.log(`\n完了: ${filled}作品に合計${added}巻を追加しました`);
+    console.log(`=== 完了: ${replaced}巻を差し替え / ${missed}巻は正しい版が見つからず元のまま ===`);
 }
 
-main().catch(e => {
-    console.error('失敗:', e.message);
-    process.exit(1);
-});
+main();

@@ -163,6 +163,48 @@ body {
     overflow-wrap: anywhere;
 }
 
+/* 購入先のテキストリンク（Amazon / 楽天ブックス）。
+   メタ欄の他の値と同じ体裁で並べ、外部リンクのアイコンを添える */
+.buy-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+}
+
+/* 文字は本文と同じ色。アイコンは通常は青で、
+   ホバーした時だけそのストアのブランドカラーに変わる */
+.buy-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.buy-text-link i {
+    font-size: 13px;
+    color: #6cb4ee;
+    transition: color 0.2s;
+}
+
+.buy-text-link:hover {
+    text-decoration: underline;
+}
+
+.buy-text-link--amazon:hover i {
+    color: #FF9900;
+}
+
+.buy-text-link--rakuten:hover i {
+    color: #BF0000;
+}
+
+/* ダークでは楽天の赤が沈むので明るめに寄せる */
+body.dark-mode .buy-text-link--rakuten:hover i {
+    color: #FF5A5A;
+}
+
 .author-link {
     color: #6cb4ee;
     text-decoration: none;
@@ -257,10 +299,32 @@ body {
     white-space: nowrap;
 }
 
+/* 表示中の巻。以前は赤(#D8052E)の2px outline だったが、
+   テーマ紫のリングとやわらかい影で一段手前に浮かせる形に変えた。
+   outline ではなく box-shadow を使うのは、影と一本の指定でまとめられて
+   角丸にも追従するため */
 .volume-item.current-volume {
-    outline: 2px solid #D8052E;
-    outline-offset: 2px;
     cursor: default;
+    /* リングは box-shadow ではなく outline。outline-offset なら
+       表紙との間に透明な余白をそのまま作れる（背景色を知らなくてよい） */
+    outline: 2px solid #4B2C82;
+    outline-offset: 8px;
+    /* 角は丸めず直角にする（outline は border-radius に追従するので0にする） */
+    border-radius: 0;
+}
+
+/* 巻数も紫でそろえて、どれを見ているか文字側でも分かるようにする */
+.volume-item.current-volume .volume-number {
+    color: #4B2C82;
+    font-weight: 700;
+}
+
+body.dark-mode .volume-item.current-volume {
+    outline-color: #B89DE8;
+}
+
+body.dark-mode .volume-item.current-volume .volume-number {
+    color: #B89DE8;
 }
 
 @media (max-width: 1024px) {
@@ -715,7 +779,8 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-.buy-icon-btn .amazon-mark {
+.buy-icon-btn .amazon-mark,
+.buy-icon-btn .rakuten-mark {
     display: block;
     width: 100%;
     height: auto;
@@ -825,6 +890,14 @@ body.dark-mode .buy-icon-btn:hover {
     .volume-actions-mobile .amazon-mark-a {
         width: 26px;
         height: 26px;
+    }
+
+    /* 楽天の「R」は図案が濃いので一回り小さく。
+       margin:auto で38pxの箱の中央に置く（width指定で flex の伸びが効かないため） */
+    .volume-actions-mobile .rakuten-mark-r {
+        width: 20px;
+        height: 20px;
+        margin: auto;
     }
 }
 

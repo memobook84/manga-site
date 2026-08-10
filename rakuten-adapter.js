@@ -1,9 +1,15 @@
 // 楽天APIレスポンスをサイト内データ形式に変換するアダプター
 
-// APIレスポンスのlocalStorageキャッシュ（7日間有効）
-const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+// APIレスポンスのlocalStorageキャッシュ。
+// 楽天ウェブサービスは「価格・販売可能情報の保存は24時間まで」と定めており、
+// レスポンスには price が含まれるので、以前の7日間では超過していた。
+// CDN側（vercel.json の /api/ は s-maxage 12時間 + swr 1時間）と積み上がるため、
+// 手元は8時間にして最悪ケースを 13 + 8 = 21時間に収めている。
+const CACHE_TTL = 8 * 60 * 60 * 1000;
 
-const CACHE_VERSION = 'v2';
+// TTLを縮めても、既存ブラウザには旧キーで最大7日分のキャッシュが残っている。
+// バージョンを上げると初回アクセス時にまとめて破棄される
+const CACHE_VERSION = 'v3';
 async function cachedFetch(url) {
     const key = `api_cache_${CACHE_VERSION}_` + url;
     // 旧バージョンキャッシュの一括削除（初回のみ）
@@ -137,12 +143,23 @@ let __imgIndex = 0;
 function resetImagePriority() { __imgIndex = 0; }
 
 // 画像表示用のHTML要素を生成（常にimg要素を生成し、Google Books APIでフォールバック）
+// 楽天が「書影準備中」に返すテンプレート画像かどうか。
+// 実在する書影は .jpg で配信されるのに対し、未入稿の本は ISBN名の .gif が返る
+// （中身は 1004x1172 の共通テンプレート＝著者名と書名を並べただけの版面）。
+// これを本物として扱うと、実表紙の列に文字だけのコマが混ざってしまう
+function isRakutenNoCover(url) {
+  if (!url) return false;
+  const filename = String(url).split('?')[0].split('/').pop();
+  return /^\d{10,13}\.gif$/i.test(filename);
+}
+
 function createImageElement(item, height = 320) {
   const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   const safeAuthor = (item.author || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
-  const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
+  const noCover = isRakutenNoCover(item.imageUrl);
+  const needsUpgrade = (!item.hasRealCover && !noCover && isbn) ? 'data-needs-upgrade="1"' : '';
   const size = pickRakutenSize(height);
   const sizedUrl = withRakutenSize(item.imageUrl, size);
   // 先頭6枚は eager + 高優先度、それ以降は lazy
@@ -150,6 +167,13 @@ function createImageElement(item, height = 320) {
   const loadAttrs = idx < 6
     ? `loading="eager" fetchpriority="high" decoding="async"`
     : `loading="lazy" decoding="async"`;
+
+  // 書影準備中のテンプレートは表示せず、その場で白いカバーを描く。
+  // ここでGoogle Booksに問い合わせると1件2秒以上かかるうえ、
+  // 新刊はまず登録が無い（＝待った末に結局この白いカバーになる）ので引かない
+  if (noCover) {
+    return createPlaceholderHtml(item.title, item.author, item.color, height);
+  }
 
   if (item.imageUrl) {
     return `<img src="${sizedUrl}" alt="${item.title}"
@@ -201,8 +225,11 @@ async function handleImageError(img, title, author, color, height) {
   img.outerHTML = createPlaceholderHtml(title, author, color, height);
 }
 
+// 表紙が無い本の代替カバー。
+// 以前は作品ごとの色(color)で塗っていたが、並べた時に色だけが浮くので白紙のカバーにした。
+// 配色はCSS（.manga-cover-placeholder）側に持たせ、ここでは高さだけ指定する
 function createPlaceholderHtml(title, author, color, height) {
-  return `<div class="manga-cover-placeholder" style="height:${height}px;background:linear-gradient(145deg, ${color} 0%, ${adjustColor(color, -40)} 100%);">
+  return `<div class="manga-cover-placeholder" style="height:${height}px;">
             <div class="cover-spine"></div>
             <div class="cover-content">
               <div class="cover-title">${title}</div>
@@ -224,9 +251,18 @@ function createDetailImageElement(item) {
   const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
-  const needsUpgrade = (!item.hasRealCover && isbn) ? 'data-needs-upgrade="1"' : '';
+  const noCover = isRakutenNoCover(item.imageUrl);
+  const needsUpgrade = (!item.hasRealCover && !noCover && isbn) ? 'data-needs-upgrade="1"' : '';
   const imgStyle = "width:100%;height:auto;";
   const sizedUrl = withRakutenSize(item.imageUrl, 800);
+
+  // 書影準備中のテンプレートは表示せず、その場でプレースホルダーに落とす
+  // （Google Booksへの問い合わせは待ち時間の割に当たらないので行わない）
+  if (noCover) {
+    return `<div class="manga-detail-placeholder" style="background-color: ${item.color};">
+              <span class="manga-placeholder-text">${item.title}</span>
+            </div>`;
+  }
 
   if (item.imageUrl) {
     return `<img src="${sizedUrl}" alt="${item.title}"
