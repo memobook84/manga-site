@@ -1478,9 +1478,10 @@ body.dark-mode .page-btn.is-current::after {
         right: 18px;
         transform: translateY(12px) scale(0.95);
         transform-origin: bottom right;
-        bottom: calc(72px + env(safe-area-inset-bottom));
+        /* FAB(18px + 54px) の真上に12px空けて開く */
+        bottom: calc(84px + env(safe-area-inset-bottom));
         flex-direction: column;
-        width: 42px;
+        width: 54px;
         padding: 14px 0;
         gap: 16px;
         opacity: 0;
@@ -1494,9 +1495,9 @@ body.dark-mode .page-btn.is-current::after {
         visibility: visible;
         transform: translateY(0) scale(1);
     }
-    /* 展開ナビの項目もFABボタン(42px)に合わせて小さく */
+    /* 展開ナビの項目は横幅いっぱいに広げる（高さはFABに合わせて低め） */
     .bottom-nav-item {
-        width: 42px;
+        width: 54px;
         height: 28px;
     }
     .bottom-nav-item i {
@@ -1514,8 +1515,9 @@ body.dark-mode .page-btn.is-current::after {
         position: fixed;
         right: 18px;
         bottom: calc(18px + env(safe-area-inset-bottom));
-        width: 42px;
-        height: 42px;
+        /* 展開するナビと同じ幅にそろえる（中心線が一致する） */
+        width: 54px;
+        height: 54px;
         border-radius: 50%;
         border: none;
         background: #ffffff;
@@ -1527,19 +1529,29 @@ body.dark-mode .page-btn.is-current::after {
         -webkit-tap-highlight-color: transparent;
         transition: transform 0.2s ease;
     }
+    /* 閉じている時＝MAMPアイコン、開いている時＝×。切り替えは .open で行う */
+    .bottom-nav-fab .fab-icon {
+        display: block;
+        width: 26px;
+        height: 26px;
+        fill: currentColor;
+    }
     .bottom-nav-fab i {
-        font-size: 20px;
-        transition: transform 0.2s ease;
+        display: none;
+        font-size: 24px;
+    }
+    .bottom-nav-fab.open .fab-icon {
+        display: none;
+    }
+    .bottom-nav-fab.open i {
+        display: block;
     }
     .bottom-nav-fab:active {
         transform: scale(0.9);
     }
-    .bottom-nav-fab.open i {
-        transform: rotate(90deg);
-    }
 
     body {
-        padding-bottom: calc(72px + env(safe-area-inset-bottom));
+        padding-bottom: calc(84px + env(safe-area-inset-bottom));
     }
 }
 
@@ -2376,27 +2388,28 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
     body.dark-mode header .search-box input:focus {
         border-color: #7B57B8;
     }
+    /* 左上はロゴ画像ではなくサイトタイトルの文字を出す */
     header h1 {
         display: block !important;
-        flex: 0 0 auto;
-        width: 32px;
-        height: 32px;
+        flex: 0 1 auto;
+        width: auto;
+        height: auto;
         margin: 0 auto 0 0;
         top: 0; /* ヘッダーのパディングは上下同じなので補正なしで中央 */
-        font-size: 0 !important;
+        font-size: 19px !important;
+        letter-spacing: 0.06em;
+        line-height: 34px; /* 検索トグル(34px)と同じ高さで縦中央にそろえる */
+        white-space: nowrap;
         text-shadow: none !important;
         -webkit-text-stroke: 0 !important;
-        background: url('logo-header-mobile.png') no-repeat left center;
-        background-size: contain;
-        border-radius: 8px;
-        overflow: hidden;
+        background: none;
+        border-radius: 0;
+        overflow: visible;
     }
     header h1 a {
         display: block;
-        width: 100%;
-        height: 100%;
-        font-size: 0;
-        color: transparent;
+        font-size: inherit;
+        letter-spacing: inherit;
     }
 }
 
