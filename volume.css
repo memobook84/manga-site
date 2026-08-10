@@ -68,10 +68,15 @@ body {
     50% { transform: translateX(3px); opacity: 1; }
 }
 
+/* 表紙の高さは PC のボタン位置の基準にもなるので変数で持つ */
+:root {
+    --volume-cover-h: 420px;
+}
+
 .volume-image img,
 .volume-image .manga-detail-placeholder {
     width: 300px;
-    height: 420px;
+    height: var(--volume-cover-h);
     border-radius: 1px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
 }
@@ -130,7 +135,7 @@ body {
     margin-bottom: 30px;
     padding: 4px 0;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 28px;
     row-gap: 18px;
 }
@@ -211,7 +216,7 @@ body {
 
 .series-list-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     column-gap: 40px;
     row-gap: 36px;
 }
@@ -240,6 +245,16 @@ body {
 
 .series-list-grid .volume-item {
     cursor: pointer;
+    /* トラックが内容に押し広げられないようにする */
+    min-width: 0;
+}
+
+/* 巻数が取れない巻はタイトルがそのまま入るので、はみ出さず省略する */
+.series-list-grid .volume-number {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .volume-item.current-volume {
@@ -250,7 +265,7 @@ body {
 
 @media (max-width: 1024px) {
     .series-list-grid {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(5, minmax(0, 1fr));
     }
 }
 
@@ -259,13 +274,16 @@ body {
         padding: 20px;
     }
     .series-list-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
 @media (max-width: 480px) {
+    /* スマホも3列。列間の余白は40pxだと入らないので詰める */
     .series-list-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 12px;
+        row-gap: 20px;
     }
 }
 
@@ -281,7 +299,6 @@ body {
 .pc-nav-arrows {
     display: flex;
     gap: 6px;
-    margin-top: auto;
     justify-content: flex-end;
 }
 
@@ -366,19 +383,38 @@ body {
 }
 
 /* ===== 試し読み ===== */
+/* 作品ページのクイックビューの「View Volume」と同じ作り。
+   幅いっぱいに伸ばさず、文字ぶんだけの短いボタンにする */
 .preview-button {
-    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 20px;
     background-color: #4B2C82;
     color: #fff;
     border: 1px solid #4B2C82;
+    border-radius: 0;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
     cursor: pointer;
+    transition: background 0.18s ease, gap 0.18s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.preview-button[hidden] {
+    display: none;
 }
 
 .preview-button:hover {
     background-color: #371F63;
     border-color: #371F63;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    gap: 14px;
 }
 
 .preview-overlay {
@@ -603,16 +639,20 @@ body {
         padding: 20px;
     }
 
+    /* 作品ページのメイン表紙（detail.css の .detail-cover-frame）と同じ出方に揃える。
+       元は width:auto だったため、元画像が小さい巻では作品ページより小さく表示されていた */
     .volume-image {
-        width: fit-content;
+        width: 80%;
+        max-width: 240px;
         margin: 0 auto;
     }
 
-    .volume-image img {
-        width: auto;
-        max-width: 240px;
-        max-height: 340px;
+    .volume-image img,
+    .volume-image .manga-detail-placeholder {
+        width: 100%;
+        max-width: none;
         height: auto;
+        max-height: none;
         display: block;
     }
 
@@ -640,4 +680,188 @@ body {
     .volume-bottom-section {
         padding: 0 20px;
     }
+}
+
+/* ===== 購入アイコン（メタ情報の下・右カラム） =====
+   作品ページのカートUI（detail.css の .cart-btn）と同じ言語に揃える。
+   角は立てて、線一本の枠 → ホバーで塗りに反転 */
+/* 試し読み＋購入アイコンを横に並べる行 */
+.volume-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.buy-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 親が flex-direction:column なので、伸びないよう左寄せで固定 */
+    align-self: flex-start;
+    flex: 0 0 auto;
+    width: 72px;
+    height: 54px;
+    /* グレー地にマーク（サイトのトーンに合わせて主張を抑える） */
+    border: 1px solid #E2E2E5;
+    border-radius: 4px;
+    background: #F1F1F3;
+    color: #3A3A3E;
+    padding: 0 10px;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.buy-icon-btn .amazon-mark {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.buy-icon-btn:hover {
+    background: #E5E5E9;
+    border-color: #D2D2D6;
+}
+
+.buy-icon-btn:active {
+    transform: scale(0.94);
+}
+
+body.dark-mode .buy-icon-btn {
+    background: #2C2C30;
+    border-color: #3A3A3E;
+    color: #D8D8DC;
+}
+
+body.dark-mode .buy-icon-btn:hover {
+    background: #35353A;
+}
+
+/* ===== スマホ: 表紙の右にアイコンを縦並び（底辺をそろえる） ===== */
+.volume-actions-mobile {
+    display: none;
+}
+
+/* 試し読みの正方形アイコン（スマホ用・Amazonと同じ箱） */
+.icon-square-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #4B2C82;
+    border-radius: 4px;
+    background: transparent;
+    color: #4B2C82;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.icon-square-btn[hidden] {
+    display: none;
+}
+
+.icon-square-btn:hover {
+    background: #4B2C82;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    /* PC用の行（メタの下）は隠し、表紙の横に出す */
+    .volume-actions-pc {
+        display: none;
+    }
+
+    /* 表紙は画面のど真ん中に置く。
+       アイコンを並べて中央寄せにすると、その幅ぶん表紙が左へずれてしまうので、
+       アイコン列は絶対配置で「表紙の外側」に浮かせて、centering に影響させない。
+       幅は、右のアイコン（44px）と余白ぶんを引いて画面からはみ出さないようにする */
+    .volume-image-wrap {
+        position: relative;
+        width: min(240px, calc(100vw - 130px));
+        margin: 0 auto;
+        flex-direction: column;
+    }
+
+    .volume-image {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+
+    /* 表紙のすぐ右、下端をそろえて縦並び */
+    .volume-actions-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        position: absolute;
+        left: calc(100% + 12px);
+        bottom: 0;
+    }
+
+    /* スマホは「a」マークの小さい正方形。試し読みも同じサイズにそろえる */
+    .volume-actions-mobile .icon-square-btn,
+    .volume-actions-mobile .buy-icon-btn {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+    }
+
+    .volume-actions-mobile .icon-square-btn {
+        font-size: 17px;
+    }
+
+    /* 「a」マークは正方形いっぱいに */
+    .volume-actions-mobile .amazon-mark-a {
+        width: 26px;
+        height: 26px;
+    }
+}
+
+/* ===== PC: 表紙の下端に合わせた横長のボタンバー =====
+   表紙の高さは画像ごとに変わる（インラインstyleで height:auto のため）ので、
+   固定値では合わせられない。左右カラムは同じ高さに伸びるので、
+   下端行を margin-top:auto で「カラムの一番下」に落とすと表紙の下端と一致する */
+.volume-bottom-row {
+    margin-top: auto;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+@media (min-width: 769px) {
+    .volume-actions-pc {
+        margin: 0;
+        align-items: flex-end;
+        gap: 8px;
+    }
+
+    /* 横に細長く（幅いっぱいには伸ばさない） */
+    .volume-actions-pc .preview-button {
+        height: 34px;
+        padding: 0 16px;
+    }
+
+    .volume-actions-pc .buy-icon-btn {
+        width: 84px;
+        height: 46px;
+    }
+}
+
+@media (max-width: 768px) {
+    .volume-bottom-row {
+        display: none;
+    }
+}
 }

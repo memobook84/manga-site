@@ -256,16 +256,23 @@ header.header-hidden {
     header {
         background-color: #644476;
     }
+    /* Montserratの字形をそのまま見せる。
+       以前は font-weight:900 ＋ 濃紺の縁取り（-webkit-text-stroke）で
+       字が潰れていたので、太さは700に戻し縁取りは外した */
     header h1, header h1 a {
         color: #F7F7F7 !important;
-        font-weight: 900;
-        -webkit-text-stroke: 1px #2A1A3C;
-        paint-order: stroke fill;
+        font-weight: 700;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+        /* PCのサイトタイトルだけ字間を少し広げ、文字は少し小さくする
+           （モバイルはロゴ画像に差し替わるので影響なし） */
+        letter-spacing: 0.08em;
+        font-size: 30px;
     }
     /* ナビはサイトタイトルと同じ色にそろえる */
     header .nav-link {
         color: #F7F7F7 !important;
+        /* PCのナビ文字は少しだけ小さく */
+        font-size: 13px;
     }
 
     /* ホバー: 一瞬だけ上に跳ね上がって戻る。
@@ -276,6 +283,8 @@ header.header-hidden {
     }
     header .nav-menu-btn {
         color: #F7F7F7;
+        /* アイコンは .nav-caret が 1.25em なので font-size で縮む */
+        font-size: 18px;
     }
     /* メニューボタンもナビリンクと同じ跳ね方にそろえる。
        背景の枠は出さない（transparent にしないと素の .nav-menu-btn:hover の
@@ -362,7 +371,7 @@ header h1 a {
     border: none;
     transition: all 0.2s ease;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: 0.02em;
     font-family: 'Inter-Alpha', 'Noto Sans JP', sans-serif;
     text-transform: uppercase;
@@ -1758,20 +1767,25 @@ body.dark-mode .page-btn.is-current::after {
     transform-origin: center;
     transition: transform 0.18s ease;
 }
-.nav-menu-btn.open {
-    background: rgba(0, 0, 0, 0.06);
+/* 開いている時も背景の枠は出さない（アイコンの回転だけで状態を示す）。
+   :hover の背景より後に来るので、開いたままホバーしても枠は出ない */
+.nav-menu-btn.open,
+.nav-menu-btn.open:hover {
+    background: transparent;
 }
 /* 図案は中心対称なので、開いた時はアイコン全体を180°回して切り欠きを上向きにする */
 .nav-menu-btn.open .nav-caret {
     transform: rotate(180deg);
 }
 @media (min-width: 769px) {
-    header .nav-menu-btn.open {
-        background: rgba(255, 255, 255, 0.15);
+    header .nav-menu-btn.open,
+    header .nav-menu-btn.open:hover {
+        background: transparent;
     }
 }
-body.dark-mode .nav-menu-btn.open {
-    background: rgba(255, 255, 255, 0.08);
+body.dark-mode .nav-menu-btn.open,
+body.dark-mode .nav-menu-btn.open:hover {
+    background: transparent;
 }
 body.dark-mode .nav-menu-btn {
     color: #e0e0e0;
@@ -1804,7 +1818,7 @@ body.dark-mode .nav-menu-btn:hover {
     max-width: 92vw;
     max-height: calc(100vh - 80px);
     padding: 0;
-    border-radius: 14px;
+    border-radius: 6px;
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16),
                 0 3px 10px rgba(0, 0, 0, 0.06);
     /* しっぽ（::before）を外に出すため visible */
@@ -1828,23 +1842,27 @@ body.dark-mode .nav-menu-btn:hover {
     transform: rotate(45deg);
 }
 
-/* カラム本体 */
+/* カラム本体。2カラム横並びをやめ、さがす→サイト情報の順に縦積みにした */
 .nav-menu-cols {
     display: flex;
+    flex-direction: column;
     align-items: stretch;
-    padding: 24px 26px;
-    gap: 28px;
+    padding: 20px 24px;
+    gap: 0;
 }
 .nav-menu-col {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    min-width: 150px;
+    align-items: stretch;
+    min-width: 170px;
 }
-/* 右カラム（サイト情報）は縦線で区切る */
+/* 下段（サイト情報）は縦線ではなく横線で区切る */
 .nav-menu-col-sub {
-    padding-left: 28px;
-    border-left: 1px solid rgba(0, 0, 0, 0.10);
+    padding-left: 0;
+    border-left: none;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 /* カラム見出し（さがす / サイト情報） */
@@ -1891,11 +1909,11 @@ body.dark-mode .nav-menu-btn:hover {
 }
 
 /* ドロップダウンの項目。
-   面で塗らず、文字色の変化だけで反応させる（行頭のドットは廃止） */
+   面で塗らず、文字色の変化だけで反応させる。行頭に小さなドットを置く */
 .nav-menu-item {
     position: relative;
     display: block;
-    padding: 10px 4px;
+    padding: 9px 4px 9px 22px;
     border-radius: 0;
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 15px;
@@ -1906,14 +1924,36 @@ body.dark-mode .nav-menu-btn:hover {
     white-space: nowrap;
     transition: color 0.15s ease;
 }
+/* 行頭のマーカー（縦位置は行の中央）。
+   図案は Boxicons の bxs-hand-right（react-icons の BiSolidHandRight）。
+   mask で抜いているので、色は background で切り替わる */
+.nav-menu-item::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    background: #C9C4D4;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 8H8l1.212-3.03a2 2 0 0 0-1.225-2.641l-.34-.113a.998.998 0 0 0-1.084.309L2.231 7.722a1.001 1.001 0 0 0-.231.64V19a2 2 0 0 0 2 2h7.21a2 2 0 0 0 1.987-1.779L14 12h6a2 2 0 0 0 0-4z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 8H8l1.212-3.03a2 2 0 0 0-1.225-2.641l-.34-.113a.998.998 0 0 0-1.084.309L2.231 7.722a1.001 1.001 0 0 0-.231.64V19a2 2 0 0 0 2 2h7.21a2 2 0 0 0 1.987-1.779L14 12h6a2 2 0 0 0 0-4z'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
 .nav-menu-item:hover {
     color: #4B2C82;
+}
+.nav-menu-item:hover::before {
+    background: #4B2C82;
 }
 
 /* 現在開いているページは太字で示す */
 .nav-menu-item.current {
     color: #1D1D1F;
     font-weight: 700;
+}
+.nav-menu-item.current::before {
+    background: #4B2C82;
 }
 
 /* ピックアップ／ブログを上の項目群から切り離す区切りライン */
@@ -1929,7 +1969,7 @@ body.dark-mode .nav-menu-sep {
 /* ===== 右カラム＝情報系のサブ項目 ===== */
 .nav-menu-col-sub .nav-menu-item {
     font-size: 14px;
-    padding: 9px 4px;
+    padding: 8px 4px 8px 22px;
     color: #8B7FA8;
 }
 .nav-menu-col-sub .nav-menu-item:hover {
@@ -1951,14 +1991,21 @@ body.dark-mode .nav-menu-head {
     color: #78787E;
 }
 body.dark-mode .nav-menu-col-sub {
-    border-left-color: rgba(255, 255, 255, 0.12);
+    border-top-color: rgba(255, 255, 255, 0.12);
 }
 body.dark-mode .nav-menu-item {
     color: #E8E8EA;
 }
+body.dark-mode .nav-menu-item::before {
+    background: #55505F;
+}
 /* ダークでは紫が沈むので明るいラベンダーにする */
 body.dark-mode .nav-menu-item:hover {
     color: #B89DE8;
+}
+body.dark-mode .nav-menu-item:hover::before,
+body.dark-mode .nav-menu-item.current::before {
+    background: #B89DE8;
 }
 body.dark-mode .nav-menu-item.current {
     color: #FFFFFF;

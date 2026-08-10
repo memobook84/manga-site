@@ -288,8 +288,8 @@ function extractSeriesName(title) {
     name = name.replace(/[\s　]+\d+巻$/, '');
     // 「SPY×FAMILY 17巻 描き下ろし◯◯付き特装版」のような特典付き版
     name = name.replace(/[\s　]+\d+巻[\s　].*版$/, '');
-    // 「月華美刃（第4集）」
-    name = name.replace(/[\s　]*[（(]第\d+[巻集][）)]$/, '');
+    // 「月華美刃（第4集）」「ゴルゴ13（158巻）」
+    name = name.replace(/[\s　]*[（(]第?\d+[巻集][）)]$/, '');
     // 「月華美刃（げっかびじん）1」— 読みガナの直後に空白なしで巻数が付く形
     name = name.replace(/([）)])[\s　]*\d+$/, '$1');
     // 読みガナだけの括弧は落として、括弧なしの巻と同じシリーズに寄せる
@@ -369,8 +369,8 @@ function renderPagination(container, currentPage, totalPages, onChange) {
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"` +
     ` stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
 
-  // 現在ページを中心に最大5個の番号を並べる
-  const WINDOW = 5;
+  // 現在ページを中心に最大3個の番号を並べる
+  const WINDOW = 3;
   let start = Math.max(1, currentPage - Math.floor(WINDOW / 2));
   const end = Math.min(totalPages, start + WINDOW - 1);
   start = Math.max(1, end - WINDOW + 1);

@@ -54,15 +54,12 @@ async function displayVolumeDetail() {
     // ページタイトルを更新
     document.title = `${volume.title} - THE MANGA STORE`;
 
-    // 画像を表示（スワイプ矢印・購入ボタンを保持）
+    // 画像を表示（スワイプ矢印だけ保持）。
+    // 試し読み・購入ボタンは右カラム（メタ情報の下）に置いてあるので、ここでは触らない
     const volumeImageContainer = document.querySelector('.volume-image');
     const arrows = volumeImageContainer.querySelectorAll('.swipe-arrow');
-    const buyBtn = document.getElementById('buy-amazon');
-    const previewBtn = document.getElementById('preview-btn');
     volumeImageContainer.innerHTML = createDetailImageElement(volume);
     arrows.forEach(arrow => volumeImageContainer.appendChild(arrow));
-    if (buyBtn) volumeImageContainer.appendChild(buyBtn);
-    if (previewBtn) volumeImageContainer.appendChild(previewBtn);
 
     const seriesTitle = extractSeriesName(volume.title) || volume.title;
     const volNum = extractVolumeNum(volume.title);
@@ -70,10 +67,20 @@ async function displayVolumeDetail() {
     document.getElementById('volume-title').textContent = formattedTitle;
     document.getElementById('volume-number').textContent = volume.volumeLabel || '';
 
-    // 著者名をリンクとして設定
-    const authorLink = document.getElementById('volume-author');
-    authorLink.textContent = volume.author;
-    authorLink.href = `author.html?name=${encodeURIComponent(volume.author)}`;
+    // 著者名をリンクとして設定。
+    // 「原作/作画」のように複数名が1文字列で来るので、区切り文字で分けて
+    // それぞれ個別の著者ページへリンクする（作品ページと同じ扱い）
+    const authorContainer = document.getElementById('volume-author');
+    const authorStr = volume.author || '-';
+    const authors = authorStr.split(/[\/／、,]/).map(a => a.trim()).filter(a => a);
+    if (authors.length > 0 && authorStr !== '-') {
+        authorContainer.innerHTML = authors.map((name, i) => {
+            const link = `<a href="author.html?name=${encodeURIComponent(name)}" class="author-link">${name}</a>`;
+            return (i < authors.length - 1) ? link + ' / ' : link;
+        }).join('');
+    } else {
+        authorContainer.textContent = '-';
+    }
 
     document.getElementById('volume-publisher').textContent = volume.publisher || '-';
     document.getElementById('volume-label').textContent = volume.label || volume.seriesName || '-';
@@ -92,7 +99,10 @@ async function displayVolumeDetail() {
     });
 
     // 購入ボタンのリンクを設定
-    document.getElementById('buy-amazon').href = getAmazonBuyUrl(volume);
+    // 購入ボタンはPC用・スマホ用の2箇所にあるのでまとめて設定
+    document.querySelectorAll('.js-buy-amazon').forEach(a => {
+        a.href = getAmazonBuyUrl(volume);
+    });
 
     // 作品ページに戻るリンクを設定
     const seriesName = series || extractSeriesName(volume.title) || volume.title;
@@ -122,15 +132,18 @@ function fetchGbViewInfo(isbn) {
 }
 
 async function setupPreviewButton(volume) {
-    const btn = document.getElementById('preview-btn');
-    if (!btn || !volume.isbn) return;
+    const btns = document.querySelectorAll('.js-preview-btn');
+    if (!btns.length || !volume.isbn) return;
+    btns.forEach(b => { b.hidden = true; });
     try {
         const info = await fetchGbViewInfo(volume.isbn);
         const canPreview = info && info.embeddable &&
             (info.preview === 'partial' || info.preview === 'full');
         if (!canPreview) return;
-        btn.hidden = false;
-        btn.onclick = () => openPreview(volume);
+        btns.forEach(btn => {
+            btn.hidden = false;
+            btn.onclick = () => openPreview(volume);
+        });
     } catch (e) {
         // 判定に失敗した場合はボタン非表示のまま
     }
@@ -216,10 +229,10 @@ async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
         return;
     }
 
-    // シリーズ名でフィルタリング
+    // シリーズ名でフィルタリング（全角半角の揺れを正規化キーで吸収）
+    const seriesKey = normalizeSearchKey(seriesName);
     const filtered = allVolumes.filter(v => {
-        const vSeries = extractSeriesName(v.title);
-        return vSeries === seriesName;
+        return normalizeSearchKey(extractSeriesName(v.title)) === seriesKey;
     });
     const volumes = filtered.length > 0 ? filtered : allVolumes;
 
@@ -424,11 +437,15 @@ function navigateToVolume(vol, seriesName) {
     window.location.href = `volume.html?${params.toString()}`;
 }
 
+// 「2024年9月7日」→「24/9/7」。3列に並ぶので短く出す
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const m = dateStr.match(/(\d{4})[年\-\/](\d{1,2})[月\-\/](\d{1,2})/);
-    if (!m) return dateStr;
-    return `${m[1]}/${String(m[2]).padStart(2,'0')}/${String(m[3]).padStart(2,'0')}`;
+    if (m) return `${m[1].slice(2)}/${parseInt(m[2])}/${parseInt(m[3])}`;
+    // 「2024年9月」のように日が無いものは年月まで
+    const ym = dateStr.match(/(\d{4})[年\-\/](\d{1,2})/);
+    if (ym) return `${ym[1].slice(2)}/${parseInt(ym[2])}`;
+    return dateStr;
 }
 
 function renderSeriesList(volumes, currentIndex, seriesName) {

@@ -34,28 +34,35 @@ async function displaySeriesVolumes() {
 
     listEl.innerHTML = '<p class="sv-message">読み込み中...</p>';
 
-    // タイトルで全巻を検索（detail.jsと同じ取得方法 — キャッシュ済みなら即時）
-    let allVolumes = [];
-    try {
-        let page = 1;
-        while (true) {
-            const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30&page=${page}`);
-            const adapted = adaptApiResponse(data);
-            allVolumes = allVolumes.concat(adapted.items);
-            if (page >= (data.pageCount || 1) || page >= 5) break;
-            page++;
-            await new Promise(r => setTimeout(r, 400));
+    // detail.js と同じ取得方法。まず焼いてあるキャッシュ、無ければAPI検索
+    let allVolumes = (typeof loadSeriesVolumes === 'function')
+        ? await loadSeriesVolumes(title)
+        : null;
+
+    if (!allVolumes) {
+        allVolumes = [];
+        try {
+            let page = 1;
+            while (true) {
+                const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30&page=${page}`);
+                const adapted = adaptApiResponse(data);
+                allVolumes = allVolumes.concat(adapted.items);
+                if (page >= (data.pageCount || 1) || page >= 5) break;
+                page++;
+                await new Promise(r => setTimeout(r, 400));
+            }
+        } catch (err) {
+            console.warn('シリーズ検索失敗:', err);
+            document.getElementById('sv-series-title').textContent = '作品が見つかりません';
+            listEl.innerHTML = '<p class="sv-message">巻情報を取得できませんでした</p>';
+            return;
         }
-    } catch (err) {
-        console.warn('シリーズ検索失敗:', err);
-        document.getElementById('sv-series-title').textContent = '作品が見つかりません';
-        listEl.innerHTML = '<p class="sv-message">巻情報を取得できませんでした</p>';
-        return;
     }
 
-    // シリーズ名でフィルタリング
+    // シリーズ名でフィルタリング（全角半角の揺れを正規化キーで吸収）
     const seriesName = extractSeriesName(title);
-    const filtered = allVolumes.filter(v => extractSeriesName(v.title) === seriesName);
+    const seriesKey = normalizeSearchKey(seriesName);
+    const filtered = allVolumes.filter(v => normalizeSearchKey(extractSeriesName(v.title)) === seriesKey);
     const volumes = filtered.length > 0 ? filtered : allVolumes;
 
     if (volumes.length === 0) {

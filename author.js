@@ -154,11 +154,13 @@ function displayAuthorWorks(works) {
     const seriesMap = new Map();
     works.forEach(item => {
         const seriesName = extractSeriesName(item.title) || item.title;
-        if (!seriesMap.has(seriesName)) {
-            seriesMap.set(seriesName, { seriesName, item, volumeCount: 1 });
+        // 全角半角の揺れで同じ作品が分かれないよう、正規化キーでまとめる
+        const key = normalizeSearchKey(seriesName) || seriesName;
+        if (!seriesMap.has(key)) {
+            seriesMap.set(key, { seriesName, item, volumeCount: 1 });
             return;
         }
-        const entry = seriesMap.get(seriesName);
+        const entry = seriesMap.get(key);
         entry.volumeCount++;
         // より小さい巻数のものを代表にする
         const extractNum = t => { const m = t.match(/(\d+)[巻\s　）)]/); return m ? parseInt(m[1]) : null; };

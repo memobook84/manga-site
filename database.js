@@ -325,6 +325,48 @@ async function fetchFromJson(page) {
     }
 }
 
+// 自前インデックスによる検索。描画まで済めば true、
+// 使えなかった（未生成・0件）場合は false を返して呼び出し元をAPIに回す。
+let indexSearchCache = { keyword: '', results: null };
+
+async function searchFromIndex(keyword, page) {
+    if (typeof searchSeriesIndex !== 'function') return false;
+
+    let results;
+    try {
+        // 同じキーワードのページ送りでは検索し直さない
+        if (indexSearchCache.keyword === keyword && indexSearchCache.results) {
+            results = indexSearchCache.results;
+        } else {
+            results = await searchSeriesIndex(keyword);
+            indexSearchCache = { keyword: keyword, results: results };
+        }
+    } catch (err) {
+        console.warn('検索インデックスが使えないためAPI検索にフォールバック:', err.message);
+        return false;
+    }
+
+    if (!results || results.length === 0) return false;
+
+    // 出版社サイドバーで絞り込み中ならそれも反映
+    const publisherFilter = (currentFilter && currentFilter.type === 'publisher') ? currentFilter.value : null;
+    const filtered = publisherFilter
+        ? results.filter(r => (r.publisher || '').includes(publisherFilter))
+        : results;
+
+    if (filtered.length === 0) return false;
+
+    // ページングはクライアント側で行う
+    totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    currentPage = Math.min(page, totalPages);
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+
+    displayMangaItems(filtered.slice(start, start + ITEMS_PER_PAGE));
+    updatePagination();
+    upgradeCovers();
+    return true;
+}
+
 // APIからデータを取得（検索時のみ使用）
 async function fetchFromApi(page = 1, keyword = '') {
     if (isLoading) return;
@@ -333,7 +375,14 @@ async function fetchFromApi(page = 1, keyword = '') {
 
     try {
         if (keyword) {
-            // 検索時: 既存の /api/search をリアルタイムで使用
+            // 検索時: まず自前の検索インデックスを引く（APIを叩かない）
+            const fromIndex = await searchFromIndex(keyword, page);
+            if (fromIndex) {
+                isLoading = false;
+                return;
+            }
+
+            // インデックスに無い／読めない場合だけ、従来どおりAPIで検索
             const response = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}&page=${page}&hits=30`);
             if (!response.ok) throw new Error(`API error: ${response.status}`);
             const data = await response.json();

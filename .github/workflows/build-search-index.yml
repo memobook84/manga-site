@@ -1,0 +1,43 @@
+name: 検索インデックス更新
+
+# 毎日1回、検索インデックスを作り直してコミットする。
+# 楽天のキーを持たなくても、本番サイトの /api/books 経由で収集できる。
+on:
+  schedule:
+    - cron: '0 19 * * *'   # UTC 19:00 = JST 翌4:00
+  workflow_dispatch:        # 手動実行も可
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: インデックスを構築
+        env:
+          # 楽天キーをSecretsに入れている場合はそちらが使われる
+          RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          # 未設定なら本番サイトのAPI経由で取得する
+          API_BASE: ${{ secrets.RAKUTEN_APP_ID == '' && 'https://manga-site-three.vercel.app' || '' }}
+          MAX_PAGES: '100'
+          DELAY_MS: '1200'
+        run: node scripts/build-search-index.js
+
+      - name: 変更があればコミット
+        run: |
+          if git diff --quiet -- data/search-index.json; then
+            echo "変更なし"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/search-index.json
+          git commit -m "検索インデックスを更新（自動）"
+          git push

@@ -258,7 +258,7 @@
 
 .nr-row-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--color-text, #111);
     white-space: nowrap;
     overflow: hidden;
@@ -284,13 +284,13 @@ body.dark-mode .nr-row:hover {
 /* PCは1行の余白が広いので、表紙を大きめに出す（スマホは現状のまま） */
 @media (min-width: 769px) {
     .nr-row {
-        gap: 20px;
-        padding: 14px 10px;
+        gap: 26px;
+        padding: 18px 10px;
     }
 
     .nr-row-cover {
-        width: 84px;
-        height: 118px;
+        width: 120px;
+        height: 170px;
     }
 
     .nr-row-cover img {

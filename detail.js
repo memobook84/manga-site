@@ -33,22 +33,29 @@ async function displayMangaDetail() {
         return;
     }
 
-    // タイトルで全巻を検索（複数ページ対応）
-    let allVolumes = [];
-    try {
-        let page = 1;
-        while (true) {
-            const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30&page=${page}`);
-            const adapted = adaptApiResponse(data);
-            allVolumes = allVolumes.concat(adapted.items);
-            if (page >= (data.pageCount || 1) || page >= 5) break;
-            page++;
-            await new Promise(r => setTimeout(r, 400));
+    // まず焼いてあるキャッシュ（data/series/）から巻一覧を読む。
+    // 無ければ従来どおりタイトルで全巻を検索する
+    let allVolumes = (typeof loadSeriesVolumes === 'function')
+        ? await loadSeriesVolumes(title)
+        : null;
+
+    if (!allVolumes) {
+        allVolumes = [];
+        try {
+            let page = 1;
+            while (true) {
+                const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(title)}&hits=30&page=${page}`);
+                const adapted = adaptApiResponse(data);
+                allVolumes = allVolumes.concat(adapted.items);
+                if (page >= (data.pageCount || 1) || page >= 5) break;
+                page++;
+                await new Promise(r => setTimeout(r, 400));
+            }
+        } catch (err) {
+            console.warn('シリーズ検索失敗:', err);
+            document.getElementById('manga-title').textContent = '漫画が見つかりません';
+            return;
         }
-    } catch (err) {
-        console.warn('シリーズ検索失敗:', err);
-        document.getElementById('manga-title').textContent = '漫画が見つかりません';
-        return;
     }
 
     if (allVolumes.length === 0) {
@@ -56,11 +63,13 @@ async function displayMangaDetail() {
         return;
     }
 
-    // シリーズ名でフィルタリング（関連ない作品を除外）
+    // シリーズ名でフィルタリング（関連ない作品を除外）。
+    // 楽天は同じ作品でも「よつばと!」「よつばと！」のように全角半角が混ざるので、
+    // 文字列そのままではなく正規化キーで突き合わせる
     const seriesName = extractSeriesName(title);
+    const seriesKey = normalizeSearchKey(seriesName);
     const filtered = allVolumes.filter(v => {
-        const vSeries = extractSeriesName(v.title);
-        return vSeries === seriesName;
+        return normalizeSearchKey(extractSeriesName(v.title)) === seriesKey;
     });
     const volumes = filtered.length > 0 ? filtered : allVolumes;
 

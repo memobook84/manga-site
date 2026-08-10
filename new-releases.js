@@ -106,7 +106,7 @@ function entriesForTab(tab) {
 
 function releaseRow(item) {
     const cover = item.imageUrl
-        ? `<img src="${withRakutenSize(item.imageUrl, 160)}" alt="" loading="lazy" onerror="this.style.display='none'">`
+        ? `<img src="${withRakutenSize(item.imageUrl, 320)}" alt="" loading="lazy" onerror="this.style.display='none'">`
         : '';
     const price = item.price ? `${Number(item.price).toLocaleString()}円` : '';
     return `<div class="nr-row" data-isbn="${item.isbn || ''}" data-title="${(item.title || '').replace(/"/g, '&quot;')}">
