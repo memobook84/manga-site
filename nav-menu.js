@@ -308,24 +308,31 @@
     fab.type = 'button';
     fab.className = 'bottom-nav-fab';
     fab.setAttribute('aria-label', 'ナビゲーションを開く');
-    // 閉じている時は Font Awesome 6 の jet-fighter-up
-    // （react-icons の FaJetFighterUp）、開いている時は×。
-    // 両方入れておき、切り替えは .open クラスでCSSに任せる
+    // Material Icons Outlined の airplanemode_active
+    // （react-icons の MdOutlineAirplanemodeActive）。
+    // 開いている時はアイコンを差し替えず、.open クラスでCSSが180度回して下向きにする
     fab.innerHTML =
-      '<svg class="fab-icon" viewBox="0 0 512 512" aria-hidden="true">' +
-      '<path d="M270.7 9.7C268.2 3.8 262.4 0 256 0s-12.2 3.8-14.7 9.7L197.2 112.6c-3.4 8-5.2 16.5-5.2 25.2v77l-144 84V280c0-13.3-10.7-24-24-24s-24 10.7-24 24v56 32 24c0 13.3 10.7 24 24 24s24-10.7 24-24v-8H192v32.7L133.5 468c-3.5 3-5.5 7.4-5.5 12v16c0 8.8 7.2 16 16 16h96V448c0-8.8 7.2-16 16-16s16 7.2 16 16v64h96c8.8 0 16-7.2 16-16V480c0-4.6-2-9-5.5-12L320 416.7V384H464v8c0 13.3 10.7 24 24 24s24-10.7 24-24V368 336 280c0-13.3-10.7-24-24-24s-24 10.7-24 24v18.8l-144-84v-77c0-8.7-1.8-17.2-5.2-25.2L270.7 9.7z"/>' +
-      '</svg><i class="ph-bold ph-x"></i>';
+      '<svg class="fab-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M22,16v-2l-8.5-5V3.5C13.5,2.67,12.83,2,12,2s-1.5,0.67-1.5,1.5V9L2,14v2l8.5-2.5V19L8,20.5L8,22l4-1l4,1l0-1.5L13.5,19v-5.5L22,16z"/>' +
+      '</svg>';
     document.body.appendChild(fab);
+
+    // ×アイコンを廃止して向きだけで開閉を示すので、ラベル側で状態を伝える
+    function setFabLabel(opened) {
+      fab.setAttribute('aria-label', opened ? 'ナビゲーションを閉じる' : 'ナビゲーションを開く');
+    }
 
     function closeFabNav() {
       bottomNav.classList.remove('fab-open');
       fab.classList.remove('open');
+      setFabLabel(false);
     }
 
     fab.addEventListener('click', function (e) {
       e.stopPropagation();
       const opened = bottomNav.classList.toggle('fab-open');
       fab.classList.toggle('open', opened);
+      setFabLabel(opened);
     });
 
     // ナビ外タップ・Escape・ナビ項目タップで閉じる

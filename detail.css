@@ -87,7 +87,8 @@
 .detail-image-badge {
     position: absolute;
     left: calc(100% + 48px);
-    bottom: 0;
+    /* 下端はブックマークの丸ボタンが使うので、その上に積む */
+    bottom: 60px;
     color: #4B2C82;
     background: transparent;
     border: none;
@@ -174,33 +175,22 @@
 .manga-detail-placeholder {
     width: 300px;
     height: auto;
-    border: none;
     outline: none;
 }
 
 .detail-image img {
+    border: none;
     border-radius: 2px;
 }
 
+/* 白紙カバー。紙色と淡い枠線は style.css 側で共通に持っている */
 .manga-detail-placeholder {
     border-radius: 1px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-}
-
-.manga-detail-placeholder {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-}
-
-.manga-detail-placeholder .manga-placeholder-text {
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    word-wrap: break-word;
 }
 
 /* 右側：詳細情報 */
@@ -226,43 +216,79 @@
     font-weight: 300;
 }
 
-/* お気に入りボタン */
+/* お気に入りボタン
+   表紙の右横に下揃えで浮かせる丸アイコンボタン（.detail-cover-frame 内に配置） */
 .follow-button {
+    position: absolute;
+    left: calc(100% + 48px);
+    bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    background: transparent;
-    border: 1.5px solid var(--color-accent);
-    border-radius: 999px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    /* 未登録時は Amazonボタン（.cart-toggle-btn）と同じ面・枠・影にそろえる。
+       アイコンだけ紫にして、登録済み（.followed）の紫ベタと区別する */
+    background: linear-gradient(160deg, #FFFFFF 0%, #F6F5F3 100%);
+    border: 1px solid #E8E5E0;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     cursor: pointer;
     color: var(--color-accent);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 12px 16px;
-    margin-top: 14px;
-    font-family: 'Inter', 'Noto Sans JP', sans-serif;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    font-size: 20px;
+    line-height: 1;
+    z-index: 2;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    /* 表紙の高さが決まるまでは出さない。
+       img は height:auto なので読み込み前はフレームが高さ0になり、
+       bottom:0 のこのボタンがタイトル付近に一瞬出てしまうため
+       （高さが確定したら detail.js が .is-ready を付ける） */
+    opacity: 0;
+    visibility: hidden;
+    transition: background 0.2s ease,
+                color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.18s ease;
 }
 
-.follow-button:hover {
-    background: rgba(66, 36, 118, 0.08);
-    color: var(--color-accent);
+.follow-button.is-ready {
+    opacity: 1;
+    visibility: visible;
 }
 
+/* タッチ端末はタップ後もホバーが残るので、浮く演出はマウス環境だけ */
+@media (hover: hover) {
+    .follow-button:hover {
+        background: linear-gradient(160deg, #FAF9F8 0%, #EFEDE9 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+    }
+}
+
+.follow-button:active {
+    transform: translateY(0) scale(0.94);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* 登録済み。上の :hover と同じ詳細度なので、ホバー中もベタ塗りが
+   残るよう「後ろに」置いている（transform と影は :hover 側が効く） */
 .follow-button.followed {
     background: var(--color-accent);
-    color: #fff;
     border-color: var(--color-accent);
+    color: #fff;
 }
 
-.follow-button.followed:hover {
-    background: var(--color-accent-hover);
-    border-color: var(--color-accent-hover);
-    color: #fff;
+@media (hover: hover) {
+    .follow-button.followed:hover {
+        background: var(--color-accent-hover);
+        border-color: var(--color-accent-hover);
+        color: #fff;
+    }
 }
 
 /* 横ライン区切り */
@@ -278,14 +304,44 @@ body.dark-mode .detail-divider {
 
 /* メタ情報グリッド */
 /* メタ情報（スペックシート型 / volumeページと共通デザイン） */
+/* メタ情報の見出し。ストーリー見出しと同じ体裁（文字＋右に伸びる区切り線） */
+.detail-meta-title {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-size: 15px;
+    color: var(--color-text);
+    /* タイトル・著者名から少し離す */
+    margin: 42px 0 18px;
+    padding: 0;
+    border: none;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.15;
+}
+
+.detail-meta-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    margin-left: 16px;
+    background: var(--color-border, #e5e1dc);
+}
+
 .detail-meta {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 28px;
-    row-gap: 18px;
-    margin-top: 22px;
-    padding-top: 22px;
-    border-top: 1px solid var(--color-border, #e5e1dc);
+    /* 1fr だと情報カラム（PCで約790px）いっぱいに広がり、
+       値が短いぶん左右の間延びが目立つ。列幅に上限を付けて左に寄せる。
+       ※見出し「作品情報」の線は他の見出しと終端を揃えるため右端まで伸ばす（幅は揃えない） */
+    --meta-col: 220px;
+    --meta-gap: 32px;
+    grid-template-columns: repeat(2, minmax(0, var(--meta-col)));
+    justify-content: start;
+    column-gap: var(--meta-gap);
+    row-gap: 20px;
+    max-width: calc(var(--meta-col) * 2 + var(--meta-gap));
 }
 
 .meta-item {
@@ -340,8 +396,9 @@ body.dark-mode .detail-divider {
 .detail-description h2 {
     display: flex;
     align-items: center;
-    gap: 16px;
-    font-size: 18px;
+    /* 左のブロックと右の線でそれぞれ余白が違うので gap は使わず margin で個別に取る */
+    gap: 0;
+    font-size: 15px;
     color: var(--color-text);
     margin-bottom: 18px;
     padding: 0;
@@ -357,7 +414,20 @@ body.dark-mode .detail-divider {
     content: '';
     flex: 1;
     height: 1px;
+    margin-left: 16px;
     background: var(--color-border, #e5e1dc);
+}
+
+/* 見出し左の小さな四角（テーマ紫）。ストーリー／作品情報／シリーズ一覧で共通 */
+.detail-description h2::before,
+.detail-meta-title::before,
+.volumes-title::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin-right: 10px;
+    background: #4B2C82;
 }
 
 .detail-description p {
@@ -434,9 +504,9 @@ body.dark-mode .detail-divider {
 .volumes-title {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 0;
     flex: 1;
-    font-size: 18px;
+    font-size: 15px;
     color: var(--color-text);
     margin: 0;
     padding: 0;
@@ -453,6 +523,7 @@ body.dark-mode .detail-divider {
     content: '';
     flex: 1;
     height: 1px;
+    margin-left: 16px;
     background: var(--color-border, #e5e1dc);
 }
 
@@ -471,28 +542,48 @@ body.dark-mode .detail-divider {
     align-items: center;
 }
 
+/* Amazon検索ボタン。塗りの円だが、色はクイックビューの Amazon ボタン
+   （.quickview-buy）とそろえたほぼ白。主張は影と枠線だけで出す */
 .cart-toggle-btn {
-    border: none;
-    background: transparent;
-    color: #4B2C82;
+    border: 1px solid #E8E5E0;
+    background: linear-gradient(160deg, #FFFFFF 0%, #F6F5F3 100%);
+    color: #3A3A3E;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 17px;
     line-height: 1;
-    padding: 4px;
-    transition: color 0.2s, transform 0.15s;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: background 0.2s ease,
+                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease;
     -webkit-appearance: none;
     appearance: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.cart-toggle-btn:hover {
-    color: #3f2470;
+/* タッチ端末はタップ後もホバー状態が残るので、ホバー演出はマウス環境だけ */
+@media (hover: hover) {
+    .cart-toggle-btn:hover {
+        background: linear-gradient(160deg, #FAF9F8 0%, #EFEDE9 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+    }
 }
 
 .cart-toggle-btn:active {
-    transform: scale(0.92);
+    transform: translateY(0) scale(0.94);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.cart-toggle-btn:focus-visible {
+    outline: 2px solid #4B2C82;
+    outline-offset: 3px;
 }
 
 .volumes-actions {
@@ -785,7 +876,13 @@ body.dark-mode .range-field input {
 
 .volume-item img {
     width: 100%;
-    height: auto;
+    /* 読み込み前から行の高さを確保する。height:auto のままだと未読込のimgが高さ0に潰れ、
+       グリッド全体が短くなって loading="lazy" が「全部ビューポート内」と判定し、
+       111巻ぶんの表紙を一括で読み込んでしまう（commit 875e3db が style.css 側で直した問題と同じ）。
+       比率は同じグリッドに並ぶ .manga-cover-placeholder と揃えて新書判にする */
+    aspect-ratio: 112 / 176;
+    object-fit: contain;
+    object-position: bottom;
     display: block;
 }
 
@@ -871,12 +968,17 @@ body.dark-mode .range-field input {
         width: 80%;
         max-width: 240px;
         margin: 0 auto;
+        /* 表紙の右外に浮かせるボタン類のオフセット。
+           表紙の外側に使える余白は端末幅で変わるので vw で追従させ、
+           狭い端末（320px級）で画面外にはみ出さないよう上限を付ける */
+        --cover-side-offset: clamp(44px, 14vw, 52px);
     }
 
     .detail-image-badge {
         left: auto;
-        right: -44px;
-        bottom: 0;
+        /* .follow-button と右端を揃える */
+        right: calc(-1 * var(--cover-side-offset));
+        bottom: 48px;
         font-size: 26px;
     }
 
@@ -887,10 +989,14 @@ body.dark-mode .range-field input {
         display: block;
     }
 
+    /* 表紙の外側に出せる余白が狭いので、丸を少し小さくする */
     .follow-button {
-        width: 80%;
-        max-width: 240px;
-        margin: 14px auto 0;
+        left: auto;
+        right: calc(-1 * var(--cover-side-offset));
+        bottom: 0;
+        width: 36px;
+        height: 36px;
+        font-size: 17px;
     }
 
     .detail-title {
@@ -899,10 +1005,16 @@ body.dark-mode .range-field input {
 
     .detail-meta {
         grid-template-columns: repeat(2, 1fr);
-        margin-top: 18px;
-        padding-top: 18px;
+        /* モバイルは従来どおり幅いっぱい（PC用の上限を解除） */
+        max-width: none;
         column-gap: 20px;
         row-gap: 16px;
+    }
+
+    /* 見出しも「ストーリー」と同じサイズに揃える */
+    .detail-meta-title {
+        font-size: 14px;
+        margin: 22px 0 14px;
     }
 
     .meta-value {
@@ -915,6 +1027,32 @@ body.dark-mode .range-field input {
 
     .detail-description {
         padding: 20px 20px 0;
+    }
+
+    /* 見出し「ストーリー」は画面が狭いので小さめに */
+    .detail-description h2 {
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    /* 「シリーズ一覧」もストーリー／作品情報と同じサイズに揃える */
+    .volumes-title {
+        font-size: 14px;
+    }
+
+    /* 文字が小さくなるぶん、左のブロックと余白も少し詰める */
+    .detail-description h2::before,
+    .detail-meta-title::before,
+    .volumes-title::before {
+        width: 7px;
+        height: 7px;
+        margin-right: 8px;
+    }
+
+    .detail-description h2::after,
+    .detail-meta-title::after,
+    .volumes-title::after {
+        margin-left: 12px;
     }
 
     .detail-buttons {
@@ -932,6 +1070,13 @@ body.dark-mode .range-field input {
     .volumes-header {
         gap: 10px;
         margin-bottom: 16px;
+    }
+
+    /* 見出しが14pxになるぶん、丸も少し小さく */
+    .cart-toggle-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 15px;
     }
 
     .cart-btn {
@@ -1182,8 +1327,9 @@ body.dark-mode .range-field input {
     position: absolute;
     left: 0;
     bottom: 14px;
-    background: #4B2C82;
-    color: #fff;
+    /* サイトの紙色（メニューカードの --bg と同じオフホワイト） */
+    background: #F2EFE9;
+    color: #2B2B2B;
     /* 右の VIEW VOLUME ボタンと同じ書体・字送りにそろえる */
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
@@ -1325,28 +1471,45 @@ body.dark-mode .range-field input {
 .quickview-actions {
     margin-top: auto;
     display: flex;
-    align-items: stretch;
+    /* Amazonボタンが丸なので、伸ばさず高さ中央に置く */
+    align-items: center;
     gap: 8px;
 }
 
 /* Amazonで直接購入（ISBN検索）。
-   主張を抑えるため、左のカバーパネルと同じクリーム色にそろえる */
+   隣の View Volume ボタンと並ぶので、こちらは丸ではなく正方形にする
+   （色・影・ホバーの挙動はシリーズ一覧の .cart-toggle-btn と同じ） */
 .quickview-buy {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 44px;
-    background: linear-gradient(160deg, #F4F3F0 0%, #E9E7E2 100%);
-    border: 1px solid #E2DFD9;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(160deg, #FFFFFF 0%, #F6F5F3 100%);
+    border: 1px solid #E8E5E0;
     color: #3A3A3E;
     font-size: 18px;
     text-decoration: none;
     border-radius: 3px;
-    transition: background 0.18s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: background 0.2s ease,
+                transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                box-shadow 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.quickview-buy:hover {
-    background: linear-gradient(160deg, #ECEBE7 0%, #DFDDD7 100%);
+@media (hover: hover) {
+    .quickview-buy:hover {
+        background: linear-gradient(160deg, #FAF9F8 0%, #EFEDE9 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+    }
+}
+
+.quickview-buy:active {
+    transform: translateY(0) scale(0.94);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .quickview-link {

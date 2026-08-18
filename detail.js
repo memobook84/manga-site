@@ -24,6 +24,18 @@ function extractVolumeNumber(title) {
     return null;
 }
 
+// "2026年04月03日" → "2026/4/3"（ゼロ埋めしない）。
+// 日が無いデータは "2026/4"、月も無ければ "2026" になる
+function formatMetaDate(dateStr) {
+    if (!dateStr) return '';
+    const m = String(dateStr).match(/(\d{4})[年\-\/]?(?:(\d{1,2})[月\-\/]?)?(?:(\d{1,2})日?)?/);
+    if (!m) return dateStr;
+    return [m[1], m[2], m[3]]
+        .filter(Boolean)
+        .map(n => String(parseInt(n, 10)))
+        .join('/');
+}
+
 // 漫画の詳細を表示（メイン処理 — シリーズページ）
 async function displayMangaDetail() {
     const { title } = getDetailParams();
@@ -101,6 +113,27 @@ async function displayMangaDetail() {
     // 巻数表示
     document.getElementById('manga-date').textContent = `${volumes.length}巻`;
 
+    // 最新刊の発売日。"2026年04月03日" とゼロ埋めされた形式なので
+    // 日付に変換しなくても文字列比較でそのまま新しい順に選べる
+    const dated = volumes.filter(v => v.firstReleaseDate);
+    const latestDate = dated.length
+        ? dated.reduce((a, b) => (a.firstReleaseDate > b.firstReleaseDate ? a : b)).firstReleaseDate
+        : '';
+    document.getElementById('manga-latest-date').textContent = formatMetaDate(latestDate) || '-';
+
+    // 価格帯: 巻によって定価が違うことがあるので最安〜最高で示す。
+    // 全巻同じ価格なら範囲にせず1つだけ出す
+    const prices = volumes.map(v => Number(v.price)).filter(p => p > 0);
+    const priceEl = document.getElementById('manga-price-range');
+    if (prices.length) {
+        const min = Math.min(...prices);
+        const max = Math.max(...prices);
+        priceEl.textContent = min === max
+            ? `¥${min.toLocaleString()}`
+            : `¥${min.toLocaleString()}〜¥${max.toLocaleString()}`;
+    } else {
+        priceEl.textContent = '-';
+    }
     // あらすじ: descriptionが空でない最初の巻から取得
     const withDescription = volumes.find(v => v.description && v.description.trim() !== '');
     document.getElementById('manga-description').textContent =
@@ -120,6 +153,8 @@ async function displayMangaDetail() {
     const imageContainer = document.querySelector('.detail-image');
     const frame = imageContainer.querySelector('.detail-cover-frame');
     const badge = imageContainer.querySelector('.detail-image-badge');
+    // フレーム内に置いている浮きボタン類は innerHTML で消えるので退避して戻す
+    const followBtn = imageContainer.querySelector('#follow-button');
     const imageHtml = createDetailImageElement({
         ...coverVol,
         title: displaySeriesName,
@@ -127,6 +162,10 @@ async function displayMangaDetail() {
     if (frame) {
         frame.innerHTML = imageHtml;
         if (badge) frame.appendChild(badge);
+        if (followBtn) {
+            frame.appendChild(followBtn);
+            revealWhenCoverSized(frame, followBtn);
+        }
     }
 
     // シリーズ別の動画リンク（正規化: 記号・スペースを除去して比較）
@@ -174,10 +213,27 @@ async function displayMangaDetail() {
     upgradeCovers();
 }
 
+// シリーズ一覧の1マスの実表示幅から、必要な表紙の解像度を出す。
+// 280固定だと PC で常に _ex=640x640（1枚あたり86KB）を引いていたが、
+// 6列グリッドの1マスは約150px幅しかなく、ONE PIECE（111巻）では9.3MBになっていた。
+// 列数はブレークポイントで変わる（6列→5列→3列）ので、値ではなく実測から出す。
+// ※モバイル(≤768px)は createImageElement 内の gridCoverHeight() が
+//   ウィンドウ幅から算出し直すため、ここで渡した値は使われない
+function volumeCoverHeight(grid) {
+    const FALLBACK = 280;
+    if (!grid) return FALLBACK;
+    const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
+    const width = grid.getBoundingClientRect().width;
+    if (!cols || !width) return FALLBACK;
+    // 表紙は新書判（112:176）。CSS側の .volume-item img と同じ比率で高さに直す
+    return Math.round((width / cols) * (176 / 112));
+}
+
 // 巻一覧を表示（巻数でソート、volume.htmlへリンク）
 function displayVolumesList(volumes, seriesName) {
     const volumesGrid = document.getElementById('volumes-grid');
     volumesGrid.innerHTML = '';
+    const coverHeight = volumeCoverHeight(volumesGrid);
 
     if (volumes.length === 0) {
         volumesGrid.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:20px;color:var(--color-text-sub);">巻情報が見つかりませんでした</p>';
@@ -201,7 +257,7 @@ function displayVolumesList(volumes, seriesName) {
         const volumeItem = document.createElement('div');
         volumeItem.className = 'volume-item';
 
-        const imageHtml = createImageElement(vol, 280);
+        const imageHtml = createImageElement(vol, coverHeight);
         const baseName = seriesName || extractSeriesName(vol.title) || vol.title || '';
         const volumeLabel = vol.volumeNum !== null ? `${baseName}（${vol.volumeNum}巻）` : (vol.title || baseName);
 
@@ -552,6 +608,23 @@ function buildAmazonCartUrl(volumes) {
     return `https://www.amazon.co.jp/gp/aws/cart/add.html?${params.join('&')}`;
 }
 
+// Amazon 検索URL生成（シリーズ名で全巻を一覧させる）
+function buildAmazonSearchUrl(seriesName) {
+    const q = (seriesName || '').trim();
+    if (!q) return null;
+    // i=stripbooks で書籍カテゴリに絞る
+    return `https://www.amazon.co.jp/s?k=${encodeURIComponent(q)}&i=stripbooks&tag=atlascomic-22`;
+}
+
+function openAmazonSearch(seriesName) {
+    const url = buildAmazonSearchUrl(seriesName);
+    if (!url) {
+        alert('検索できる作品名が取得できませんでした。');
+        return;
+    }
+    window.open(url, '_blank', 'noopener');
+}
+
 function openAmazonCart(volumes, label) {
     const url = buildAmazonCartUrl(volumes);
     if (!url) {
@@ -567,13 +640,13 @@ function setupCartButtons(sortedVolumes, seriesName) {
     const allBtn = document.getElementById('cart-all-btn');
     const rangeBtn = document.getElementById('cart-range-btn');
 
-    // カートボタンはメニューを開かず、そのまま「全巻カートに入れる」を実行する。
-    // メニュー（.volumes-actions）は hidden のまま使わない。
+    // 右上のボタンはメニューを開かず、Amazonでシリーズ名を検索して全巻を一覧させる。
+    // （以前は「全巻カートに入れる」だった。メニュー .volumes-actions は hidden のまま使わない）
     if (toggleBtn) {
         toggleBtn.removeAttribute('aria-expanded');
-        toggleBtn.setAttribute('aria-label', '全巻カートに入れる');
-        toggleBtn.title = '全巻カートに入れる';
-        toggleBtn.onclick = () => openAmazonCart(sortedVolumes.filter(v => v.isbn), seriesName);
+        toggleBtn.setAttribute('aria-label', 'Amazonで全巻を検索');
+        toggleBtn.title = 'Amazonで全巻を検索';
+        toggleBtn.onclick = () => openAmazonSearch(seriesName);
     }
     if (actions) actions.setAttribute('hidden', '');
     const modal = document.getElementById('range-modal');
@@ -663,9 +736,30 @@ function setupCartButtons(sortedVolumes, seriesName) {
     }
 }
 
+// 表紙フレームの高さが決まってから、下端に置いたボタンを出す。
+// img は height:auto なので読み込み前は高さ0で、bottom:0 のボタンが
+// タイトル付近に一瞬出てしまう。load イベントではなく実寸を見ているのは、
+// 書影エラー→Google Books 再取得→プレースホルダー差し替えのどの経路でも
+// 「高さが付いた時点」で一度だけ出したいため
+function revealWhenCoverSized(frame, btn) {
+    const show = () => btn.classList.add('is-ready');
+    const sized = () => frame.offsetHeight > 40;
+
+    if (sized()) { show(); return; }
+    if (typeof ResizeObserver === 'undefined') { show(); return; }
+
+    const ro = new ResizeObserver(() => {
+        if (sized()) { ro.disconnect(); show(); }
+    });
+    ro.observe(frame);
+    // 高さが付かないまま終わってもボタンは必ず出す
+    setTimeout(() => { ro.disconnect(); show(); }, 3000);
+}
+
 // フォロー機能
 function setupFollowButton(manga) {
     const followButton = document.getElementById('follow-button');
+    if (!followButton) return;
     const followedManga = getFollowedManga();
 
     const isFollowed = followedManga.some(m => m.title === manga.title);
@@ -680,10 +774,15 @@ function setupFollowButton(manga) {
 }
 
 function updateFollowButtonText(button) {
+    const followed = button.classList.contains('followed');
     const textEl = button.querySelector('.follow-button-text');
     if (textEl) {
-        textEl.textContent = button.classList.contains('followed') ? 'Bookmarked' : 'Bookmark';
+        textEl.textContent = followed ? 'Bookmarked' : 'Bookmark';
     }
+    // アイコンのみの丸ボタンなので、状態はラベルで伝える
+    const label = followed ? 'ブックマーク済み' : 'ブックマーク';
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label);
     const iconEl = button.querySelector('.follow-icon');
     if (iconEl) {
         // 未登録＝細線（ph-light）、登録済＝塗りつぶし（ph-fill）
@@ -915,6 +1014,10 @@ function setupSlideNavigation() {
         }
     }, { passive: true });
 }
+
+// ※ 以前はモバイルだけ「ストーリー → 作品情報」の順に DOM を入れ替えていたが、
+//    作品情報を先に見せる方針になったので廃止。PC・モバイルとも HTML の記述順
+//    （作品情報 → ストーリー）のまま表示する
 
 window.addEventListener('DOMContentLoaded', () => {
     displayMangaDetail();

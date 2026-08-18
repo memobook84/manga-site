@@ -226,15 +226,25 @@ async function handleImageError(img, title, author, color, height) {
 }
 
 // 表紙が無い本の代替カバー。
-// 以前は作品ごとの色(color)で塗っていたが、並べた時に色だけが浮くので白紙のカバーにした。
-// 配色はCSS（.manga-cover-placeholder）側に持たせ、ここでは高さだけ指定する
+// 以前は作品ごとの色(color)で塗り、高さをインラインで指定していたが、
+// インラインは各ページのCSS（ランキングの70x98pxなど）に勝ってしまい、
+// 一覧の中で1枚だけ縦に伸びる原因になっていた。
+// 見た目はすべてCSS（.manga-cover-placeholder）に任せる。
+// 書名と著者名を刷っていた版は実表紙の列で文字だけのコマとして目立ったため、
+// いまは白紙の中央に「ATLAS COMIC」の文字を横一行で置くだけにしている
+// （以前の丸いマーク画像 /no-cover.png は廃止）。
+// 引数の title / author / color / height は呼び出し側の互換のために残してあるが使っていない
 function createPlaceholderHtml(title, author, color, height) {
-  return `<div class="manga-cover-placeholder" style="height:${height}px;">
+  return `<div class="manga-cover-placeholder">
             <div class="cover-spine"></div>
-            <div class="cover-content">
-              <div class="cover-title">${title}</div>
-              <div class="cover-author">${author}</div>
-            </div>
+            <span class="cover-mark-text">ATLAS COMIC</span>
+          </div>`;
+}
+
+// 詳細ページ（作品・単行本）の大きいカバー用。一覧と同じ白紙＋文字
+function createDetailPlaceholderHtml() {
+  return `<div class="manga-detail-placeholder">
+            <span class="cover-mark-text">ATLAS COMIC</span>
           </div>`;
 }
 
@@ -259,9 +269,7 @@ function createDetailImageElement(item) {
   // 書影準備中のテンプレートは表示せず、その場でプレースホルダーに落とす
   // （Google Booksへの問い合わせは待ち時間の割に当たらないので行わない）
   if (noCover) {
-    return `<div class="manga-detail-placeholder" style="background-color: ${item.color};">
-              <span class="manga-placeholder-text">${item.title}</span>
-            </div>`;
+    return createDetailPlaceholderHtml();
   }
 
   if (item.imageUrl) {
@@ -278,23 +286,23 @@ function createDetailImageElement(item) {
               onerror="handleDetailImageError(this,'${safeTitle}','${item.color}')"
               loading="eager" fetchpriority="high" decoding="async">`;
   }
-  return `<div class="manga-detail-placeholder" style="background-color: ${item.color};">
-            <span class="manga-placeholder-text">${item.title}</span>
-          </div>`;
+  return createDetailPlaceholderHtml();
 }
 
 // 詳細ページ画像エラー時のハンドラ
+// ※差し替えは outerHTML（img 自身）で行うこと。parentElement.innerHTML だと
+//   作品ページの表紙フレームに同居しているブックマークボタン・動画バッジまで消える
 async function handleDetailImageError(img, title, color) {
   const isbn = img.dataset.isbn;
   if (img.dataset.gbTried) {
-    img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
+    img.outerHTML = createDetailPlaceholderHtml();
     return;
   }
   if (isbn) {
     img.dataset.gbTried = '1';
     if (coverCache[isbn]) { img.src = coverCache[isbn]; return; }
     if (coverCache[isbn] === false) {
-      img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
+      img.outerHTML = createDetailPlaceholderHtml();
       return;
     }
     try {
@@ -306,7 +314,7 @@ async function handleDetailImageError(img, title, color) {
     } catch {}
     coverCache[isbn] = false;
   }
-  img.parentElement.innerHTML = `<div class="manga-detail-placeholder" style="background-color:${color};"><span class="manga-placeholder-text">${title}</span></div>`;
+  img.outerHTML = createDetailPlaceholderHtml();
 }
 
 // タイトルからシリーズ名を抽出（巻数・特装版等を除去）

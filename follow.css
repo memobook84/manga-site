@@ -53,14 +53,20 @@
     justify-content: center;
 }
 
-.fav-card-cover img,
-.fav-card-cover .manga-placeholder {
+.fav-card-cover img {
     width: auto;
     height: auto;
     max-width: 160px;
     max-height: 244px;
     object-fit: contain;
     display: block;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.16);
+}
+
+/* 白紙カバーは実表紙の最大サイズに合わせる（判型 112:176 で244px高） */
+.fav-card-cover .manga-cover-placeholder {
+    width: 155px;
+    height: 244px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.16);
 }
 
@@ -195,10 +201,14 @@
         justify-content: center;
     }
 
-    .fav-card-cover img,
-    .fav-card-cover .manga-placeholder {
+    .fav-card-cover img {
         max-width: 92px;
         max-height: 138px;
+    }
+
+    .fav-card-cover .manga-cover-placeholder {
+        width: 88px;
+        height: 138px;
     }
 
     .fav-card-body {

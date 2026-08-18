@@ -81,6 +81,7 @@ body {
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
 }
 
+/* 白紙カバー。紙色と淡い枠線は style.css 側で共通に持っている */
 .volume-image .manga-detail-placeholder {
     display: flex;
     align-items: center;
@@ -88,30 +89,39 @@ body {
     padding: 20px;
 }
 
-.volume-image .manga-detail-placeholder .manga-placeholder-text {
-    color: white;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    word-wrap: break-word;
-}
-
 /* 右側：詳細情報 */
 .volume-info-detail {
     flex: 1;
     display: flex;
     flex-direction: column;
+    /* メタ欄の列幅と、それに合わせるタイトル下の区切り線の長さ（作品ページと同値） */
+    --meta-col: 220px;
+    --meta-gap: 32px;
+    --meta-block-w: calc(var(--meta-col) * 2 + var(--meta-gap));
 }
 
 .volume-title-row {
+    position: relative;
     display: flex;
     align-items: baseline;
     gap: 15px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--color-border);
+    /* 区切り線を消したぶんタイトルとメタ欄が近づくので、間をしっかり空ける */
+    margin-bottom: 42px;
 }
+
+/* タイトル下の区切り線は廃止。復活させる場合は .volume-title-row に
+   padding-bottom: 16px を戻したうえで以下を有効にする
+.volume-title-row::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: var(--meta-block-w);
+    max-width: 100%;
+    height: 1px;
+    background: var(--color-border);
+}
+*/
 
 .volume-title-main {
     font-size: 26px;
@@ -135,9 +145,13 @@ body {
     margin-bottom: 30px;
     padding: 4px 0;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 28px;
+    /* 1fr だと2列目が左端から約400px先に飛んで間延びする。
+       列幅に上限を付けて左に寄せる（画面が狭いときは自然に縮む） */
+    grid-template-columns: repeat(2, minmax(0, var(--meta-col)));
+    justify-content: start;
+    column-gap: var(--meta-gap);
     row-gap: 18px;
+    max-width: var(--meta-block-w);
 }
 
 .meta-item {
@@ -299,32 +313,44 @@ body.dark-mode .buy-text-link--rakuten:hover i {
     white-space: nowrap;
 }
 
-/* 表示中の巻。以前は赤(#D8052E)の2px outline だったが、
-   テーマ紫のリングとやわらかい影で一段手前に浮かせる形に変えた。
-   outline ではなく box-shadow を使うのは、影と一本の指定でまとめられて
-   角丸にも追従するため */
+/* 表示中の巻。赤(#D8052E)の outline → ネオン風の発光リング → 紫のリングと変遷し、
+   今はテーマ紫を背面に敷く形。表紙と巻数の後ろに紫の板を置き、
+   表紙のまわりが紫で縁取られて見えるようにしている。
+   isolation: isolate を付けるのは、z-index:-1 の板がページ背景の裏に
+   回り込んで消えないよう、この要素の中に閉じ込めるため */
 .volume-item.current-volume {
     cursor: default;
-    /* リングは box-shadow ではなく outline。outline-offset なら
-       表紙との間に透明な余白をそのまま作れる（背景色を知らなくてよい） */
-    outline: 2px solid #4B2C82;
-    outline-offset: 8px;
-    /* 角は丸めず直角にする（outline は border-radius に追従するので0にする） */
+    position: relative;
+    isolation: isolate;
     border-radius: 0;
 }
 
-/* 巻数も紫でそろえて、どれを見ているか文字側でも分かるようにする */
-.volume-item.current-volume .volume-number {
-    color: #4B2C82;
-    font-weight: 700;
+.volume-item.current-volume::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    background: #4B2C82;
+    z-index: -1;
+    pointer-events: none;
 }
 
-body.dark-mode .volume-item.current-volume {
-    outline-color: #B89DE8;
+/* 背面が紫ベタになるので、その上に乗る文字は白く抜く。
+   太らせると1枚だけ字面が重くなるので、太さは他の巻と同じまま色だけ変える */
+.volume-item.current-volume .volume-number,
+.volume-item.current-volume .volume-date {
+    color: #fff;
+    font-weight: inherit;
 }
 
-body.dark-mode .volume-item.current-volume .volume-number {
-    color: #B89DE8;
+body.dark-mode .volume-item.current-volume::after {
+    background: #5C3A9E;
+}
+
+/* 表紙が小さく間隔も詰まる幅では、リングを表紙寄りに詰める */
+@media (max-width: 480px) {
+    .volume-item.current-volume::after {
+        inset: -4px;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -720,12 +746,24 @@ body.dark-mode .volume-item.current-volume .volume-number {
         display: block;
     }
 
+    /* 画面が狭いのでタイトルとメタ欄の間はPCほど空けない */
+    .volume-title-row {
+        margin-bottom: 24px;
+    }
+
     .volume-title-main {
-        font-size: 22px;
+        font-size: 19px;
     }
 
     .volume-number-display {
         font-size: 20px;
+    }
+
+    /* 見出しは画面が狭いので小さめに。ストーリーとシリーズ一覧は同じ階層なので
+       サイズもそろえる */
+    .volume-description h2,
+    .series-list-title {
+        font-size: 16px;
     }
 
     .volume-buttons {

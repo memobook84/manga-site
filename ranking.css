@@ -336,10 +336,11 @@
         align-self: flex-start;
     }
 
+    /* 表紙の大きさはブックマーク（follow.css の .fav-card-cover）にそろえる */
     .ranking-list-cover img,
     .ranking-list-cover .manga-cover-placeholder {
-        width: 64px;
-        height: 90px;
+        width: 92px;
+        height: 138px;
         border-radius: 2px;
     }
 
@@ -399,14 +400,11 @@
         min-width: 30px;
     }
 
-    .ranking-list-cover img {
-        width: 70px;
-        height: 98px;
-    }
-
+    /* 480px以下も同じ（ブックマークは560px以下で92x138のまま） */
+    .ranking-list-cover img,
     .ranking-list-cover .manga-cover-placeholder {
-        width: 70px;
-        height: 98px;
+        width: 92px;
+        height: 138px;
     }
 }
 
@@ -638,4 +636,11 @@
         font-size: 12.5px;
         line-height: 1.7;
     }
+}
+
+/* ===== 書影なしカバー（ランキングは表紙が小さい） =====
+   一覧側は幅64〜100pxしかないので、背表紙とマークを一段細く・小さくする */
+.ranking-list-cover .manga-cover-placeholder .cover-spine,
+.ranking-top3-cover .manga-cover-placeholder .cover-spine {
+    width: 3px;
 }

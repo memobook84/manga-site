@@ -1,16 +1,46 @@
 // ランキングページロジック - Amazon Charts風
 
+// 楽天APIは1回30件が上限。1ページだけだと、同じ作品の複数巻がまとまる
+// シリーズ集約と書影フィルタを通した後に十数作品しか残らないので、
+// 3ページ（＝最大90巻）まとめて取ってから作品単位に畳む
+var RANKING_PAGES = 3;
+
+async function fetchRankingItems() {
+    var requests = [];
+    for (var p = 1; p <= RANKING_PAGES; p++) {
+        requests.push(
+            fetch('/api/books?genre=001001&hits=30&sort=sales&page=' + p)
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .catch(function () { return null; })
+        );
+    }
+    var pages = await Promise.all(requests);
+    // 1ページ目すら取れなければ失敗扱い。2ページ目以降は取れた分だけ使う
+    if (!pages[0]) throw new Error('ランキングの1ページ目が取得できませんでした');
+
+    var items = [];
+    var seen = new Set();
+    pages.forEach(function (data) {
+        if (!data) return;
+        adaptApiResponse(data).items.forEach(function (item) {
+            // ページ境界で同じ巻が重複することがあるのでISBNで弾く
+            var key = item.isbn || item.title;
+            if (!key || seen.has(key)) return;
+            seen.add(key);
+            items.push(item);
+        });
+    });
+    return items;
+}
+
 async function displayRanking() {
     var container = document.querySelector('.ranking-container');
     // 読み込み中の文言は出さず、取得できた時点で一気に描画する
     container.innerHTML = '';
 
     try {
-        var response = await fetch('/api/books?genre=001001&hits=30&sort=sales');
-        if (!response.ok) throw new Error('API error: ' + response.status);
-        var data = await response.json();
-        var adapted = adaptApiResponse(data);
-        var series = groupBySeries(adapted.items);
+        var items = await fetchRankingItems();
+        var series = groupBySeries(items);
 
         if (series.length === 0) {
             container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--color-text-sub);">ランキングデータが見つかりませんでした。</p>';
@@ -23,6 +53,13 @@ async function displayRanking() {
         console.warn('ランキング取得失敗:', err);
         container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--color-text-sub);">ランキングの読み込みに失敗しました。しばらくしてからもう一度お試しください。</p>';
     }
+}
+
+// 実際に書影が出せる巻かどうか。
+// hasRealCover だけでは楽天の「書影準備中」テンプレート（ISBN名の.gif）を拾ってしまい、
+// ランキングの中に白紙のカバーが混ざる。isRakutenNoCover は rakuten-adapter.js の判定
+function hasUsableCover(v) {
+    return !!(v && v.hasRealCover && v.imageUrl && !isRakutenNoCover(v.imageUrl));
 }
 
 // シリーズ集約
@@ -58,10 +95,11 @@ function groupBySeries(items) {
         });
         var skipCount = Math.min(2, Math.max(0, sorted.length - 1));
         var nonLatest = sorted.length > skipCount ? sorted.slice(skipCount) : sorted;
-        var withCover = nonLatest.filter(function (v) { return v.hasRealCover; });
-        var allWithCover = sorted.filter(function (v) { return v.hasRealCover; });
-        var pool = withCover.length > 0 ? withCover :
-                   allWithCover.length > 0 ? allWithCover : nonLatest;
+        var withCover = nonLatest.filter(hasUsableCover);
+        var allWithCover = sorted.filter(hasUsableCover);
+        var pool = withCover.length > 0 ? withCover : allWithCover;
+        // 1巻も書影が無いシリーズはランキングに出さない（白紙のカバーを並べない）
+        if (pool.length === 0) return;
         var representative = pool[Math.floor(Math.random() * pool.length)];
 
         result.push({
