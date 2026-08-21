@@ -53,7 +53,13 @@ async function loadSeriesVolumes(seriesTitle) {
             genre: data.g || '',
             firstReleaseDate: row[3] || '',
             description: row[7] || '',
-            imageUrl: cover ? (cover.indexOf('http') === 0 ? cover : SERIES_COVER_BASE + cover) : '',
+            // 楽天以外から持ってきた表紙は絶対URL（http〜）か
+            // サイト内のパス（/covers/〜）で書いてあるので、そのまま通す
+            imageUrl: cover
+                ? ((cover.indexOf('http') === 0 || cover.indexOf('/') === 0)
+                    ? cover
+                    : SERIES_COVER_BASE + cover)
+                : '',
             hasRealCover: !!cover,
             price: row[5] || 0,
             isbn: row[2] || '',

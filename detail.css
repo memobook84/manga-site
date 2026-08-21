@@ -34,6 +34,10 @@
     width: 100%;
     /* 左右の角を揃える（右側の 2px が基準） */
     border-radius: 2px;
+    /* 単行本ページのメイン表紙（volume.css の .volume-image img）と同じ影。
+       白紙カバー（.manga-detail-placeholder）は元から同じ影を持っていたので、これで両者が揃う。
+       ※上の①を復活させると、後から来るこちらの2段の影がこれを上書きする */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     /* ① 停止中
     box-shadow:
         0 12px 30px rgba(0, 0, 0, 0.30),
@@ -216,27 +220,40 @@
     font-weight: 300;
 }
 
-/* お気に入りボタン
-   表紙の右横に下揃えで浮かせる丸アイコンボタン（.detail-cover-frame 内に配置） */
+/* ブックマークボタン
+   表紙の右下に重ねる丸ボタン。枠線もグラデも入れない。
+     未登録 … 薄い白のすりガラス＋白い枠のしおり
+     登録済 … 下地はそのまま、しおりだけ赤（#D8052E）の塗りに変わる
+   表紙の絵を塗り潰さないのが最優先なので、どちらの状態でも下地は透かす。
+   ぼかしは「絵が何となく分かる」程度に留め（3px）、
+   その代わり白いしおりには影を落として輪郭が消えないようにしている。
+   アイコンは Octicons の bookmark-24 / bookmark-fill-24 をインラインSVGで埋め込んでいる
+   （react-icons でいう GoBookmark / GoBookmarkFill）。
+   どちらも塗りで描く字形なので、線（stroke）では描かないこと */
 .follow-button {
     position: absolute;
-    left: calc(100% + 48px);
-    bottom: 0;
+    top: auto;
+    left: auto;
+    /* 表紙の右下ぎりぎりに寄せる（丸の縁が表紙の角にほぼ接する位置） */
+    right: 4px;
+    bottom: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 44px;
     height: 44px;
     padding: 0;
-    /* 未登録時は Amazonボタン（.cart-toggle-btn）と同じ面・枠・影にそろえる。
-       アイコンだけ紫にして、登録済み（.followed）の紫ベタと区別する */
-    background: linear-gradient(160deg, #FFFFFF 0%, #F6F5F3 100%);
-    border: 1px solid #E8E5E0;
+    /* 背後の表紙を透かす。白を薄く敷いてぼかしも弱めにし、絵柄が残るようにする */
+    background: rgba(255, 255, 255, 0.30);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    border: 0;
     border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    /* 表紙の絵の上に乗るので、輪郭を保つぶんだけ影を置く（立体には見せない）。
+       影も表紙を暗くするので、丸が判別できる最低限まで薄くする */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     cursor: pointer;
-    color: var(--color-accent);
-    font-size: 20px;
+    color: #fff;
     line-height: 1;
     z-index: 2;
     -webkit-appearance: none;
@@ -244,7 +261,7 @@
     -webkit-tap-highlight-color: transparent;
     /* 表紙の高さが決まるまでは出さない。
        img は height:auto なので読み込み前はフレームが高さ0になり、
-       bottom:0 のこのボタンがタイトル付近に一瞬出てしまうため
+       bottom 基準のこのボタンがタイトル付近に一瞬出てしまうため
        （高さが確定したら detail.js が .is-ready を付ける） */
     opacity: 0;
     visibility: hidden;
@@ -261,34 +278,73 @@
     visibility: visible;
 }
 
+.follow-mark {
+    width: 22px;
+    height: 22px;
+}
+
+/* 枠のしおり。Octicons は輪郭も塗りで表現する字形なので fill で描く
+   （中の抜きは同じパスの副経路で開いている）。
+   未登録時は白い丸の上に白を置くので、輪郭が消えないよう影を落とす */
+.follow-mark-outline {
+    fill: currentColor;
+    filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.38));
+}
+
+/* 塗りのしおり。赤がくすむので影は落とさない
+   （白いしおりと違い、色そのもので下地と分かれるため輪郭補強が要らない） */
+.follow-mark-solid {
+    fill: currentColor;
+}
+
+/* 状態でしおりを差し替える */
+.follow-mark-solid,
+.follow-button.followed .follow-mark-outline {
+    display: none;
+}
+
+.follow-button.followed .follow-mark-solid {
+    display: block;
+}
+
 /* タッチ端末はタップ後もホバーが残るので、浮く演出はマウス環境だけ */
 @media (hover: hover) {
     .follow-button:hover {
-        background: linear-gradient(160deg, #FAF9F8 0%, #EFEDE9 100%);
+        background: rgba(255, 255, 255, 0.48);
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.10);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.18);
     }
 }
 
 .follow-button:active {
     transform: translateY(0) scale(0.94);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
 }
 
-/* 登録済み。上の :hover と同じ詳細度なので、ホバー中もベタ塗りが
-   残るよう「後ろに」置いている（transform と影は :hover 側が効く） */
+/* 登録済み。丸の下地は未登録のまま（薄い白のすりガラス）で、
+   しおりだけが白い枠 → 赤い塗りに変わる。
+   丸ごと赤く塗ると表紙の絵がそこだけ消えてしまうため、色を乗せるのは
+   しおりの面積だけに留めている */
 .follow-button.followed {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #fff;
+    color: #D8052E;
 }
 
 @media (hover: hover) {
     .follow-button.followed:hover {
-        background: var(--color-accent-hover);
-        border-color: var(--color-accent-hover);
-        color: #fff;
+        color: #B60426;
     }
+}
+
+/* 追加した瞬間だけ跳ねさせる */
+.follow-button.just-added {
+    animation: follow-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes follow-pop {
+    0%   { transform: scale(0.85); }
+    45%  { transform: scale(1.28); }
+    70%  { transform: scale(0.96); }
+    100% { transform: scale(1); }
 }
 
 /* 横ライン区切り */
@@ -543,8 +599,10 @@ body.dark-mode .detail-divider {
 }
 
 /* Amazon検索ボタン。塗りの円だが、色はクイックビューの Amazon ボタン
-   （.quickview-buy）とそろえたほぼ白。主張は影と枠線だけで出す */
+   （.quickview-buy）とそろえたほぼ白。主張は影と枠線だけで出す。
+   ※中身は <a>（window.open を避けるため）なので下線を消しておく */
 .cart-toggle-btn {
+    text-decoration: none;
     border: 1px solid #E8E5E0;
     background: linear-gradient(160deg, #FFFFFF 0%, #F6F5F3 100%);
     color: #3A3A3E;
@@ -976,7 +1034,7 @@ body.dark-mode .range-field input {
 
     .detail-image-badge {
         left: auto;
-        /* .follow-button と右端を揃える */
+        /* 表紙の右外に出す。ブックマークのリボンは表紙の内側なので重ならない */
         right: calc(-1 * var(--cover-side-offset));
         bottom: 48px;
         font-size: 26px;
@@ -989,18 +1047,24 @@ body.dark-mode .range-field input {
         display: block;
     }
 
-    /* 表紙の外側に出せる余白が狭いので、丸を少し小さくする */
+    /* 位置は基本ルール（表紙の右下ぎりぎり）と同じ。丸だけ少し小さくする */
     .follow-button {
+        top: auto;
         left: auto;
-        right: calc(-1 * var(--cover-side-offset));
-        bottom: 0;
-        width: 36px;
-        height: 36px;
-        font-size: 17px;
+        right: 4px;
+        bottom: 4px;
+        width: 38px;
+        height: 38px;
     }
 
+    .follow-mark {
+        width: 19px;
+        height: 19px;
+    }
+
+    /* 単行本ページ（.volume-title-main）と同じ大きさに揃える */
     .detail-title {
-        font-size: 24px;
+        font-size: 17px;
     }
 
     .detail-meta {
@@ -1011,14 +1075,26 @@ body.dark-mode .range-field input {
         row-gap: 16px;
     }
 
+    /* スマホの文字サイズはタイトル17pxを頂点に段を付ける。
+       タイトル17 → 見出し13 → 本文・値13 → ラベル10。
+       本文を15pxのままにするとタイトルとの差が2pxしかなく、
+       どこが見出しでどこが中身か分からなくなる */
+    .detail-author-line {
+        font-size: 12.5px;
+    }
+
     /* 見出しも「ストーリー」と同じサイズに揃える */
     .detail-meta-title {
-        font-size: 14px;
+        font-size: 13px;
         margin: 22px 0 14px;
     }
 
+    .meta-label {
+        font-size: 10px;
+    }
+
     .meta-value {
-        font-size: 15px;
+        font-size: 13px;
     }
 
     .detail-divider {
@@ -1031,13 +1107,19 @@ body.dark-mode .range-field input {
 
     /* 見出し「ストーリー」は画面が狭いので小さめに */
     .detail-description h2 {
-        font-size: 14px;
+        font-size: 13px;
         margin-bottom: 14px;
+    }
+
+    /* あらすじ本文。行間は少し広めに取って詰まって見えないようにする */
+    .detail-description p {
+        font-size: 13px;
+        line-height: 1.85;
     }
 
     /* 「シリーズ一覧」もストーリー／作品情報と同じサイズに揃える */
     .volumes-title {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     /* 文字が小さくなるぶん、左のブロックと余白も少し詰める */
@@ -1510,6 +1592,43 @@ body.dark-mode .range-field input {
 .quickview-buy:active {
     transform: translateY(0) scale(0.94);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ビューアで読む。公式に無料公開されている巻にだけ出る。
+   隣の View Volume（作品情報を見る）と役割が違うので、色で分けてゴールドにする。
+   高さは .quickview-link と揃える */
+.quickview-read {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 18px;
+    background: #F5C518;
+    color: #121016;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    transition: background 0.18s ease, gap 0.18s ease;
+}
+
+.quickview-read[hidden] {
+    display: none;
+}
+
+.quickview-read:hover {
+    background: #FFD426;
+    gap: 11px;
+}
+
+.quickview-read svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
 }
 
 .quickview-link {

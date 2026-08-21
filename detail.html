@@ -24,6 +24,8 @@
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@400;500;700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
@@ -31,11 +33,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
     <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="detail.css?v=20260619g">
-    <script src="manga-data.js"></script>
-    <script src="rakuten-adapter.js"></script>
-    <script src="search-normalize.js"></script>
-    <script src="series-cache.js"></script>
-    <script src="detail.js"></script>
+    <script defer src="manga-data.js"></script>
+    <script defer src="rakuten-adapter.js"></script>
+    <script defer src="search-normalize.js"></script>
+    <script defer src="series-cache.js"></script>
+    <script defer src="detail.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -69,9 +71,16 @@
                 <div class="detail-cover-frame">
                     <img id="manga-image" src="" alt="漫画の表紙">
                     <button type="button" id="detail-image-badge" class="detail-image-badge" aria-label="動画を見る" hidden><i class="bi bi-collection-play-fill"></i></button>
-                    <!-- 表紙の右横（下揃え）に丸アイコンで配置 -->
+                    <!-- 表紙の右下に丸ボタンで重ねる。
+                         未登録＝枠のしおり、登録済＝塗りのしおり
+                         （Octicons の bookmark-24 / bookmark-fill-24＝react-icons の GoBookmark / GoBookmarkFill と同じ字形） -->
                     <button id="follow-button" class="follow-button" aria-label="ブックマーク" title="ブックマーク">
-                        <i class="ph-light ph-bookmark follow-icon"></i>
+                        <svg class="follow-mark follow-mark-outline" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 3.75C5 2.784 5.784 2 6.75 2h10.5c.966 0 1.75.784 1.75 1.75v17.5a.75.75 0 0 1-1.218.586L12 17.21l-5.781 4.625A.75.75 0 0 1 5 21.25Zm1.75-.25a.25.25 0 0 0-.25.25v15.94l5.031-4.026a.749.749 0 0 1 .938 0L17.5 19.69V3.75a.25.25 0 0 0-.25-.25Z"/>
+                        </svg>
+                        <svg class="follow-mark follow-mark-solid" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6.69 2h10.56c.966 0 1.75.784 1.75 1.75v17.5a.75.75 0 0 1-1.218.585L12 17.21l-5.781 4.626A.75.75 0 0 1 5 21.253L4.94 3.756A1.748 1.748 0 0 1 6.69 2Z"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -129,9 +138,14 @@
             <div class="volumes-header">
                 <h2 class="volumes-title">シリーズ一覧</h2>
                 <div class="volumes-actions-wrap">
-                    <button type="button" id="cart-toggle-btn" class="cart-toggle-btn" aria-label="Amazonで全巻を検索">
+                    <!-- ボタンではなく実体のあるリンクにしている。
+                         window.open だと iOS のPWA（ホーム画面から起動した状態）や
+                         ポップアップブロックで無言で失敗するため。
+                         href は detail.js が作品名から組み立てて入れる -->
+                    <a id="cart-toggle-btn" class="cart-toggle-btn" target="_blank"
+                       rel="noopener noreferrer" aria-label="Amazonで全巻を検索" hidden>
                         <i class="fa-brands fa-amazon"></i>
-                    </button>
+                    </a>
                     <div class="volumes-actions" id="volumes-actions" hidden>
                         <button type="button" id="cart-all-btn" class="cart-btn cart-btn-primary">
                             <i class="ph-bold ph-shopping-cart" style="font-size:14px"></i>

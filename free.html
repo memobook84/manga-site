@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>無料で読める漫画 - ATLAS COMIC</title>
+    <link rel="icon" type="image/png" href="favicon.png?v=5">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5">
+    <meta name="description" content="少年ジャンプ＋・ジャンプルーキー！・マガポケなど、公式サイトで無料公開されている漫画をまとめて紹介 - ATLAS COMIC。">
+    <!-- OGP -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="ATLAS COMIC">
+    <meta property="og:title" content="無料で読める漫画 - ATLAS COMIC">
+    <meta property="og:description" content="少年ジャンプ＋・ジャンプルーキー！・マガポケなど、公式サイトで無料公開されている漫画をまとめて紹介 - ATLAS COMIC。">
+    <meta property="og:url" content="https://manga-site-three.vercel.app/free.html">
+    <meta property="og:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="無料で読める漫画 - ATLAS COMIC">
+    <meta name="twitter:description" content="少年ジャンプ＋・ジャンプルーキー！・マガポケなど、公式サイトで無料公開されている漫画をまとめて紹介 - ATLAS COMIC。">
+    <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link rel="preconnect" href="https://cdn-ak-img.shonenjumpplus.com">
+    <link rel="preconnect" href="https://cdn-img.rookie.shonenjump.com">
+    <link rel="preconnect" href="https://mgpk-cdn.magazinepocket.com">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.17.0/dist/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="legal.css">
+    <link rel="stylesheet" href="free.css">
+    <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
+    <script defer src="free.js"></script>
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header>
+        <div class="header-container">
+            <a href="home.html" class="header-logo"><img src="logo-atlas.png" alt="ATLAS COMIC" class="header-logo-img"></a>
+            <h1><a href="home.html">ATLAS COMIC</a></h1>
+            <nav class="header-nav">
+                <a href="new-releases.html" class="nav-link">スケジュール</a>
+                <a href="ranking.html" class="nav-link">ランキング</a>
+                <a href="follow.html" class="nav-link follow-link">ブックマーク</a>
+                <button class="nav-menu-btn" id="navMenuBtn"><svg viewBox="0 0 24 24" class="nav-caret" aria-hidden="true"><path d="M3 6C3 5.44772 3.44772 5 4 5H20C20.5523 5 21 5.44772 21 6C21 6.55228 20.5523 7 20 7H4C3.44772 7 3 6.55228 3 6Z"/><path d="M3 18C3 17.4477 3.44772 17 4 17H20C20.5523 17 21 17.4477 21 18C21 18.5523 20.5523 19 20 19H4C3.44772 19 3 18.5523 3 18Z"/><path d="M3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H10.2625L7.61456 15.6479L4.96662 13H4C3.44772 13 3 12.5523 3 12Z"/></svg></button>
+            </nav>
+            <div class="search-box">
+                <input type="text" placeholder="ATLAS COMICを検索">
+                <button class="search-icon" aria-label="検索">
+                    <i class="ph-bold ph-magnifying-glass" style="font-size:20px"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <div class="free-hero-title">
+            <h2>FREE MANGA</h2>
+            <!-- 当サイトは紹介とリンクのみ。その断り書きは常時は出さず、この「!」に畳んでおく -->
+            <button type="button" class="free-info-btn" id="freeInfoBtn"
+                    aria-expanded="false" aria-controls="freeNotice" aria-label="このページについて">!</button>
+            <div class="free-notice" id="freeNotice" role="note" hidden>
+                掲載作品はすべて各出版社の<strong>公式サイトへのリンク</strong>です。作品はリンク先の公式サイトでお読みください。
+            </div>
+        </div>
+        <p>公式サイトで無料公開されている漫画</p>
+    </section>
+
+    <main class="free-main">
+        <div class="free-tabs" id="freeTabs" role="tablist"></div>
+
+        <p class="free-count" id="freeCount"></p>
+
+        <div class="free-grid" id="freeGrid" aria-live="polite"></div>
+
+        <div class="free-more" id="freeMore"></div>
+
+        <p class="free-foot">
+            一覧は各出版社の公式RSSをもとに毎日更新しています。無料公開の範囲は各公式サイトの都合で変わるため、最新の状況はリンク先でご確認ください。
+        </p>
+    </main>
+
+    <!-- サイトフッター -->
+    <div class="site-footer">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <span class="footer-sep">|</span>
+        <a href="about.html">運営者情報</a>
+        <span class="footer-sep">|</span>
+        <a href="profile.html">管理人紹介</a>
+    </div>
+
+    <!-- ボトムナビ -->
+    <nav class="bottom-nav">
+        <a href="javascript:history.back()" class="bottom-nav-item" data-page="back">
+            <i class="ph-light ph-arrow-left" style="font-size:22px"></i>
+            <span>Back</span>
+        </a>
+        <a href="/home.html" class="bottom-nav-item" data-page="database">
+            <i class="ph-light ph-house" style="font-size:22px"></i>
+            <span>Home</span>
+        </a>
+        <a href="/ranking.html" class="bottom-nav-item" data-page="ranking">
+            <svg class="lucide lucide-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg>
+            <span>Ranking</span>
+        </a>
+        <a href="/follow.html" class="bottom-nav-item" data-page="follow">
+            <i class="ph-light ph-bookmark" style="font-size:22px"></i>
+            <span>Bookmark</span>
+        </a>
+        <a href="/menu.html" class="bottom-nav-item" data-page="menu">
+            <i class="ph-light ph-list" style="font-size:22px"></i>
+            <span>Menu</span>
+        </a>
+    </nav>
+
+    <script>
+    (function() {
+        var path = location.pathname;
+        var items = document.querySelectorAll('.bottom-nav-item');
+        items.forEach(function(item) {
+            var page = item.dataset.page;
+            if ((page === 'home' && (path === '/' || path === '/index.html')) ||
+                (page === 'database' && path.includes('database')) ||
+                (page === 'ranking' && path.includes('ranking')) ||
+                (page === 'blog' && path.includes('blog')) ||
+                (page === 'follow' && path.includes('follow'))) {
+                item.classList.add('active');
+            }
+        });
+    })();
+    </script>
+
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+    </script>
+    <script src="swipe-back.js"></script>
+    <script src="nav-menu.js"></script>
+</body>
+</html>

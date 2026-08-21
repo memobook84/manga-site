@@ -1,0 +1,351 @@
+/* 無料で読める漫画ページ専用のスタイル */
+
+.free-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+}
+
+/* ===== 見出し横の「!」と、そこから開く断り書き ===== */
+/* 吹き出しを「!」の真下に置くため、見出しごと相対配置の箱に入れる */
+.free-hero-title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.free-info-btn {
+    flex-shrink: 0;
+    width: 19px;
+    height: 19px;
+    padding: 0;
+    border: 1.5px solid #b0b0b0;
+    border-radius: 50%;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #8d8d8d;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.free-info-btn:hover,
+.free-info-btn[aria-expanded="true"] {
+    border-color: #4B2C82;
+    color: #4B2C82;
+}
+
+/* リンク集であることを明示する一言（法的な立ち位置の説明も兼ねる） */
+.free-notice {
+    position: absolute;
+    top: calc(100% + 9px);
+    left: 0;
+    z-index: 30;
+    width: 340px;
+    max-width: calc(100vw - 40px);
+    padding: 13px 15px;
+    border: 1px solid var(--color-border, #E5E1DC);
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.75;
+    letter-spacing: normal;
+    text-align: left;
+    white-space: normal;
+    color: #5A5A5A;
+}
+
+.free-notice strong {
+    color: #2B2B2B;
+    font-weight: 600;
+}
+
+.free-notice[hidden] {
+    display: none;
+}
+
+/* ===== 配信元タブ（新刊ページのタブと同じ見た目に揃える） ===== */
+/* 8タブ（すべて＋7配信元）をPCの本文幅960pxに1段で収めるため、文字も左右の余白も詰めてある。
+   配信元が増えて収まらなくなったら overflow-x のスクロールに逃げる（スマホは常にこちら）。 */
+.free-tabs {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--color-border, #E5E1DC);
+    margin-bottom: 20px;
+}
+
+.free-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.free-tab {
+    position: relative;
+    flex: 1 0 auto;
+    padding: 13px 9px 12px;
+    background: none;
+    border: 0;
+    white-space: nowrap;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-sub, #999);
+    cursor: pointer;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.free-tab:hover {
+    color: #4B2C82;
+}
+
+.free-tab.active {
+    color: #4B2C82;
+}
+
+.free-tab.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: #4B2C82;
+}
+
+/* ===== カードグリッド ===== */
+/* 枠線も背景も持たせず、表紙と3行のテキストだけで見せる（公式の無料作品一覧と同じ形） */
+.free-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 26px 18px;
+}
+
+.fc-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fc-card:active {
+    opacity: 0.75;
+}
+
+/* 表紙は配信元ごとに縦横比が違う（集英社系は1:1、コミックDAYS／サンデーうぇぶりは16:9、
+   MAGCOMIは3:2、マガポケは2:1）。3:2はその中間なので、どこから来ても切り落とす量が少ない。 */
+.fc-cover {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    background: #efeaf6;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.fc-card:hover .fc-cover-img {
+    transform: scale(1.04);
+}
+
+/* 余白を出さず枠いっぱいに詰める。はみ出したぶんは上下（または左右）から切り落とす */
+.fc-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+/* 画像が取れなかったときはタイトル文字の表紙で埋める */
+.fc-cover.is-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4B2C82 0%, #371F63 100%);
+    padding: 14px;
+}
+
+.fc-fallback-title {
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+    text-align: center;
+    /* 長いタイトルが枠からはみ出さないよう4行で打ち切る */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fc-body {
+    padding: 9px 2px 0;
+}
+
+.fc-title {
+    margin: 0 0 3px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14.5px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text, #2B2B2B);
+    /* 長いタイトル（なろう系の一文タイトル）でも行が揃うよう2行で打ち切る */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* 1行のタイトルでも2行ぶんの高さを確保する。
+       ここを空けておくと、その下の作者名と配信元名が1行ぶん持ち上がり、
+       隣のカードと段が食い違って見える（スマホは2列なので特に目立つ）。
+       line-height:1.4 × 2行 ＝ 2.8em。em なので文字サイズが変わっても追従する */
+    min-height: 2.8em;
+}
+
+.fc-card:hover .fc-title {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* 作者は連名で長くなりがちなので1行で省略する。
+   作者不明の作品でも行を潰さない（min-height）ことで、隣のカードと無料表記の位置が揃う */
+.fc-author {
+    margin: 0 0 4px;
+    min-height: 1.5em;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #8d8d8d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 配信元名。「すべて」タブでは配信元が混ざるので、どこの作品かだけ小さく添える */
+.fc-meta {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #a0a0a0;
+}
+
+/* 単一の配信元に絞り込んでいるときは配信元名を出さない */
+.free-grid.is-single-platform .fc-platform {
+    display: none;
+}
+
+.free-count {
+    margin: -8px 0 14px;
+    font-size: 12px;
+    color: var(--color-text-sub, #999);
+}
+
+/* ===== もっと見る ===== */
+.free-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.free-more-btn {
+    padding: 7px 18px;
+    border: 1px solid #2B2B2B;
+    border-radius: 2px;
+    background: transparent;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: #2B2B2B;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.free-more-btn:hover {
+    background: #2B2B2B;
+    color: #fff;
+}
+
+body.dark-mode .free-more-btn {
+    border-color: #e0e0e0;
+    color: #e0e0e0;
+}
+
+body.dark-mode .free-more-btn:hover {
+    background: #e0e0e0;
+    color: #1a1a1a;
+}
+
+.free-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 10px;
+    font-size: 13px;
+    color: var(--color-text-sub, #999);
+}
+
+/* 一覧の出どころと、無料範囲が変わりうることの断り（フッターの手前に置く） */
+.free-foot {
+    margin: 26px 0 0;
+    font-size: 11.5px;
+    line-height: 1.7;
+    text-align: center;
+    color: #9a9a9a;
+}
+
+/* ===== ダークモード ===== */
+body.dark-mode .fc-cover {
+    background: #2a2436;
+}
+
+body.dark-mode .fc-author {
+    color: #8a8a8a;
+}
+
+body.dark-mode .fc-meta {
+    color: #7d7d7d;
+}
+
+/* ===== レスポンシブ ===== */
+@media (min-width: 769px) {
+    .free-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px 20px;
+    }
+}
+
+@media (max-width: 600px) {
+    .free-main {
+        padding: 16px 16px 40px;
+    }
+
+    .free-grid {
+        gap: 20px 12px;
+    }
+
+    .fc-title {
+        font-size: 13.5px;
+    }
+
+    .fc-author,
+    .fc-meta {
+        font-size: 11.5px;
+    }
+}
+
+/* ボトムナビに隠れないよう底上げ */
+@media (max-width: 768px) {
+    .free-main {
+        padding-bottom: 100px;
+    }
+}

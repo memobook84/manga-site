@@ -475,6 +475,60 @@ body.dark-mode .volume-item.current-volume::after {
 /* ===== 試し読み ===== */
 /* 作品ページのクイックビューの「View Volume」と同じ作り。
    幅いっぱいに伸ばさず、文字ぶんだけの短いボタンにする */
+/* 「読む」ボタン。公式に無料公開されている巻にだけ出る。
+   黄色のベタ塗り＋濃い文字＋角丸。隣の「試し読み」は角のない紫なので、
+   色と形の両方で別物だと分かる。
+   グラデや光沢は入れない。面と文字だけで成立させる */
+.read-free-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    height: 52px;
+    padding: 0 30px;
+    background: #F5C518;
+    color: #121016;
+    border: 0;
+    border-radius: 6px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    /* 影は付けない。付けると面が浮いて立体的に見える */
+    transition: background 0.18s ease, transform 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.read-free-btn[hidden] {
+    display: none;
+}
+
+/* タッチ端末はタップ後もホバー状態が残るので、ホバー演出はマウス環境だけ */
+@media (hover: hover) {
+    .read-free-btn:hover {
+        background: #FFD426;
+    }
+}
+
+/* 押した感触だけ残す。影は使わないので沈み込みは見せない */
+.read-free-btn:active {
+    transform: scale(0.97);
+}
+
+.read-free-btn:focus-visible {
+    outline: 2px solid #4B2C82;
+    outline-offset: 3px;
+}
+
+.read-free-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
 .preview-button {
     display: inline-flex;
     align-items: center;
@@ -752,18 +806,34 @@ body.dark-mode .volume-item.current-volume::after {
     }
 
     .volume-title-main {
-        font-size: 19px;
+        font-size: 17px;
     }
 
+    /* タイトルより大きいと巻数だけ浮くので、タイトルに合わせる */
     .volume-number-display {
-        font-size: 20px;
+        font-size: 17px;
     }
 
-    /* 見出しは画面が狭いので小さめに。ストーリーとシリーズ一覧は同じ階層なので
-       サイズもそろえる */
+    /* スマホの文字サイズはタイトル17pxを頂点に段を付ける。
+       タイトル17 → 見出し13 → 本文・値13 → ラベル10。
+       作品ページ（detail.css）と同じ刻みにしてある */
     .volume-description h2,
     .series-list-title {
-        font-size: 16px;
+        font-size: 13px;
+    }
+
+    .volume-meta .meta-label {
+        font-size: 10px;
+    }
+
+    .volume-meta .meta-value {
+        font-size: 13px;
+    }
+
+    /* あらすじ本文。行間は少し広めに取って詰まって見えないようにする */
+    .volume-description p {
+        font-size: 13px;
+        line-height: 1.85;
     }
 
     .volume-buttons {
@@ -878,6 +948,32 @@ body.dark-mode .buy-icon-btn:hover {
     color: #fff;
 }
 
+/* 「読む」だけは枠線なしの黄色ベタ塗りにする。
+   購入や試し読み（枠線＋透明）と役割が違うので、面で塗って区別する。
+   ※ .icon-square-btn より後ろに置くこと。同じ詳細度なので、前に置くと
+      background:transparent と紫の枠線に上書きされる */
+.read-free-icon-btn,
+.read-free-icon-btn:hover {
+    background: #F5C518;
+    border: none;
+    color: #121016;
+    text-decoration: none;
+}
+
+.read-free-icon-btn:hover {
+    background: #FFD426;
+}
+
+.read-free-icon-btn[hidden] {
+    display: none;
+}
+
+.read-free-icon-btn svg {
+    width: 21px;
+    height: 21px;
+    fill: currentColor;
+}
+
 @media (max-width: 768px) {
     /* PC用の行（メタの下）は隠し、表紙の横に出す */
     .volume-actions-pc {
@@ -924,6 +1020,12 @@ body.dark-mode .buy-icon-btn:hover {
         font-size: 17px;
     }
 
+    /* 箱が38pxに縮むので、「読む」のアイコンも合わせて一回り小さく */
+    .volume-actions-mobile .read-free-icon-btn svg {
+        width: 19px;
+        height: 19px;
+    }
+
     /* 「a」マークは正方形いっぱいに */
     .volume-actions-mobile .amazon-mark-a {
         width: 26px;
@@ -964,6 +1066,13 @@ body.dark-mode .buy-icon-btn:hover {
         padding: 0 16px;
     }
 
+    /* 「読む」は主役なので、試し読み（34px）より一回り大きいまま置く。
+       行は align-items:flex-end なので、高さが違っても下端で揃う */
+    .volume-actions-pc .read-free-btn {
+        height: 48px;
+        padding: 0 28px;
+    }
+
     .volume-actions-pc .buy-icon-btn {
         width: 84px;
         height: 46px;
@@ -974,5 +1083,4 @@ body.dark-mode .buy-icon-btn:hover {
     .volume-bottom-row {
         display: none;
     }
-}
 }

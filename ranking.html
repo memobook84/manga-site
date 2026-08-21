@@ -24,6 +24,8 @@
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Zilla+Slab:wght@400;600;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&family=Archivo:wght@400;500;600;700&family=Savate:wght@200..900&display=swap" rel="stylesheet">
@@ -32,9 +34,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="ranking.css">
-    <script src="manga-data.js"></script>
-    <script src="rakuten-adapter.js"></script>
-    <script src="ranking.js"></script>
+    <script defer src="manga-data.js"></script>
+    <script defer src="rakuten-adapter.js"></script>
+    <script defer src="ranking.js"></script>
     <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
     <script src="page-hero-toggle.js"></script>
 </head>
@@ -46,7 +48,7 @@
             <h1><a href="home.html">ATLAS COMIC</a></h1>
             <nav class="header-nav">
                 <a href="new-releases.html" class="nav-link">スケジュール</a>
-                <a href="ranking.html" class="nav-link">ランキング</a>
+                <a href="ranking.html" class="nav-link active">ランキング</a>
                 <a href="follow.html" class="nav-link follow-link">ブックマーク</a>
                 <button class="nav-menu-btn" id="navMenuBtn"><svg viewBox="0 0 24 24" class="nav-caret" aria-hidden="true"><path d="M3 6C3 5.44772 3.44772 5 4 5H20C20.5523 5 21 5.44772 21 6C21 6.55228 20.5523 7 20 7H4C3.44772 7 3 6.55228 3 6Z"/><path d="M3 18C3 17.4477 3.44772 17 4 17H20C20.5523 17 21 17.4477 21 18C21 18.5523 20.5523 19 20 19H4C3.44772 19 3 18.5523 3 18Z"/><path d="M3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H10.2625L7.61456 15.6479L4.96662 13H4C3.44772 13 3 12.5523 3 12Z"/></svg></button>
             </nav>

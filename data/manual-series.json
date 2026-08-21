@@ -1,0 +1,37 @@
+{
+  "_readme": [
+    "楽天ブックスのカタログに無い作品を手で登録する場所。",
+    "収集バッチ（scripts/build-search-index.js）は data/series/ と data/search-index.json を毎回まるごと書き直すため、",
+    "そこへ直接書き足しても翌朝の自動実行で消える。ここに書いて scripts/apply-manual-series.js で流し込むこと。",
+    "GitHub Actions ではインデックス構築の直後に apply-manual-series.js が走る。",
+    "cover は サイト内のパス（/covers/…）か絶対URL（https://…）で書く。楽天CDNの相対パスではない。"
+  ],
+  "series": [
+    {
+      "title": "ブラックジャックによろしく",
+      "author": "佐藤 秀峰",
+      "publisher": "講談社",
+      "label": "モーニングKC",
+      "genre": "001001003",
+      "note": "紙の単行本は絶版で楽天ブックスに無い。作者が2012年9月に二次利用フリー化を宣言しており、公式配布サイトで全13巻を無料公開している。表紙画像もそこから取り込んだもの（利用条件は作品名と作者名の明記）。",
+      "source": "https://densho810.com/free/",
+      "readerSlug": "black-jack-ni-yoroshiku",
+      "credit": "ブラックジャックによろしく　佐藤秀峰",
+      "volumes": [
+        { "vol": 1, "date": "2002年06月", "isbn": "9784063288254", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-01.png", "description": "永禄大学附属病院の研修医・斉藤英二郎。月収はわずか3万8千円で、他院でのアルバイトなしには生活が成り立たない。" },
+        { "vol": 2, "date": "2002年06月", "isbn": "9784063288261", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-02.png", "description": "研修の場を循環器内科へ移した斉藤。受け持つことになったのは、不安定狭心症という心臓の病を抱えた患者・宮村和男だった。" },
+        { "vol": 3, "date": "2002年10月", "isbn": "9784063288490", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-03.png", "description": "永禄大学附属病院へ戻ってきた斉藤を待っていたのは、同僚たちの冷たい視線と嫌がらせだった。" },
+        { "vol": 4, "date": "2003年01月", "isbn": "9784063288629", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-04.png", "description": "長い不妊治療の末にやっと授かった双子。二人は未熟児で、うち一人はダウン症と腸閉塞を併発していた。一刻も早い手術が必要だが――。" },
+        { "vol": 5, "date": "2003年04月", "isbn": "9784063288841", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-05.png", "description": "NICUから小児科へ移った斉藤が目の当たりにしたのは、医師不足が招く過酷な現実。急患がいても受け入れを断らざるを得ない。" },
+        { "vol": 6, "date": "2003年07月", "isbn": "9784063288933", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-06.png", "description": "手術で膵臓のがんを取り除いた後、主治医・庄司の指示で抗がん剤治療を続ける主婦・辻本。激しい副作用に耐え続けるが――。" },
+        { "vol": 7, "date": "2003年11月", "isbn": "9784063289176", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-07.png", "description": "それぞれの理想と信念を抱えて、がん患者・児玉の治療にあたった若き庄司と宇佐美。その先に待っていたものは――。" },
+        { "vol": 8, "date": "2004年02月", "isbn": "9784063289367", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-08.png", "description": "斉藤が辻本に示したのは、未承認薬「TS-1」を使うという選択。自分のがんが治らないと知った辻本は、その提案を受け入れる。" },
+        { "vol": 9, "date": "2004年07月", "isbn": "9784063289718", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-09.png", "description": "斉藤の次の研修先は精神科。そこで出会ったのは、アルコール依存症で入院していた門脇という新聞記者だった。" },
+        { "vol": 10, "date": "2004年10月", "isbn": "9784063289893", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-10.png", "description": "斉藤が担当する統合失調症の患者・小沢が、同じ病で入院中の女性患者・早川に恋をする。しかし退院の日は迫っていた。" },
+        { "vol": 11, "date": "2005年04月", "isbn": "9784063724110", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-11.png", "description": "「精神障害者を装えば無罪になると思ったんでしょうね」。伊勢谷が門脇に語ったのは、ある推論にもとづく“詐病”の可能性だった。" },
+        { "vol": 12, "date": "2005年09月", "isbn": "9784063724653", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-12.png", "description": "退院した日、小沢は世間の冷たい視線と悪意に晒される。居場所が無いと感じた彼は、永大病院の屋上から身を投げた。" },
+        { "vol": 13, "date": "2006年01月", "isbn": "9784063724882", "price": 533, "cover": "/covers/black-jack-ni-yoroshiku/vol-13.png", "description": "「僕の目的は小沢さんの生きる場所を作ることです」「僕は医者でありつづけたいです」。信念を貫こうとする斉藤だが――。" }
+      ]
+    }
+  ]
+}

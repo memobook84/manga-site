@@ -1,0 +1,472 @@
+/* 漫画ビューア
+   右綴じ（右から左へ読む）。PCは見開き2ページ、スマホは1ページ。
+   読むこと以外の要素は極力消す。背景は黒に寄せて、紙面だけが光って見える状態にする。 */
+
+:root {
+    --rd-bg: #0B0B0D;
+    --rd-bar: rgba(16, 16, 20, 0.92);
+    --rd-text: #E8E6E3;
+    --rd-dim: #8A8794;
+    --rd-accent: #F5C518;
+}
+
+/* このCSSは reader.html でしか読み込まないので html を直接触ってよい。
+   body だけ固定しても、書類側が動ける状態だと結局バウンスする */
+html {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+.reader-body {
+    margin: 0;
+    background: var(--rd-bg);
+    color: var(--rd-text);
+    font-family: 'Noto Sans JP', 'Inter', sans-serif;
+    /* ビューアはページ自体をスクロールさせない（1画面に収める）。
+       overflow:hidden だけだと iPad/iOS で書類ごとバウンスするので、
+       body を固定して動く余地そのものを無くす */
+    position: fixed;
+    inset: 0;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* ===== 上下のバー ===== */
+.rd-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--rd-bar);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.rd-bar-top {
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    padding-top: max(10px, env(safe-area-inset-top));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rd-bar-bottom {
+    bottom: 0;
+    padding: 12px 18px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* バーを隠した状態。読むときは紙面だけにする */
+body.rd-chrome-hidden .rd-bar-top {
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+body.rd-chrome-hidden .rd-bar-bottom {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
+.rd-back,
+.rd-spread-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: var(--rd-text);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.rd-back:hover,
+.rd-spread-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.rd-back svg,
+.rd-spread-toggle svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* 見開きが有効なときはボタンを光らせて状態を示す */
+.rd-spread-toggle.is-on {
+    color: var(--rd-accent);
+}
+
+.rd-titles {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+}
+
+.rd-series {
+    font-size: 13.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ===== 紙面 ===== */
+.rd-stage {
+    position: relative;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* 1本指の縦スクロール／バウンスをブラウザにやらせない。
+       横スワイプはこちらで処理するので渡す必要がなく、タブレットで
+       めくろうとすると紙面が上下に揺れる原因になっていた。
+       pinch-zoom は残すので、細かい描き文字の拡大はできる */
+    touch-action: pinch-zoom;
+    overscroll-behavior: none;
+}
+
+/* 見開きは右綴じなので row-reverse。
+   配列の先頭（若いページ）が右に来る。
+   めくるときは新旧2枚を重ねて横に流すので、レイヤーごと絶対配置にする */
+.rd-spread {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    will-change: transform;
+}
+
+/* 流している最中だけトランジションを付ける。
+   常時付けたままだとリサイズや初回描画でも滑ってしまう。
+   ※ 秒数を変えたら reader.js の TURN_MS も合わせること（後始末のタイミング） */
+.rd-spread.rd-sliding {
+    transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* スワイプで指を離した後の残り。指がすでに大半を運んでいるので短く詰める。
+   ※ 秒数を変えたら reader.js の DRAG_MS も合わせること */
+.rd-spread.rd-sliding-fast {
+    transition: transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* 紙面1枚ぶんの包み。ノンブルを隅に置くための基準になる。
+   幅は中の画像に合わせて縮む（line-height:0 は画像下の余白よけ） */
+.rd-page-wrap {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    line-height: 0;
+}
+
+.rd-page {
+    display: block;
+    height: 100dvh;
+    width: auto;
+    max-width: 50vw;
+    object-fit: contain;
+    /* 紙面が黒背景から浮くように、ごく薄い縁を付ける */
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06);
+    background: #fff;
+}
+
+/* 単ページ表示（スマホ、または表紙などの単独ページ） */
+.rd-spread.is-single .rd-page {
+    max-width: 100vw;
+}
+
+/* ===== ノンブル =====
+   紙の本と同じく、外側の下隅に小さく入れる。
+   見開きなら右ページは右下、左ページは左下。
+   紙面に直接刷ったように見せたいので、座布団は敷かず黒い数字だけにする */
+.rd-nombre {
+    position: absolute;
+    bottom: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    color: #111;
+    pointer-events: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.rd-nombre.is-right { right: 10px; }
+.rd-nombre.is-left  { left: 10px; }
+
+.rd-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--rd-dim);
+    pointer-events: none;
+}
+
+.rd-loading[hidden] {
+    display: none;
+}
+
+/* ===== タップ領域 =====
+   右綴じなので、画面の左＝次へ／右＝前へ。
+   真ん中はバーの出し入れに使うので空けておく */
+.rd-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 32%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.rd-zone-next { left: 0; }
+.rd-zone-prev { right: 0; }
+
+/* カーソルを寄せた側に、その向きの矢印を出す（PCのみ）。
+   左＝次へ進む側なので左向き、右＝前へ戻る側なので右向き。
+   矢印自体はクリックを受けない（下のボタンにそのまま通す） */
+.rd-zone-arrow {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: rgba(16, 16, 20, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.rd-zone-next .rd-zone-arrow {
+    left: 24px;
+    transform: translateY(-50%) translateX(6px);
+}
+
+.rd-zone-prev .rd-zone-arrow {
+    right: 24px;
+    transform: translateY(-50%) translateX(-6px);
+}
+
+.rd-zone-arrow svg {
+    width: 26px;
+    height: 26px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* 端の巻端では zone を disabled にしてあるので、矢印も出さない */
+@media (hover: hover) and (pointer: fine) {
+    .rd-zone:not(:disabled):hover .rd-zone-arrow {
+        opacity: 1;
+    }
+
+    .rd-zone-next:not(:disabled):hover .rd-zone-arrow,
+    .rd-zone-prev:not(:disabled):hover .rd-zone-arrow {
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+.rd-zone:disabled {
+    cursor: default;
+}
+
+/* ===== 下部のシーク ===== */
+.rd-seek {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rd-page-num,
+.rd-page-total {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--rd-dim);
+    min-width: 30px;
+    text-align: center;
+}
+
+.rd-page-num {
+    color: var(--rd-text);
+    font-weight: 600;
+}
+
+/* dir="rtl" にしてあるので、つまみは右端が1ページ目。
+   紙の本をめくる向きと一致する */
+.rd-slider {
+    flex: 1;
+    height: 3px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.rd-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--rd-accent);
+    border: 0;
+    cursor: pointer;
+}
+
+.rd-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--rd-accent);
+    border: 0;
+    cursor: pointer;
+}
+
+.rd-credit {
+    margin: 9px 0 0;
+    font-size: 10.5px;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--rd-dim);
+}
+
+.rd-credit a {
+    color: var(--rd-dim);
+    text-decoration: underline;
+}
+
+/* ===== 初回の操作ガイド ===== */
+.rd-hint {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.72);
+    animation: rd-fade-in 0.2s ease;
+}
+
+.rd-hint[hidden] {
+    display: none;
+}
+
+.rd-hint-inner {
+    width: min(560px, 88vw);
+    text-align: center;
+}
+
+.rd-hint-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 18px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.rd-hint-side {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--rd-text);
+}
+
+.rd-hint-mid {
+    font-size: 12px;
+    color: var(--rd-dim);
+}
+
+.rd-hint-note {
+    margin: 14px 0 0;
+    font-size: 12px;
+    color: var(--rd-dim);
+}
+
+@keyframes rd-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ===== スマホ ===== */
+@media (max-width: 768px) {
+    /* 常に単ページ。見開きは横幅が足りない。
+       縦持ちのスマホは画面より紙面のほうが横長なので、幅が先に頭打ちになる。
+       height:100dvh のままだと箱だけが画面いっぱいに伸び、contain で上下に
+       白い余白ができる（＝箱の底に付くノンブルが紙面から大きく離れる）。
+       幅を基準にして高さは成り行きにすると、箱＝紙面になって隅が一致する */
+    .rd-page {
+        width: 100vw;
+        height: auto;
+        max-width: 100vw;
+        max-height: 100dvh;
+    }
+
+    /* スマホだけノンブルを上の隅に置く（右ページ＝右上、左ページ＝左上）。
+       左右の振り分けは .is-right / .is-left のままなので、上下だけ入れ替える */
+    .rd-nombre {
+        top: 10px;
+        bottom: auto;
+    }
+
+    .rd-zone {
+        width: 38%;
+    }
+
+    .rd-series {
+        font-size: 12.5px;
+    }
+}
+
+/* 横に寝かせたスマホは見開きが成立するので、そのときだけ2ページ出す。
+   横向きでは高さが先に頭打ちになるので、PCと同じ高さ基準に戻す
+   （こちらは幅が余るため contain の余白は出ない） */
+@media (max-width: 768px) and (orientation: landscape) {
+    .rd-page {
+        width: auto;
+        height: 100dvh;
+        max-width: 50vw;
+        max-height: none;
+    }
+}

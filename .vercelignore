@@ -1,0 +1,17 @@
+# Vercelのデプロイに含めないもの。
+# .gitignore とは別に評価されるので、両方に書く必要がある。
+
+node_modules/
+.vercel/
+.env
+.env*.local
+.env.production
+api-proxy.py
+
+# ビューア用のページ画像（全13巻で約420MB）。
+# デプロイのたびにこれだけの転送が発生し、Hobbyプランの帯域を食い潰すため
+# 外部ストレージ（Cloudflare R2）から配信する。
+# ※ここを外すと data/reader/*.json の basePath が指す先が無くなるので、
+#   R2へのアップロードと basePath の書き換えはセットで行うこと。
+manga/
+

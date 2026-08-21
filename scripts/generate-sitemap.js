@@ -16,6 +16,7 @@ const staticPages = [
     { loc: '/new-releases.html', priority: '0.8', changefreq: 'daily' },
     { loc: '/ranking.html', priority: '0.8', changefreq: 'daily' },
     { loc: '/follow.html', priority: '0.5', changefreq: 'weekly' },
+    { loc: '/free.html', priority: '0.7', changefreq: 'weekly' },
 ];
 
 // 動的ページ（各作品の詳細）

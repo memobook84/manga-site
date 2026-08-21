@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <!-- 細かい描き文字を読むのにピンチズームが要るので、拡大は禁止しない -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ビューア - ATLAS COMIC</title>
+    <link rel="icon" type="image/png" href="favicon.png?v=5">
+    <meta name="theme-color" content="#0B0B0D">
+    <meta name="robots" content="noindex">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="reader.css">
+    <script defer src="reader.js"></script>
+</head>
+<body class="reader-body">
+
+    <!-- 上部バー。画面タップで出し入れする -->
+    <header class="rd-bar rd-bar-top" id="rdTop">
+        <button type="button" class="rd-back" id="rdBack" aria-label="戻る">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <!-- 「作品名（巻数）」の1行だけ。総ページ数は下部のカウンタに出るので重ねない -->
+        <div class="rd-titles">
+            <span class="rd-series" id="rdSeries">読み込み中…</span>
+        </div>
+        <button type="button" class="rd-spread-toggle" id="rdSpreadToggle" aria-label="見開き表示を切り替え" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="8" height="14" rx="1"/><rect x="13" y="5" width="8" height="14" rx="1"/></svg>
+        </button>
+    </header>
+
+    <!-- ページ本体 -->
+    <main class="rd-stage" id="rdStage">
+        <div class="rd-spread" id="rdSpread"></div>
+
+        <!-- 左右のタップ領域。右綴じなので「左＝次」「右＝前」。
+             PCではカーソルを寄せた側に、その向きの矢印が出る -->
+        <button type="button" class="rd-zone rd-zone-next" id="rdZoneNext" aria-label="次のページ">
+            <span class="rd-zone-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+            </span>
+        </button>
+        <button type="button" class="rd-zone rd-zone-prev" id="rdZonePrev" aria-label="前のページ">
+            <span class="rd-zone-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+        </button>
+
+        <div class="rd-loading" id="rdLoading">読み込み中…</div>
+    </main>
+
+    <!-- 下部バー。スライダーは右綴じに合わせて右端が1ページ目 -->
+    <footer class="rd-bar rd-bar-bottom" id="rdBottom">
+        <div class="rd-seek">
+            <span class="rd-page-num" id="rdPageNum">-</span>
+            <input type="range" class="rd-slider" id="rdSlider" min="1" max="1" value="1" dir="rtl" aria-label="ページ送り">
+            <span class="rd-page-total" id="rdPageTotal">-</span>
+        </div>
+        <p class="rd-credit" id="rdCredit"></p>
+    </footer>
+
+    <!-- 初回だけ操作方法を出す -->
+    <div class="rd-hint" id="rdHint" hidden>
+        <div class="rd-hint-inner">
+            <div class="rd-hint-row">
+                <span class="rd-hint-side">← 次へ</span>
+                <span class="rd-hint-mid">タップでメニュー</span>
+                <span class="rd-hint-side">前へ →</span>
+            </div>
+            <p class="rd-hint-note">右綴じ（右から左へ読み進みます）</p>
+        </div>
+    </div>
+
+</body>
+</html>

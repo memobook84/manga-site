@@ -1,6 +1,14 @@
 node_modules/
 .vercel/
 .env
+
+# ビューア用のページ画像。1巻あたり約32MB・全13巻で約420MBあり、
+# 一度コミットすると後から消しても履歴に残り続けるので絶対に入れない。
+# 配信は外部ストレージ（Cloudflare R2）から行い、
+# data/reader/*.json の basePath でそちらを指す。
+# ここにあるのはローカルで確認するための実体で、成果物ではない。
+manga/
+
 api-proxy.py
 .vercel
 .env*.local

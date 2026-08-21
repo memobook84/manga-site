@@ -24,6 +24,8 @@
     <meta name="twitter:image" content="https://manga-site-three.vercel.app/icon-512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Michroma&family=Anton&family=Big+Shoulders+Display:wght@900&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
@@ -32,10 +34,12 @@
     <link rel="stylesheet" href="legal.css">
     <link rel="stylesheet" href="volume.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <script src="manga-data.js"></script>
-    <script src="rakuten-adapter.js"></script>
-    <script src="search-normalize.js"></script>
-    <script src="volume.js"></script>
+    <script defer src="manga-data.js"></script>
+    <script defer src="rakuten-adapter.js"></script>
+    <script defer src="search-normalize.js"></script>
+    <!-- 楽天に無い作品（絶版・自主流通など）はここから巻を引く -->
+    <script defer src="series-cache.js"></script>
+    <script defer src="volume.js"></script>
 <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
 </head>
 <body>
@@ -76,6 +80,11 @@
 
                 <!-- スマホ: 表紙の右に縦並び。底辺を表紙とそろえる（PCでは非表示） -->
                 <div class="volume-actions-mobile">
+                    <!-- この巻が公式に無料公開されている場合だけ volume.js が出す -->
+                    <a class="icon-square-btn read-free-icon-btn js-read-free" href="#" hidden
+                       aria-label="読む" title="読む">
+                        <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M352 96c0-53.02-42.98-96-96-96s-96 42.98-96 96 42.98 96 96 96 96-42.98 96-96zM233.59 241.1c-59.33-36.32-155.43-46.3-203.79-49.05C13.55 191.13 0 203.51 0 219.14v222.8c0 14.33 11.59 26.28 26.49 27.05 43.66 2.29 131.99 10.68 193.04 41.43 9.37 4.72 20.48-1.71 20.48-11.87V252.56c-.01-4.67-2.32-8.95-6.42-11.46zm248.61-49.05c-48.35 2.74-144.46 12.73-203.78 49.05-4.1 2.51-6.41 6.96-6.41 11.63v245.79c0 10.19 11.14 16.63 20.54 11.9 61.04-30.72 149.32-39.11 192.97-41.4 14.9-.78 26.49-12.73 26.49-27.06V219.14c-.01-15.63-13.56-28.01-29.81-27.09z"/></svg>
+                    </a>
                     <button type="button" class="icon-square-btn js-preview-btn" hidden
                             aria-label="試し読み" title="試し読み">
                         <i class="ph-bold ph-book-open" aria-hidden="true"></i>
@@ -163,6 +172,11 @@
                 <!-- PC: 下端をそろえる行（左＝購入ボタン、右＝前後ナビ） -->
                 <div class="volume-bottom-row">
                 <div class="volume-actions-row volume-actions-pc">
+                    <!-- この巻が公式に無料公開されている場合だけ volume.js が出す -->
+                    <a class="read-free-btn js-read-free" href="#" hidden>
+                        <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M352 96c0-53.02-42.98-96-96-96s-96 42.98-96 96 42.98 96 96 96 96-42.98 96-96zM233.59 241.1c-59.33-36.32-155.43-46.3-203.79-49.05C13.55 191.13 0 203.51 0 219.14v222.8c0 14.33 11.59 26.28 26.49 27.05 43.66 2.29 131.99 10.68 193.04 41.43 9.37 4.72 20.48-1.71 20.48-11.87V252.56c-.01-4.67-2.32-8.95-6.42-11.46zm248.61-49.05c-48.35 2.74-144.46 12.73-203.78 49.05-4.1 2.51-6.41 6.96-6.41 11.63v245.79c0 10.19 11.14 16.63 20.54 11.9 61.04-30.72 149.32-39.11 192.97-41.4 14.9-.78 26.49-12.73 26.49-27.06V219.14c-.01-15.63-13.56-28.01-29.81-27.09z"/></svg>
+                        <span>読む</span>
+                    </a>
                     <button type="button" class="preview-button js-preview-btn" hidden>
                         <span>試し読み</span>
                         <i class="ph-bold ph-arrow-right" aria-hidden="true"></i>

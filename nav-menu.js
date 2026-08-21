@@ -1,5 +1,10 @@
 (function () {
-  // 現在のページに対応するヘッダーナビにactiveクラスを付与
+  // 現在のページに対応するヘッダーナビにactiveクラスを付与。
+  // ※ 通常はHTML側に class="nav-link active" を直接書いてある。
+  //    このファイルは </body> 直前で動くため、ここで初めて付けると
+  //    「下線なしでヘッダーが描かれる → あとから下線が出る」というちらつきになる。
+  //    下線を最初の1フレーム目から確定させるのが目的なので、HTMLの静的指定が本体で、
+  //    ここは静的指定の無いページ向けの保険（classList.add なので二重でも無害）。
   const path = location.pathname.toLowerCase();
   const file = path.split('/').pop() || 'index.html';
 
@@ -15,6 +20,43 @@
   requestAnimationFrame(() => {
     requestAnimationFrame(() => document.body.classList.add('nav-ready'));
   });
+
+  // --- ナビゲーション先の先読み（Speculation Rules API） ---
+  // 「ヘッダーのリンクを押すと一瞬白くなってから切り替わる」対策の本命。
+  // eagerness:"moderate" ＝ リンクにホバー/触れた時点で裏側でレンダリングまで
+  // 終わらせておくので、クリック時は出来上がった画面に差し替わるだけになる。
+  // 対象はヘッダー/ボトム/メニューのナビだけに絞る。作品カードまで含めると
+  // 楽天APIを空振りで叩く回数が増えるため。
+  // 非対応ブラウザ（Safari/Firefox）はこのブロックごと無視されるだけで害はない。
+  if (HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+    const NAV_SELECTOR = [
+      'header .nav-link',
+      'header h1 a',
+      '.header-logo',
+      '.bottom-nav-item',
+      '#navMenuOverlay a',
+    ].join(', ');
+
+    const rules = document.createElement('script');
+    rules.type = 'speculationrules';
+    rules.textContent = JSON.stringify({
+      prerender: [
+        {
+          where: {
+            and: [
+              { href_matches: '/*' },
+              { selector_matches: NAV_SELECTOR },
+              { not: { href_matches: '/api/*' } },
+              { not: { selector_matches: '[target]' } },
+              { not: { selector_matches: '[rel~=nofollow]' } },
+            ],
+          },
+          eagerness: 'moderate',
+        },
+      ],
+    });
+    document.body.appendChild(rules);
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
@@ -33,6 +75,7 @@
           ${popupItem('/new-releases.html', '新刊')}
           ${popupItem('/ranking.html', 'ランキング')}
           ${popupItem('/follow.html', 'ブックマーク')}
+          ${popupItem('/free.html', 'フリー漫画')}
           <div class="nav-menu-sep"></div>
           ${popupItem('/index.html', 'ピックアップ')}
           ${popupItem('/blog.html', 'ブログ')}
@@ -234,6 +277,7 @@
       ['/new-releases.html', '新刊'],
       ['/ranking.html', 'ランキング'],
       ['/follow.html', 'ブックマーク'],
+      ['/free.html', 'フリー漫画'],
       'sep',
       ['/index.html', 'ピックアップ'],
       ['/blog.html', 'ブログ'],

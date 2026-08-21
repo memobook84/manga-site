@@ -275,6 +275,32 @@ header.header-hidden {
         font-size: 13px;
     }
 
+    /* 現在開いているページのナビにアンダーバーを引く。
+       線をヘッダーの下端にぴったり付けたいので、ナビ自体をヘッダーの高さ
+       いっぱいに伸ばし（header の padding:14px を負のマージンで打ち消す）、
+       リンクの下端＝ヘッダーの下端になるようにしてから ::after を置く */
+    header .header-nav {
+        align-self: stretch;
+        margin-top: -14px;
+        margin-bottom: -14px;
+    }
+    /* 伸ばした分、文字とアイコンは中央にそろえ直す */
+    header .header-nav .nav-link,
+    header .header-nav .nav-menu-btn {
+        align-items: center;
+    }
+    header .header-nav .nav-link.active::after {
+        content: '';
+        position: absolute;
+        /* 左右は .nav-link の padding（14px）に合わせて文字幅ぴったり */
+        left: 14px;
+        right: 14px;
+        bottom: 0;
+        height: 3px;
+        background: #F7F7F7;
+        border-radius: 2px 2px 0 0;
+    }
+
     /* ホバー: 一瞬だけ上に跳ね上がって戻る。
        transition ではなく animation にして、ホバーした瞬間に1回だけ再生する */
     header .nav-link:hover {
@@ -337,8 +363,9 @@ header.header-hidden {
     border-radius: 0;
 }
 
+/* 文字色はここでは決めない。表示される幅では必ず下の !important が勝つため
+   （769px以上＝#F7F7F7 / 768px以下＝#ffffff。どちらも紫のヘッダーに白抜き） */
 header h1 {
-    color: #D8052E;
     font-size: 34px;
     font-weight: 700;
     margin-right: auto;
@@ -350,7 +377,7 @@ header h1 {
 }
 
 header h1 a {
-    color: #D8052E;
+    color: inherit;
     text-decoration: none;
 }
 
@@ -385,7 +412,8 @@ header h1 a {
     background: transparent;
 }
 
-/* アクティブページの下線（.nav-link::after / .nav-link.active::after）は廃止 */
+/* アクティブページの下線はPC（min-width:769px）でのみ表示。
+   ヘッダー下端に接する形の実装は上の @media ブロックを参照 */
 
 /* 初回ロード時はnav-linkのトランジションを無効化（チラつき防止） */
 body:not(.nav-ready) .nav-link {
@@ -1626,7 +1654,10 @@ body.dark-mode .page-btn.is-current::after {
     padding: 0 16px;
     font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
     font-weight: 700;
-    font-size: clamp(30px, 6.5vw, 76px);
+    /* ヘッダーのサイトタイトルと同じ大きさにそろえる（PC＝30px）。
+       スマホぶんは下の max-width:768px で19pxに落とす。
+       ※ヘッダー側（header h1）の font-size を変えたらここも合わせること */
+    font-size: 30px;
     line-height: 1;
     letter-spacing: 0.04em;
     color: #4B2C82;
@@ -1716,12 +1747,20 @@ body.dark-mode .page-btn.is-current::after {
     }
 
     .splash-title {
-        font-size: clamp(24px, 6.5vw, 42px);
         letter-spacing: 0.03em;
     }
 
     .splash-title-img {
         width: 88vw;
+    }
+}
+
+/* スプラッシュのタイトルはヘッダーのサイトタイトルと同じ大きさにそろえる。
+   スマホのヘッダーは 19px（style.css の max-width:768px ブロック）なので合わせる。
+   上の max-width:480px より後ろに置いて、480px以下でもこちらが勝つようにしている */
+@media (max-width: 768px) {
+    .splash-title {
+        font-size: 19px;
     }
 }
 
@@ -1959,27 +1998,30 @@ body.dark-mode .nav-menu-btn:hover {
     white-space: nowrap;
     transition: color 0.15s ease;
 }
-/* 行頭のマーカー（縦位置は行の中央）。
-   図案は Boxicons の bxs-hand-right（react-icons の BiSolidHandRight）。
-   mask で抜いているので、色は background で切り替わる */
+/* 行頭のマーカー（縦位置は行の中央）。右向きの三角。
+   mask ではなく border で三角を作っている。図形が単純なぶんこのほうが軽く、
+   色は border-left-color 一箇所で切り替わる。
+   ※以前は Boxicons の bxs-hand-right（指）を mask で抜いていた */
 .nav-menu-item::before {
     content: '';
     position: absolute;
-    left: 2px;
+    left: 5px;
     top: 50%;
     transform: translateY(-50%);
-    width: 14px;
-    height: 14px;
-    background: #C9C4D4;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 8H8l1.212-3.03a2 2 0 0 0-1.225-2.641l-.34-.113a.998.998 0 0 0-1.084.309L2.231 7.722a1.001 1.001 0 0 0-.231.64V19a2 2 0 0 0 2 2h7.21a2 2 0 0 0 1.987-1.779L14 12h6a2 2 0 0 0 0-4z'/%3E%3C/svg%3E") center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 8H8l1.212-3.03a2 2 0 0 0-1.225-2.641l-.34-.113a.998.998 0 0 0-1.084.309L2.231 7.722a1.001 1.001 0 0 0-.231.64V19a2 2 0 0 0 2 2h7.21a2 2 0 0 0 1.987-1.779L14 12h6a2 2 0 0 0 0-4z'/%3E%3C/svg%3E") center / contain no-repeat;
-    transition: background 0.15s ease, transform 0.15s ease;
+    width: 0;
+    height: 0;
+    /* 上下の透明な border で高さ、左の色付き border で幅を作る（6px × 10px） */
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 6px solid #C9C4D4;
+    background: none;
+    transition: border-left-color 0.15s ease, transform 0.15s ease;
 }
 .nav-menu-item:hover {
     color: #4B2C82;
 }
 .nav-menu-item:hover::before {
-    background: #4B2C82;
+    border-left-color: #4B2C82;
 }
 
 /* 現在開いているページは太字で示す */
@@ -1988,7 +2030,7 @@ body.dark-mode .nav-menu-btn:hover {
     font-weight: 700;
 }
 .nav-menu-item.current::before {
-    background: #4B2C82;
+    border-left-color: #4B2C82;
 }
 
 /* ピックアップ／ブログを上の項目群から切り離す区切りライン */
@@ -2032,7 +2074,7 @@ body.dark-mode .nav-menu-item {
     color: #E8E8EA;
 }
 body.dark-mode .nav-menu-item::before {
-    background: #55505F;
+    border-left-color: #55505F;
 }
 /* ダークでは紫が沈むので明るいラベンダーにする */
 body.dark-mode .nav-menu-item:hover {
@@ -2040,7 +2082,7 @@ body.dark-mode .nav-menu-item:hover {
 }
 body.dark-mode .nav-menu-item:hover::before,
 body.dark-mode .nav-menu-item.current::before {
-    background: #B89DE8;
+    border-left-color: #B89DE8;
 }
 body.dark-mode .nav-menu-item.current {
     color: #FFFFFF;
@@ -2090,7 +2132,7 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
    ここの3変数を変えれば全カードの配色が一括で変わる。
    --ink2 は同系の淡いトーン（重なり・奥行きの表現用）。 */
 .npc-pickup, .npc-database, .npc-ranking, .npc-new, .npc-blog,
-.npc-fav, .npc-qr, .npc-profile, .npc-about, .npc-privacy {
+.npc-fav, .npc-qr, .npc-profile, .npc-about, .npc-privacy, .npc-free {
     --bg: #F2EFE9;   /* 紙（オフホワイト） */
     --ink: #262428;  /* 墨 */
     --ink2: #A8A29A; /* 淡い墨 */
@@ -2121,6 +2163,22 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
     box-shadow: -5px -13px 0 0 var(--ink2),
                 4px -26px 0 0 var(--ink),
                 -2px -39px 0 0 var(--ink2);
+}
+
+/* 無料で読める漫画：見開きの本 */
+.npc-free .npc-art::before {
+    left: 50%; top: 50%;
+    width: 30px; height: 40px;
+    margin: -20px 0 0 -32px;
+    background: var(--ink);
+    transform: perspective(60px) rotateY(22deg);
+}
+.npc-free .npc-art::after {
+    left: 50%; top: 50%;
+    width: 30px; height: 40px;
+    margin: -20px 0 0 2px;
+    background: var(--ink2);
+    transform: perspective(60px) rotateY(-22deg);
 }
 
 /* ランキング：表彰台 */
@@ -2243,18 +2301,20 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
 
 /* ============================================
    PC: ページ間遷移の安定化
-   クロスドキュメントView Transitionで全画面リロードの
-   白フラッシュを抑え、ヘッダーを遷移中も固定表示する
-   （Chrome/Edge 126+, Safari 18.2+。非対応ブラウザは従来通り）
+   以前はクロスドキュメントView Transition
+   （@view-transition{navigation:auto} ＋ header{view-transition-name:site-header}）
+   を入れていたが、これ自体が「一瞬パッと変わる」原因だったので廃止した。
+
+   ・遷移のたびに必ず250msのクロスフェードが挟まる＝毎回まばたきして見える
+   ・sticky なヘッダーに view-transition-name を付けると、ヘッダーだけが
+     root とは別グループでフェードされ、重なった瞬間にヘッダーが暗く沈む
+   ・新しいページの中身はJSが描くので、スナップショット時点では空。
+     「空にフェード → あとから中身がポップイン」になっていた
+
+   フラッシュの本体はView Transitionではなく初回描画の遅さだったので、
+   そちらを sw.js（キャッシュ戦略）/ vercel.json（Cache-Control）/
+   headのdefer・preconnect / Speculation Rulesの先読み で潰してある。
    ============================================ */
-@media (min-width: 1025px) {
-    @view-transition {
-        navigation: auto;
-    }
-    header {
-        view-transition-name: site-header;
-    }
-}
 
 /* ============================================
    タブレット縦向き: ホーム（Databaseカタログ）は5列

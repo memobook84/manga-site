@@ -37,6 +37,12 @@ async function displayVolumeDetail() {
         volume = await fetchVolumeByTitle(title);
     }
 
+    // 楽天に無い作品（絶版・自主流通など）は data/series/ のキャッシュから引く。
+    // 手動登録した作品はAPIが必ず空を返すので、この経路が唯一の供給元になる
+    if (!volume) {
+        volume = await fetchVolumeFromSeriesCache({ series, title, isbn, volumeNum });
+    }
+
     // APIで取得できなかった場合、ローカルデータベースからフォールバック
     if (!volume && seriesId !== null) {
         const manga = mangaDatabase.find(m => m.id === seriesId);
@@ -66,6 +72,8 @@ async function displayVolumeDetail() {
     const formattedTitle = volNum !== null ? `${seriesTitle}（${volNum}）` : seriesTitle;
     document.getElementById('volume-title').textContent = formattedTitle;
     document.getElementById('volume-number').textContent = volume.volumeLabel || '';
+
+    setupReadFreeButton(seriesTitle, volNum);
 
     // 著者名をリンクとして設定。
     // 「原作/作画」のように複数名が1文字列で来るので、区切り文字で分けて
@@ -131,6 +139,35 @@ function fetchGbViewInfo(isbn) {
         script.src = `https://books.google.com/books?bibkeys=ISBN:${isbn}&jscmd=viewapi&callback=${cb}`;
         script.onerror = () => { cleanup(); reject(new Error('viewapi load error')); };
         document.head.appendChild(script);
+    });
+}
+
+// この巻が公式に無料公開されていて、こちらでページ画像を用意してある場合だけ
+// 「この巻を無料で読む」を出す。
+// data/readers.json は作品ごとに読める巻の番号を持っているので、
+// 作品単位ではなく「今開いている巻」で判定する
+async function setupReadFreeButton(seriesTitle, volNum) {
+    // PC用（横長）とスマホ用（アイコンのみ）の2つある
+    const btns = document.querySelectorAll('.js-read-free');
+    if (!btns.length || typeof normalizeSearchKey !== 'function') return;
+    if (volNum === null || volNum === undefined) return;
+
+    let readers;
+    try {
+        const res = await fetch('/data/readers.json');
+        if (!res.ok) return;
+        readers = await res.json();
+    } catch (err) {
+        return;   // 索引が無い＝読める巻が無い、として静かに何もしない
+    }
+
+    const rec = readers[normalizeSearchKey(seriesTitle)];
+    if (!rec || !Array.isArray(rec.volumes) || rec.volumes.indexOf(volNum) === -1) return;
+
+    const href = `reader.html?slug=${encodeURIComponent(rec.slug)}&vol=${volNum}`;
+    btns.forEach(btn => {
+        btn.href = href;
+        btn.hidden = false;
     });
 }
 
@@ -216,20 +253,29 @@ window.addEventListener('DOMContentLoaded', () => {
 async function setupVolumeSlider(seriesName, currentIsbn, currentTitle) {
     if (!seriesName) return;
 
-    let allVolumes = [];
-    try {
-        let page = 1;
-        while (true) {
-            const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(seriesName)}&hits=30&page=${page}`);
-            const adapted = adaptApiResponse(data);
-            allVolumes = allVolumes.concat(adapted.items);
-            if (page >= (data.pageCount || 1) || page >= 5) break;
-            page++;
-            await new Promise(r => setTimeout(r, 400));
+    // まず焼いてあるキャッシュ（data/series/）から巻一覧を読む。
+    // 作品ページ・全巻一覧ページと同じ経路なので、そこに出ている作品は必ず揃う。
+    // 楽天に無い作品（絶版・自主流通など）はここでしか取れない
+    let allVolumes = (typeof loadSeriesVolumes === 'function')
+        ? await loadSeriesVolumes(seriesName)
+        : null;
+
+    if (!allVolumes) {
+        allVolumes = [];
+        try {
+            let page = 1;
+            while (true) {
+                const data = await cachedFetch(`/api/search?keyword=${encodeURIComponent(seriesName)}&hits=30&page=${page}`);
+                const adapted = adaptApiResponse(data);
+                allVolumes = allVolumes.concat(adapted.items);
+                if (page >= (data.pageCount || 1) || page >= 5) break;
+                page++;
+                await new Promise(r => setTimeout(r, 400));
+            }
+        } catch (err) {
+            console.warn('シリーズ取得失敗:', err);
+            return;
         }
-    } catch (err) {
-        console.warn('シリーズ取得失敗:', err);
-        return;
     }
 
     // シリーズ名でフィルタリング（全角半角の揺れを正規化キーで吸収）
@@ -492,6 +538,40 @@ async function fetchVolumeByIsbn(isbn) {
         console.warn('ISBN検索失敗:', err);
         return null;
     }
+}
+
+// data/series/ のキャッシュから1巻ぶんを取り出す。
+// 作品ページと同じデータ源なので、そちらに出ている巻はここでも必ず引ける。
+// 特定はISBN優先（確実）、無ければ巻数で合わせる
+async function fetchVolumeFromSeriesCache({ series, title, isbn, volumeNum }) {
+    if (typeof loadSeriesVolumes !== 'function') return null;
+
+    const seriesKey = series || (typeof extractSeriesName === 'function' ? extractSeriesName(title) : '') || title;
+    if (!seriesKey) return null;
+
+    let volumes;
+    try {
+        volumes = await loadSeriesVolumes(seriesKey);
+    } catch (err) {
+        console.warn('シリーズキャッシュの読み込み失敗:', err);
+        return null;
+    }
+    if (!volumes || !volumes.length) return null;
+
+    if (isbn) {
+        const hit = volumes.find(v => v.isbn === isbn);
+        if (hit) return hit;
+    }
+
+    const wanted = volumeNum !== null && volumeNum !== undefined
+        ? volumeNum
+        : extractVolumeNum(title);
+    if (wanted !== null && wanted !== undefined) {
+        const hit = volumes.find(v => extractVolumeNum(v.title) === wanted);
+        if (hit) return hit;
+    }
+
+    return null;
 }
 
 // タイトルでAPIから取得

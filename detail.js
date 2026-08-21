@@ -40,6 +40,9 @@ function formatMetaDate(dateStr) {
 async function displayMangaDetail() {
     const { title } = getDetailParams();
 
+    // クイックビューを開いた瞬間に「読む」の有無を判定できるよう、先に読ませておく
+    loadReaderIndex();
+
     if (!title) {
         document.getElementById('manga-title').textContent = '漫画が見つかりません';
         return;
@@ -315,6 +318,11 @@ function ensureQuickViewModal() {
                 <dl class="quickview-meta"></dl>
                 <p class="quickview-desc"></p>
                 <div class="quickview-actions">
+                    <!-- 公式に無料公開されている巻だけ renderQuickView が出す -->
+                    <a class="quickview-read" href="#" hidden>
+                        <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M352 96c0-53.02-42.98-96-96-96s-96 42.98-96 96 42.98 96 96 96 96-42.98 96-96zM233.59 241.1c-59.33-36.32-155.43-46.3-203.79-49.05C13.55 191.13 0 203.51 0 219.14v222.8c0 14.33 11.59 26.28 26.49 27.05 43.66 2.29 131.99 10.68 193.04 41.43 9.37 4.72 20.48-1.71 20.48-11.87V252.56c-.01-4.67-2.32-8.95-6.42-11.46zm248.61-49.05c-48.35 2.74-144.46 12.73-203.78 49.05-4.1 2.51-6.41 6.96-6.41 11.63v245.79c0 10.19 11.14 16.63 20.54 11.9 61.04-30.72 149.32-39.11 192.97-41.4 14.9-.78 26.49-12.73 26.49-27.06V219.14c-.01-15.63-13.56-28.01-29.81-27.09z"/></svg>
+                        <span>読む</span>
+                    </a>
                     <a class="quickview-link" href="#">
                         <span>View Volume</span>
                         <i class="ph-bold ph-arrow-right" style="font-size:14px"></i>
@@ -395,12 +403,38 @@ function slideQuickView(dir) {
     }, 180);
 }
 
+// data/readers.json（どの作品のどの巻がビューアで読めるか）。
+// 巻を切り替えるたびに取りに行かないよう、一度読んだら使い回す
+let readerIndex = null;
+
+async function loadReaderIndex() {
+    if (readerIndex) return readerIndex;
+    try {
+        const res = await fetch('/data/readers.json');
+        readerIndex = res.ok ? await res.json() : {};
+    } catch (err) {
+        readerIndex = {};   // 索引が無い＝読める巻が無い、として扱う
+    }
+    return readerIndex;
+}
+
+// その巻がビューアで読めるならURLを返す。読めなければ null
+function readerUrlFor(seriesTitle, volNum) {
+    if (!readerIndex || typeof normalizeSearchKey !== 'function') return null;
+    if (volNum === null || volNum === undefined) return null;
+    const rec = readerIndex[normalizeSearchKey(seriesTitle)];
+    if (!rec || !Array.isArray(rec.volumes) || rec.volumes.indexOf(volNum) === -1) return null;
+    return `reader.html?slug=${encodeURIComponent(rec.slug)}&vol=${volNum}`;
+}
+
 function openQuickView(volumes, seriesName, index) {
     qvState = { volumes, seriesName, index };
     const overlay = ensureQuickViewModal();
     renderQuickView();
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+    // 索引がまだ無ければ読み込んでから描き直す（開くのを待たせない）
+    if (!readerIndex) loadReaderIndex().then(renderQuickView);
 }
 
 function renderQuickView() {
@@ -449,6 +483,16 @@ function renderQuickView() {
         link.hidden = false;
     } else {
         link.hidden = true;
+    }
+
+    // 公式に無料公開されている巻だけ「読む」を出す
+    const readLink = overlay.querySelector('.quickview-read');
+    const readUrl = readerUrlFor(baseName, vol.volumeNum);
+    if (readUrl) {
+        readLink.href = readUrl;
+        readLink.hidden = false;
+    } else {
+        readLink.hidden = true;
     }
 
     // Amazon購入リンク（ISBNがあればISBN検索、なければタイトル検索）
@@ -616,13 +660,19 @@ function buildAmazonSearchUrl(seriesName) {
     return `https://www.amazon.co.jp/s?k=${encodeURIComponent(q)}&i=stripbooks&tag=atlascomic-22`;
 }
 
-function openAmazonSearch(seriesName) {
-    const url = buildAmazonSearchUrl(seriesName);
-    if (!url) {
-        alert('検索できる作品名が取得できませんでした。');
-        return;
-    }
-    window.open(url, '_blank', 'noopener');
+// 外部サイトを新しいタブで開く。
+// window.open は使わない。第3引数を渡すとブラウザが「タブ」ではなく
+// 「ポップアップウィンドウ」の要求と解釈してブロックすることがあり、
+// iOSでホーム画面から起動したPWA（standalone）ではそもそも無反応になるため。
+// 実体のある <a> を作ってクリックさせれば、どちらの環境でも通常のリンクとして開く
+function openExternal(url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 }
 
 function openAmazonCart(volumes, label) {
@@ -631,7 +681,7 @@ function openAmazonCart(volumes, label) {
         alert('カートに入れられる巻が見つかりませんでした。');
         return;
     }
-    window.open(url, '_blank', 'noopener');
+    openExternal(url);
 }
 
 function setupCartButtons(sortedVolumes, seriesName) {
@@ -640,13 +690,21 @@ function setupCartButtons(sortedVolumes, seriesName) {
     const allBtn = document.getElementById('cart-all-btn');
     const rangeBtn = document.getElementById('cart-range-btn');
 
-    // 右上のボタンはメニューを開かず、Amazonでシリーズ名を検索して全巻を一覧させる。
+    // 右上のリンクはメニューを開かず、Amazonでシリーズ名を検索して全巻を一覧させる。
     // （以前は「全巻カートに入れる」だった。メニュー .volumes-actions は hidden のまま使わない）
+    // 作品名が取れないと検索しようがないので、そのときはリンクごと出さない
     if (toggleBtn) {
         toggleBtn.removeAttribute('aria-expanded');
         toggleBtn.setAttribute('aria-label', 'Amazonで全巻を検索');
         toggleBtn.title = 'Amazonで全巻を検索';
-        toggleBtn.onclick = () => openAmazonSearch(seriesName);
+        const searchUrl = buildAmazonSearchUrl(seriesName);
+        if (searchUrl) {
+            toggleBtn.href = searchUrl;
+            toggleBtn.hidden = false;
+        } else {
+            toggleBtn.removeAttribute('href');
+            toggleBtn.hidden = true;
+        }
     }
     if (actions) actions.setAttribute('hidden', '');
     const modal = document.getElementById('range-modal');
@@ -779,21 +837,12 @@ function updateFollowButtonText(button) {
     if (textEl) {
         textEl.textContent = followed ? 'Bookmarked' : 'Bookmark';
     }
-    // アイコンのみの丸ボタンなので、状態はラベルで伝える
+    // アイコンのみのリボンなので、状態はラベルで伝える。
+    // ＋ とチェックの出し分けは .followed を見てCSS側がやる
     const label = followed ? 'ブックマーク済み' : 'ブックマーク';
     button.setAttribute('aria-label', label);
     button.setAttribute('title', label);
-    const iconEl = button.querySelector('.follow-icon');
-    if (iconEl) {
-        // 未登録＝細線（ph-light）、登録済＝塗りつぶし（ph-fill）
-        if (button.classList.contains('followed')) {
-            iconEl.classList.remove('ph-light');
-            iconEl.classList.add('ph-fill');
-        } else {
-            iconEl.classList.remove('ph-fill');
-            iconEl.classList.add('ph-light');
-        }
-    }
+    button.setAttribute('aria-pressed', followed ? 'true' : 'false');
 }
 
 function toggleFollow(manga, button) {
@@ -813,6 +862,10 @@ function toggleFollow(manga, button) {
             color: manga.color || '#666',
         });
         button.classList.add('followed');
+        // 追加したときだけリボンを跳ねさせる（外すときは静かに戻す）
+        button.classList.remove('just-added');
+        void button.offsetWidth; // アニメーションを再生し直すためリフローを挟む
+        button.classList.add('just-added');
     }
 
     updateFollowButtonText(button);

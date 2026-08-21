@@ -131,8 +131,10 @@ async function searchSeriesIndex(query, options) {
 
 // インデックスのレコードを、既存の描画関数が期待する形に変換
 function seriesToDisplayItem(rec, coverBase, index) {
+    // 楽天以外から持ってきた表紙は絶対URL（http〜）か
+    // サイト内のパス（/covers/〜）で書いてあるので、そのまま通す
     const imageUrl = rec.cover
-        ? (rec.cover.startsWith('http') ? rec.cover : coverBase + rec.cover)
+        ? ((rec.cover.startsWith('http') || rec.cover.startsWith('/')) ? rec.cover : coverBase + rec.cover)
         : '';
     return {
         title: rec.title,
