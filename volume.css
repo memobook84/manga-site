@@ -353,9 +353,11 @@ body.dark-mode .volume-item.current-volume::after {
     }
 }
 
+/* タブレット縦（実質769〜1024px。768px以下は下のブロックで3列に上書きされる）。
+   6列のままだと1マスが小さいので4列にして表紙を大きく見せる */
 @media (max-width: 1024px) {
     .series-list-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 

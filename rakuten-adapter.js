@@ -153,14 +153,17 @@ function isRakutenNoCover(url) {
   return /^\d{10,13}\.gif$/i.test(filename);
 }
 
-function createImageElement(item, height = 320) {
+// imageSize を渡すと pickRakutenSize(height) を上書きして楽天の _ex を明示指定できる。
+// 表示サイズ(height)と取得解像度を切り離すための引数で、
+// 省略時は従来通り height から自動計算する（＝既存の呼び出しは挙動が変わらない）
+function createImageElement(item, height = 320, imageSize) {
   const safeTitle = (item.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   const safeAuthor = (item.author || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
   const isbn = item.isbn || '';
   const dataIsbn = isbn ? `data-isbn="${isbn}"` : '';
   const noCover = isRakutenNoCover(item.imageUrl);
   const needsUpgrade = (!item.hasRealCover && !noCover && isbn) ? 'data-needs-upgrade="1"' : '';
-  const size = pickRakutenSize(height);
+  const size = imageSize || pickRakutenSize(height);
   const sizedUrl = withRakutenSize(item.imageUrl, size);
   // 先頭6枚は eager + 高優先度、それ以降は lazy
   const idx = __imgIndex++;

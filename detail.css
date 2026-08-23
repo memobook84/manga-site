@@ -443,6 +443,34 @@ body.dark-mode .detail-divider {
     text-decoration: underline;
 }
 
+/* メタ欄の外部リンク（アニメ→Prime Video）。
+   色は付けず、他のメタ値と同じ文字色のまま。
+   リンクであることは末尾の外部リンクアイコンとホバーの下線で示す */
+.meta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: inherit;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.meta-link:hover {
+    text-decoration: underline;
+}
+
+/* 外部リンクアイコンだけ青。文字は他のメタ値と同じ色のまま */
+.meta-link i {
+    font-size: 12px;
+    color: #2563eb;
+}
+
+/* .meta-item の display:flex は [hidden] のUA既定(display:none)より
+   優先度が高いので、明示的に打ち消さないと隠れない */
+.meta-item[hidden] {
+    display: none;
+}
+
 /* ストーリー */
 .detail-description {
     margin-bottom: 30px;
@@ -963,9 +991,11 @@ body.dark-mode .range-field input {
 }
 
 /* レスポンシブデザイン */
+/* タブレット縦（実質769〜1024px。768px以下は下のブロックで3列に上書きされる）。
+   6列のままだと1マスが小さいので4列にして表紙を大きく見せる（volume.cssのシリーズ一覧と同じ） */
 @media (max-width: 1024px) {
     .volumes-grid {
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -1430,7 +1460,7 @@ body.dark-mode .range-field input {
    1024px以下は縦積みレイアウトに切り替わるので、横並びのPCだけを対象にする */
 @media (min-width: 1025px) {
     .quickview-content {
-        max-width: 880px;
+        max-width: 1040px;
     }
 
     /* 左端の紫のアクセントライン（雑誌の背表紙風）は廃止済み（本体をコメントアウト）
@@ -1440,45 +1470,45 @@ body.dark-mode .range-field input {
     */
 
     .quickview-cover {
-        flex: 0 0 300px;
+        flex: 0 0 356px;
         /* 下を厚めに取って表紙を持ち上げ、VOL.タグと重ならない帯を作る */
-        padding: 42px 30px 66px;
+        padding: 48px 34px 72px;
     }
 
     .quickview-cover-img img,
     .quickview-cover-img .manga-cover-placeholder {
-        width: 232px;
+        width: 276px;
     }
 
     .quickview-info {
-        padding: 34px 38px 30px 34px;
+        padding: 40px 46px 36px 42px;
     }
 
     .quickview-title {
-        font-size: 22px;
-        margin-bottom: 16px;
+        font-size: 25px;
+        margin-bottom: 18px;
     }
 
     .quickview-desc {
-        font-size: 13.5px;
+        font-size: 14.5px;
         line-height: 1.8;
-        margin-bottom: 22px;
+        margin-bottom: 24px;
         /* パネルが広くなった分、あらすじの表示行数も増やす */
-        -webkit-line-clamp: 9;
+        -webkit-line-clamp: 10;
     }
 
     .quickview-close {
         top: 14px;
         right: 14px;
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
     }
 
     /* VOL.タグは表紙イラストに重ならないよう下端寄りに置く。
        （以前は右下の VIEW VOLUME ボタンと高さを揃えていたが、
          ポップアップ拡大で表紙が伸び、タグに掛かるようになったため優先度を変えた） */
     .quickview-vol-tag {
-        bottom: 16px;
+        bottom: 18px;
     }
 }
 

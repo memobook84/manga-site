@@ -231,6 +231,40 @@ body.bg-soft .bg-toggle-knob {
     transform: translateX(14px);
 }
 
+/* 作品タイトル表示切替スイッチ（ホームで表紙の下のタイトルを隠す）。
+   切替UIは profile.html（管理人紹介）の Display Settings にある */
+.title-toggle {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    border-radius: 2px;
+    border: none;
+    background: #ccc;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s;
+}
+
+.title-toggle-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+body.hide-titles .title-toggle {
+    background: #4B2C82;
+}
+
+body.hide-titles .title-toggle-knob {
+    transform: translateX(14px);
+}
+
 /* 背景色：#F9F9F9（ダークモード時は適用しない） */
 body.bg-soft:not(.dark-mode) {
     background-color: #F9F9F9;
@@ -890,9 +924,21 @@ body.page-database .manga-item h3 {
     min-width: 0;
 }
 
+/* 作品タイトルを隠すモード（表紙だけを並べる）。
+   profile.html のスイッチが localStorage に書き、ホーム側が body に付ける。
+   既定はオフなので、何もしなければ従来どおりタイトルは出る。
+   グリッド途中に差し込まれるランキングのカードも同じ扱いにして、
+   タイトルが出ている列と出ていない列が混ざらないようにする */
+body.hide-titles.page-database .manga-item h3,
+body.hide-titles.page-database .ranking-card h3 {
+    display: none;
+}
+
 /* スマホ用 データベース調整 */
 @media (max-width: 768px) {
     body.page-database .db-cover-frame {
+        /* 列幅いっぱいだと表紙が詰まって見えるので、少しだけ小さくして中央に置く */
+        width: 90%;
         margin-bottom: 10px;
         border-radius: 4px 1px 1px 4px;
         box-shadow:
@@ -904,8 +950,9 @@ body.page-database .manga-item h3 {
         max-width: 100%;
     }
     body.page-database .db-cover-frame .manga-cover-placeholder {
-        width: 100px;
-        height: 150px !important; /* インラインのheight指定を上書き */
+        width: 100%;
+        height: auto;
+        aspect-ratio: 112 / 176; /* 実表紙と同じ判型で並べる */
     }
     body.page-database .manga-item:hover .db-cover-frame {
         transform: none;
@@ -1832,24 +1879,23 @@ body.dark-mode .page-btn.is-current::after {
     background: rgba(0,0,0,0.06);
 }
 .nav-menu-btn .nav-caret {
-    /* CgMenuCheese（css.gg）は viewBox 24x24 の正方形＝3本線＋中央線に下向きの切り欠き */
+    /* Tabler Icons の menu-2（react-icons の tb/TbMenu2）＝等長の3本線。
+       塗りではなく線で描くアイコンなので fill:none + stroke で指定する */
     width: 1.25em;
     height: 1.25em;
-    fill: currentColor;
-    stroke: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
     display: block;
-    transform-origin: center;
-    transition: transform 0.18s ease;
 }
-/* 開いている時も背景の枠は出さない（アイコンの回転だけで状態を示す）。
-   :hover の背景より後に来るので、開いたままホバーしても枠は出ない */
+/* 開いている時も背景の枠は出さない。
+   :hover の背景より後に来るので、開いたままホバーしても枠は出ない。
+   ※開いた時にアイコンを180°回す演出は廃止（アイコンは常に同じ向き） */
 .nav-menu-btn.open,
 .nav-menu-btn.open:hover {
     background: transparent;
-}
-/* 図案は中心対称なので、開いた時はアイコン全体を180°回して切り欠きを上向きにする */
-.nav-menu-btn.open .nav-caret {
-    transform: rotate(180deg);
 }
 @media (min-width: 769px) {
     header .nav-menu-btn.open,
@@ -1916,13 +1962,14 @@ body.dark-mode .nav-menu-btn:hover {
     transform: rotate(45deg);
 }
 
-/* カラム本体。2カラム横並びをやめ、さがす→サイト情報の順に縦積みにした */
+/* カラム本体。左＝さがす／右＝サイト情報の2カラム横並び。
+   ドロップダウンが開くのはPCだけ（.header-nav はスマホで display:none）なので
+   メディアクエリは付けていない */
 .nav-menu-cols {
     display: flex;
-    flex-direction: column;
     align-items: stretch;
     padding: 20px 24px;
-    gap: 0;
+    gap: 28px;
 }
 .nav-menu-col {
     display: flex;
@@ -1930,13 +1977,10 @@ body.dark-mode .nav-menu-btn:hover {
     align-items: stretch;
     min-width: 170px;
 }
-/* 下段（サイト情報）は縦線ではなく横線で区切る */
+/* 右カラム（サイト情報）は縦線で区切る */
 .nav-menu-col-sub {
-    padding-left: 0;
-    border-left: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(0, 0, 0, 0.10);
+    padding-left: 28px;
+    border-left: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 /* カラム見出し（さがす / サイト情報） */
@@ -2068,7 +2112,7 @@ body.dark-mode .nav-menu-head {
     color: #78787E;
 }
 body.dark-mode .nav-menu-col-sub {
-    border-top-color: rgba(255, 255, 255, 0.12);
+    border-left-color: rgba(255, 255, 255, 0.12);
 }
 body.dark-mode .nav-menu-item {
     color: #E8E8EA;
@@ -2317,13 +2361,31 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
    ============================================ */
 
 /* ============================================
-   タブレット縦向き: ホーム（Databaseカタログ）は5列
-   iPad等（幅600〜1024px・縦向き）で表紙を5冊並べる。
+   タブレット縦向き（幅600〜1024px）
+   - ホーム（Databaseカタログ）は4列
+   - サイドバーは出さない（幅が足りず窮屈になるため全幅で並べる）
+   - 表紙は列幅いっぱいだと詰まって見えるので少しだけ小さく（スマホと同じ90%）
    既存の900px/768px=3列より後ろに置いて上書き
    ============================================ */
 @media (min-width: 600px) and (max-width: 1024px) {
     body.page-database .manga-grid {
-        grid-template-columns: repeat(5, 1fr) !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    /* フレームごと縮めるので影も一緒に追従する。
+       中の img は max-width:100%、白紙カバーは width:100% なので自動で付いてくる */
+    body.page-database .db-cover-frame {
+        width: 90%;
+    }
+
+    .main-layout .sidebar {
+        display: none !important;
+    }
+
+    /* サイドバーが無いので開閉の矢印も用が無くなる */
+    .page-hero-toggle .page-hero-caret,
+    .page-hero-grid-toggle {
+        display: none !important;
     }
 }
 

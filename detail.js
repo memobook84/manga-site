@@ -137,6 +137,10 @@ async function displayMangaDetail() {
     } else {
         priceEl.textContent = '-';
     }
+
+    // アニメ欄。索引の取得を待たせたくないので await しない
+    setupAnimeRow(displaySeriesName);
+
     // あらすじ: descriptionが空でない最初の巻から取得
     const withDescription = volumes.find(v => v.description && v.description.trim() !== '');
     document.getElementById('manga-description').textContent =
@@ -650,6 +654,52 @@ function buildAmazonCartUrl(volumes) {
     }
     if (idx === 1) return null;
     return `https://www.amazon.co.jp/gp/aws/cart/add.html?${params.join('&')}`;
+}
+
+// ===== アニメ化情報（data/anime.json）=====
+// scripts/collect-anime.js が AniList から作った索引。
+// キーは normalizeSearchKey 済みの作品名で、値は { title, year, count }。
+// アニメ化されている作品しか入っていないので、引けなければ「アニメ化なし」
+let animeIndex = null;
+
+async function loadAnimeIndex() {
+    if (animeIndex) return animeIndex;
+    try {
+        const res = await fetch('/data/anime.json');
+        animeIndex = res.ok ? await res.json() : {};
+    } catch (err) {
+        animeIndex = {};   // 索引が無い＝アニメ欄を出さない、として扱う
+    }
+    return animeIndex;
+}
+
+// Prime Video の検索URL。ディープリンクは公式に取得する手段が無い
+// （Netflixも含め配信APIは公開されていない）ので、
+// Amazonの検索を映像カテゴリ（i=instant-video）に絞って渡している。
+// アソシエイトタグ付きなので他のAmazon導線と同じ扱いになる
+function buildPrimeVideoUrl(animeTitle) {
+    const q = (animeTitle || '').trim();
+    if (!q) return null;
+    return `https://www.amazon.co.jp/s?k=${encodeURIComponent(q)}&i=instant-video&tag=atlascomic-22`;
+}
+
+// メタ欄の「アニメ」行。アニメ化されている作品でだけ出す
+async function setupAnimeRow(seriesName) {
+    const item = document.getElementById('manga-anime-item');
+    const link = document.getElementById('manga-anime-link');
+    if (!item || !link || typeof normalizeSearchKey !== 'function') return;
+
+    const index = await loadAnimeIndex();
+    const anime = index[normalizeSearchKey(seriesName)];
+    if (!anime) return;
+
+    const url = buildPrimeVideoUrl(anime.title);
+    if (!url) return;
+
+    link.href = url;
+    // 原作名とアニメ名が違うことがあるので、実際に検索する名前をtitleに出す
+    link.title = `「${anime.title}」をPrime Videoで検索`;
+    item.hidden = false;
 }
 
 // Amazon 検索URL生成（シリーズ名で全巻を一覧させる）

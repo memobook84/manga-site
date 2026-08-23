@@ -130,6 +130,21 @@ async function fetchRanking() {
     }
 }
 
+// ホーム（home.html＝Databaseカタログ）だけ表紙の取得解像度を落とす。
+//
+// 表示枠は248pxなのに _ex=640（表示の2.6倍）を落としていた。1枚59KB×59枚＝約3.5MB。
+// しかも楽天のサムネCDNはHTTP/1.1なので1ホスト6接続しか張れず、59枚が6枚ずつ
+// 約10波に分かれて順番待ちする。その結果、全部揃うまで実測23秒かかっていた。
+// _ex=320（1枚19KB）にすると4.3秒＝5.5倍速。248px表示なので劣化は分からない。
+//
+// ※ database.js は search-results.html とも共有しているため、
+//    body クラス（両方 page-database）では絞れずパスで判定する。
+//    他ページは undefined を返して従来通り pickRakutenSize() に任せる
+function homeCoverSize() {
+    const p = location.pathname;
+    return (p === '/' || /\/home\.html$/i.test(p)) ? 320 : undefined;
+}
+
 // ランキングセクションを生成
 function createRankingSection(rankingItems, startRank, title) {
     const section = document.createElement('div');
@@ -140,7 +155,7 @@ function createRankingSection(rankingItems, startRank, title) {
     html += '<div class="ranking-grid">';
 
     rankingItems.forEach((item, index) => {
-        const imageHtml = createImageElement(item, 280);
+        const imageHtml = createImageElement(item, 280, homeCoverSize());
         html += `
             <div class="ranking-item" data-index="${index}">
                 <span class="ranking-number">${startRank + index}</span>
@@ -189,7 +204,7 @@ function displayMangaItems(items) {
         const mangaItem = document.createElement('div');
         mangaItem.className = 'manga-item';
 
-        const imageHtml = createImageElement(item);
+        const imageHtml = createImageElement(item, 320, homeCoverSize());
 
         mangaItem.innerHTML = `
             <div class="db-cover-frame">${imageHtml}</div>
@@ -300,6 +315,17 @@ async function getFilteredData() {
     return filtered;
 }
 
+// 配列をシャッフルした新しい配列を返す（Fisher-Yates）。
+// 元の配列は書き換えない
+function shuffled(items) {
+    const arr = items.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+
 // JSONキャッシュからページデータを取得
 async function fetchFromJson(page) {
     const needsFilter = currentFilter &&
@@ -321,7 +347,12 @@ async function fetchFromJson(page) {
         const data = await response.json();
         totalPages = data.totalPages;
         currentPage = data.page;
-        return data.items;
+        // 1ページ目だけ並び順をシャッフルする。毎回おなじ顔ぶれが
+        // おなじ順で並ぶのを避けるのが目的。
+        // ※シャッフルするのは「page-1.json の60件の中だけ」。
+        //   他ページから作品を持ってこないので、2ページ目以降との
+        //   重複や抜けは起きない
+        return page === 1 ? shuffled(data.items) : data.items;
     }
 }
 
