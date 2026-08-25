@@ -84,68 +84,78 @@
     <div class="main-layout">
         <!-- サイドバー -->
         <aside class="sidebar">
-            <nav class="sidebar-nav">
-                <div class="sidebar-section">
-                    <h3 class="sidebar-heading">
-                        レーベル
-                    </h3>
+            <!-- 段は <details>。開閉はブラウザ任せでJSは要らない。
+                 open を外すとそのセクションは畳んだ状態で始まる。
+                 見出しは <summary>＝開閉ボタンなので、h3 ではなくなっている -->
+            <nav class="sidebar-nav" aria-label="作品の絞り込み">
+                <details class="sidebar-section" open>
+                    <summary class="sidebar-heading">ジャンル</summary>
                     <ul class="sidebar-list">
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ジャンプコミックス">ジャンプ</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ヤングジャンプコミックス">ヤングジャンプ</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="マーガレットコミックス">マーガレット</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="りぼんマスコットコミックス">りぼん</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="少年サンデーコミックス">少年サンデー</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ビッグコミックス">ビッグコミックス</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="フラワーコミックス">フラワー</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ちゃおコミックス">ちゃお</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="モーニングKC">モーニングKC</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="ヤンマガKCスペシャル">ヤンマガKCスペシャル</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="講談社コミックス">講談社</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="label" data-value="アフタヌーンKC">アフタヌーンKC</a></li>
+                        <li><button type="button" class="sidebar-link" data-filter="genre" data-value="001001001">少年漫画</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="genre" data-value="001001002">少女漫画</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="genre" data-value="001001003">青年漫画</button></li>
                     </ul>
-                </div>
-                <div class="sidebar-section">
-                    <h3 class="sidebar-heading">
-                        出版社
-                    </h3>
+                </details>
+                <details class="sidebar-section" open>
+                    <summary class="sidebar-heading">レーベル</summary>
                     <ul class="sidebar-list">
-                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="集英社">集英社</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="小学館">小学館</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="publisher" data-value="講談社">講談社</a></li>
-                        <li><span class="sidebar-link">秋田書店</span></li>
-                        <li><span class="sidebar-link">KADOKAWA</span></li>
-                        <li><span class="sidebar-link">スクウェア・エニックス</span></li>
-                        <li><span class="sidebar-link">白泉社</span></li>
-                        <li><span class="sidebar-link">双葉社</span></li>
-                        <li><span class="sidebar-link">徳間書店</span></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="ジャンプコミックス">ジャンプ</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="ヤングジャンプコミックス">ヤングジャンプ</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="マーガレットコミックス">マーガレット</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="りぼんマスコットコミックス">りぼん</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="少年サンデーコミックス">少年サンデー</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="ビッグコミックス">ビッグコミックス</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="フラワーコミックス">フラワー</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="ちゃおコミックス">ちゃお</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="モーニングKC">モーニングKC</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="ヤンマガKCスペシャル">ヤンマガKCスペシャル</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="講談社コミックス">講談社</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="label" data-value="アフタヌーンKC">アフタヌーンKC</button></li>
                     </ul>
-                </div>
-                <div class="sidebar-section">
-                    <h3 class="sidebar-heading">
-                        ジャンル
-                    </h3>
+                </details>
+                <details class="sidebar-section" open>
+                    <summary class="sidebar-heading">出版社</summary>
                     <ul class="sidebar-list">
-                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001001">少年漫画</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001002">少女漫画</a></li>
-                        <li><a href="#" class="sidebar-link" data-filter="genre" data-value="001001003">青年漫画</a></li>
+                        <li><button type="button" class="sidebar-link" data-filter="publisher" data-value="集英社">集英社</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="publisher" data-value="小学館">小学館</button></li>
+                        <li><button type="button" class="sidebar-link" data-filter="publisher" data-value="講談社">講談社</button></li>
+                        <!-- 以下は収録対象外（集英社・小学館・講談社のみ掲載）。
+                             押せないので矢印を出さず、色も落として区別する -->
+                        <li><span class="sidebar-link sidebar-link-off">秋田書店</span></li>
+                        <li><span class="sidebar-link sidebar-link-off">KADOKAWA</span></li>
+                        <li><span class="sidebar-link sidebar-link-off">スクウェア・エニックス</span></li>
+                        <li><span class="sidebar-link sidebar-link-off">白泉社</span></li>
+                        <li><span class="sidebar-link sidebar-link-off">双葉社</span></li>
+                        <li><span class="sidebar-link sidebar-link-off">徳間書店</span></li>
                     </ul>
-                </div>
-                <div class="sidebar-section">
-                    <h3 class="sidebar-heading">
-                        探す
-                    </h3>
-                    <ul class="sidebar-list">
-                        <li><a href="new-releases.html" class="sidebar-link">新刊</a></li>
-                        <li><a href="ranking.html" class="sidebar-link">ランキング</a></li>
-                        <li><a href="recommend.html" class="sidebar-link">おすすめ</a></li>
-                        <li><a href="follow.html" class="sidebar-link">フォロー中</a></li>
-                    </ul>
-                </div>
+                </details>
             </nav>
         </aside>
 
         <!-- メインエリア -->
         <main>
+            <!-- 新着作品＝1巻が最近出たシリーズ。data/new-series.json を
+                 database.js が読んで埋める。中身が入るまでは hidden のまま。
+                 1ページ目・フィルタなしの時だけ出す（それ以外は database.js が隠す） -->
+            <section class="new-series" id="new-series" hidden>
+                <div class="new-series-header">
+                    <!-- 見出しは文字。以前は Material Icons の fiber_new
+                         （react-icons の MdFiberNew）アイコン1つだけにしていた。
+                         戻したくなった時のために、そのSVGを下にコメントで残す -->
+                    <h2 class="new-series-title">新着作品</h2>
+                    <!-- アイコン版の見出し（休止中）
+                    <h2 class="new-series-title" aria-label="新着作品">
+                        <svg class="new-series-title-icon" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20,4H4C2.89,4,2.01,4.89,2.01,6L2,18c0,1.11,0.89,2,2,2h16c1.11,0,2-0.89,2-2V6C22,4.89,21.11,4,20,4z M8.5,15H7.3l-2.55-3.5V15H3.5V9h1.25l2.5,3.5V9H8.5V15z M13.5,10.26H11v1.12h2.5v1.26H11v1.11h2.5V15h-4V9h4V10.26z M20.5,14c0,0.55-0.45,1-1,1h-4c-0.55,0-1-0.45-1-1V9h1.25v4.51h1.13V9.99h1.25v3.51h1.12V9h1.25V14z"/>
+                        </svg>
+                    </h2>
+                    -->
+                </div>
+                <!-- 段ごとの横スクロール枠（.new-series-viewport）を database.js が作る。
+                     送りボタンは各段の左右の端に重ねる。スクロールバーは出さず、
+                     PCはこのボタン、スマホは指のスワイプで動かす -->
+                <div class="new-series-rows" id="new-series-rows"></div>
+            </section>
             <div class="manga-grid">
                 <!-- JavaScriptで動的に漫画が表示されます -->
             </div>
@@ -258,7 +268,9 @@
         navigator.serviceWorker.register('/sw.js');
     }
     </script>
-    <script src="swipe-back.js"></script>
+    <!-- スワイプ戻るは読み込まない。新着作品の列を左へスクロールしようとすると
+         左→右のスワイプになり、戻るが誤発動してしまうため -->
+
     <script src="nav-menu.js"></script>
 </body>
 </html>

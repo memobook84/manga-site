@@ -20,6 +20,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { normalizeSearchKey, extractKanaAlias, seriesBucketPath } = require('../search-normalize.js');
+const { writeNewSeries } = require('./build-new-series.js');
 
 const RAKUTEN_BASE = 'https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404';
 const APP_ID = (process.env.RAKUTEN_APP_ID || '').trim();
@@ -403,6 +404,22 @@ function writeSeriesFiles() {
     return { files, series, mb: Math.round(bytes / 1048576 * 10) / 10 };
 }
 
+// ホームの「新着作品」列用。data/series/ のシャードは2巻以上しか焼かないので、
+// ここではメモリ上の seriesMap をそのまま渡す。こうすると
+// まだ1巻しか出ていない新連載も新着に載る
+function writeNewSeriesFile() {
+    const records = [...seriesMap.values()].map(s => ({
+        title: s.title,
+        author: s.author,
+        publisher: s.publisher,
+        genre: s.genre || '',
+        cover: s.cover || '',
+        isbn: s.isbn || '',
+        volumes: s.volumes || [],
+    }));
+    return writeNewSeries(records);
+}
+
 async function main() {
     if (!APP_ID && !API_BASE) {
         console.error('RAKUTEN_APP_ID か API_BASE のどちらかが必要です');
@@ -436,9 +453,11 @@ async function main() {
 
     const { count, kb } = writeIndex();
     const series = writeSeriesFiles();
+    const news = writeNewSeriesFile();
     const min = Math.round((Date.now() - started) / 60000);
     console.log(`\n完了: ${count}シリーズ / ${bookCount}冊 → data/search-index.json (${kb}KB, ${min}分)`);
     console.log(`作品ページ用キャッシュ: ${series.series}シリーズ / ${series.files}ファイル / ${series.mb}MB → data/series/`);
+    console.log(`新着作品: ${news.count}件 → data/new-series.json (${news.kb}KB)`);
 }
 
 main().catch(err => {

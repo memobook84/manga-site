@@ -182,6 +182,258 @@ function createRankingSection(rankingItems, startRank, title) {
     return section;
 }
 
+// ===== 新着作品（data/new-series.json）=====
+// 1巻が最近出たシリーズ。scripts/build-new-series.js が毎日のバッチで焼く。
+// 「新刊ページ＝最近出た “巻”」に対して、こちらは「最近始まった “作品”」。
+//
+// database.js は search-results.html とも共有しているので、
+// ホーム（/ か /home.html）以外では何もしない
+let newSeriesCache = null;
+let newSeriesRendered = false;
+
+function isHomePage() {
+    const p = location.pathname;
+    return p === '/' || /\/home\.html$/i.test(p);
+}
+
+async function loadNewSeries() {
+    if (newSeriesCache) return newSeriesCache;
+    try {
+        const res = await fetch('/data/new-series.json');
+        newSeriesCache = res.ok ? await res.json() : { items: [] };
+    } catch (err) {
+        newSeriesCache = { items: [] };   // 焼けていない＝新着欄を出さない
+    }
+    return newSeriesCache;
+}
+
+// 新着を出す段数。24件なら12件ずつの2段になる
+const NEW_SERIES_ROWS = 2;
+
+// 1段ぶんの横スクロール枠を組み立てる。段ごとに独立して送れるよう、
+// それぞれが自分の矢印を持つ
+function buildNewSeriesRow(chunk, offset, base) {
+    const viewport = document.createElement('div');
+    viewport.className = 'new-series-viewport';
+    viewport.innerHTML = `
+        <button type="button" class="new-series-nav prev" aria-label="前の作品へ" hidden>
+            <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+        </button>
+        <div class="new-series-row"></div>
+        <button type="button" class="new-series-nav next" aria-label="次の作品へ" hidden>
+            <i class="ph-bold ph-caret-right" aria-hidden="true"></i>
+        </button>
+    `;
+
+    const row = viewport.querySelector('.new-series-row');
+    chunk.forEach((r, i) => {
+        // fields: title, author, publisher, cover, isbn, firstDate, volumeCount
+        const item = {
+            title: r[0],
+            author: r[1],
+            imageUrl: r[3] ? base + r[3] : '',
+            isbn: r[4] || '',
+            hasRealCover: true,
+            color: generateColor(r[0] || '', offset + i),
+        };
+
+        const card = document.createElement('div');
+        card.className = 'new-series-item';
+        card.innerHTML = `
+            <div class="db-cover-frame">${createImageElement(item, 280, homeCoverSize())}</div>
+            <h3>${r[0]}</h3>
+        `;
+        card.addEventListener('click', () => goToDetail(r[0]));
+        row.appendChild(card);
+    });
+
+    return viewport;
+}
+
+async function renderNewSeries() {
+    const section = document.getElementById('new-series');
+    const rows = document.getElementById('new-series-rows');
+    if (!section || !rows) return;
+
+    const data = await loadNewSeries();
+    // JSONは発売日の新しい順で焼いてあるが、毎回おなじ顔ぶれがおなじ順で
+    // 並ぶのを避けるため表示時にシャッフルする（ホーム1ページ目と同じ扱い）。
+    // 日付順に戻したい時はこの行を data.items || [] に戻すだけでよい
+    const items = shuffled(data.items || []);
+    if (!items.length) return;
+
+    const base = data.coverBase || '';
+    rows.innerHTML = '';
+
+    const per = Math.ceil(items.length / NEW_SERIES_ROWS);
+    for (let r = 0; r < NEW_SERIES_ROWS; r++) {
+        const chunk = items.slice(r * per, (r + 1) * per);
+        if (!chunk.length) break;
+        rows.appendChild(buildNewSeriesRow(chunk, r * per, base));
+    }
+
+    newSeriesRendered = true;
+    // 幅を測るので、表示してからボタンを組む（hidden のままだと clientWidth が0）
+    section.hidden = false;
+    rows.querySelectorAll('.new-series-viewport').forEach(setupNewSeriesNav);
+}
+
+// 送りのカーブ。1回目は「そっと動き出してふわっと止まる」easeInOutCubic。
+// 送っている最中にもう一度押された時だけ easeOutCubic に切り替える
+// （easeInOutCubic は出だしの速度が0なので、動いている途中で入れ直すと
+//   その瞬間だけ止まって見える）
+const NS_EASE_IN_OUT = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const NS_EASE_OUT = t => 1 - Math.pow(1 - t, 3);
+
+// 送る距離が長いほど少しだけ長くかける。短い送りが間延びしないよう上限つき
+function newSeriesDuration(dist) {
+    return Math.min(880, 420 + Math.abs(dist) * 0.28);
+}
+
+function prefersReducedMotion() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// 左右の送りボタン。1回で「見えている幅ぶん」送る。
+// 端まで来たらそちら側のボタンを引っ込める（スマホはCSSで非表示）
+function setupNewSeriesNav(viewport) {
+    const row = viewport.querySelector('.new-series-row');
+    const prev = viewport.querySelector('.new-series-nav.prev');
+    const next = viewport.querySelector('.new-series-nav.next');
+    if (!row || !prev || !next) return;
+
+    // ボタンの縦位置を表紙の中心に合わせる。表紙の高さは画面幅と
+    // 実際の画像の縦横比で変わるので、CSSに固定値を書かず都度測る。
+    // .db-cover-frame の offsetParent は .new-series-viewport（position:relative）
+    function placeNav() {
+        const frame = row.querySelector('.db-cover-frame');
+        if (!frame || !frame.offsetHeight) return;
+        const top = `${frame.offsetTop + frame.offsetHeight / 2}px`;
+        prev.style.top = top;
+        next.style.top = top;
+    }
+
+    function step() {
+        // 端に半端な1枚が残らないよう、カード幅の倍数に丸めて送る
+        const card = row.querySelector('.new-series-item');
+        if (!card) return row.clientWidth;
+        const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+        const unit = card.getBoundingClientRect().width + gap;
+        return Math.max(unit, Math.floor(row.clientWidth / unit) * unit);
+    }
+
+    // scrollWidth / clientWidth を読むとレイアウトが走る。送っている間は
+    // 毎フレーム呼ばれるので、値は持っておいて幅が変わった時だけ測り直す
+    let maxCache = -1;
+    function maxScroll() {
+        if (maxCache < 0) maxCache = row.scrollWidth - row.clientWidth;
+        return maxCache;
+    }
+
+    function setHidden(el, v) {
+        if (el.hidden !== v) el.hidden = v;
+    }
+
+    function sync() {
+        // 端の判定は小数の誤差が出るので1pxの余裕を見る
+        const max = maxScroll();
+        const hasOverflow = max > 1;
+        setHidden(prev, !hasOverflow || row.scrollLeft <= 1);
+        setHidden(next, !hasOverflow || row.scrollLeft >= max - 1);
+    }
+
+    // --- 送りのアニメーション ---
+    // ブラウザ標準の scrollBy({behavior:'smooth'}) はカーブも時間も固定で
+    // 止まり際が硬いので、自前で1フレームずつ scrollLeft を動かす。
+    // CSS 側の scroll-behavior:smooth は二重がけになるため .new-series-row から外してある
+    let raf = 0;
+    let goal = null; // 連打を積み増すための「いまの目標位置」
+
+    function stopGlide() {
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0;
+        goal = null;
+        // スナップを戻す（送っている間だけ切っている）
+        row.style.scrollSnapType = '';
+    }
+
+    function glide(delta) {
+        const from = row.scrollLeft;
+        // 連打は「いまの目標」から積む。現在位置から積むと、まだ動いている
+        // ぶんだけ食われて1回ぶんに満たない量しか進まない
+        const to = Math.max(0, Math.min(maxScroll(), (goal === null ? from : goal) + delta));
+        const dist = to - from;
+        if (Math.abs(dist) < 1) return;
+
+        if (prefersReducedMotion()) {
+            stopGlide();
+            row.scrollLeft = to;
+            sync();
+            return;
+        }
+
+        // 動いている途中で押し直された時は、速度が途切れないカーブを使う
+        const ease = raf ? NS_EASE_OUT : NS_EASE_IN_OUT;
+        const dur = newSeriesDuration(dist);
+        const start = performance.now();
+
+        if (raf) cancelAnimationFrame(raf);
+        goal = to;
+        // proximity スナップが効いたままだと、止まり際にもう一度引っぱられて跳ねる
+        row.style.scrollSnapType = 'none';
+
+        const tick = now => {
+            const t = Math.min(1, (now - start) / dur);
+            row.scrollLeft = from + dist * ease(t);
+            if (t < 1) {
+                raf = requestAnimationFrame(tick);
+                return;
+            }
+            raf = 0;
+            goal = null;
+            row.style.scrollSnapType = '';
+        };
+        raf = requestAnimationFrame(tick);
+    }
+
+    prev.addEventListener('click', () => glide(-step()));
+    next.addEventListener('click', () => glide(step()));
+    // 指やホイールで触られたら、送りの途中でもそちらに譲る
+    ['pointerdown', 'touchstart', 'wheel'].forEach(type => {
+        row.addEventListener(type, stopGlide, { passive: true });
+    });
+
+    // スクロール中は表示の出し入れだけ。位置の測り直しまではしない
+    row.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', () => { maxCache = -1; placeNav(); sync(); });
+    // 表紙が読み込まれると列の幅と高さが変わるので、載ってから測り直す
+    row.querySelectorAll('img').forEach(img => {
+        if (!img.complete) {
+            img.addEventListener('load', () => { maxCache = -1; placeNav(); sync(); }, { once: true });
+        }
+    });
+    placeNav();
+    sync();
+}
+
+// 一覧の状態に合わせて新着欄を出し入れする。
+// 出すのは「ホーム・1ページ目・フィルタなし・検索なし」の時だけ
+function updateNewSeries() {
+    const section = document.getElementById('new-series');
+    if (!section) return;
+
+    const show = isHomePage() && currentPage === 1 && !currentFilter && !currentKeyword;
+    if (!show) {
+        section.hidden = true;
+        return;
+    }
+    if (newSeriesRendered) {
+        section.hidden = false;
+        return;
+    }
+    renderNewSeries();
+}
+
 // 漫画データを表示する関数
 function displayMangaItems(items) {
     const gridContainer = document.querySelector('.manga-grid');
@@ -189,6 +441,7 @@ function displayMangaItems(items) {
 
     if (!items || items.length === 0) {
         gridContainer.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:40px;color:var(--color-text-sub);">作品が見つかりませんでした</p>';
+        updateNewSeries();
         return;
     }
 
@@ -199,6 +452,15 @@ function displayMangaItems(items) {
 
     // ランキングデータを事前取得
     const rankingPromise = insertRanking ? fetchRanking() : Promise.resolve(null);
+
+    // 6件ずつ .manga-strip で束ねる。スマホではこの束が
+    // 「1段6冊・3冊ずつ横スワイプ」の単位になる（60件＝10段）。
+    // PC・タブレットでは .manga-strip を display:contents にしてあるので
+    // 束は無かったことになり、従来どおりグリッドへそのまま流れる。
+    // 検索結果ページ（search-results.html）は対象外
+    const STRIP_SIZE = 6;
+    const useStrips = isHomePage();
+    let strip = null;
 
     items.forEach((item, index) => {
         const mangaItem = document.createElement('div');
@@ -216,7 +478,16 @@ function displayMangaItems(items) {
             goToDetail(seriesTitle);
         });
 
-        gridContainer.appendChild(mangaItem);
+        if (useStrips) {
+            if (index % STRIP_SIZE === 0) {
+                strip = document.createElement('div');
+                strip.className = 'manga-strip';
+                gridContainer.appendChild(strip);
+            }
+            strip.appendChild(mangaItem);
+        } else {
+            gridContainer.appendChild(mangaItem);
+        }
 
         // 18作品目の後にランキング1〜5位を挿入
         if (insertRanking && index === insertAt1 - 1) {
@@ -252,6 +523,8 @@ function displayMangaItems(items) {
             });
         }
     });
+
+    updateNewSeries();
 }
 
 // レーベル名の表記ゆれを吸収（中黒・全角/半角スペースを除去）
@@ -501,7 +774,9 @@ function updatePagination() {
     renderPagination(container, currentPage, totalPages, (next) => {
         currentPage = next;
         fetchFromApi(currentPage, currentKeyword);
-    });
+    // ホームは番号を出さず前後の矢印だけにする。
+    // 検索結果ページ（search-results.html）は従来どおり番号を出す
+    }, isHomePage() ? { numbers: false } : undefined);
 }
 
 // 検索機能

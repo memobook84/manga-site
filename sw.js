@@ -11,7 +11,7 @@
    - /api/ と別オリジン    : SWを通さず素通し（挟むとかえって遅くなる）
 */
 
-const VERSION = 'v18';
+const VERSION = 'v19';
 const STATIC_CACHE = 'atlas-static-' + VERSION;
 const PAGE_CACHE = 'atlas-pages-' + VERSION;
 const CURRENT_CACHES = [STATIC_CACHE, PAGE_CACHE];

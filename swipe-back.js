@@ -4,7 +4,9 @@
 // （※画面左上に出していたフローティング戻るボタン .page-back-btn も廃止。
 //    戻る手段はこのスワイプとボトムナビの Back。ジェスチャーのみでDOMは足さない）
 // 独自のスワイプ処理を持つページ（detail / volume / series-volumes）と
-// トップページ（index）には読み込まないこと
+// トップページ（index）には読み込まないこと。
+// ホーム（home）も対象外。新着作品の横スクロール列を左へ動かす操作が
+// 左→右スワイプそのものなので、戻るが誤発動してしまうため
 (function () {
     if (!window.matchMedia('(max-width: 768px)').matches) return;
 

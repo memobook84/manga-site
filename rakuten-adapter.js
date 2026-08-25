@@ -408,10 +408,14 @@ async function upgradeCovers() {
 }
 
 // 共通ページネーションレンダラー（紫テーマ）
-function renderPagination(container, currentPage, totalPages, onChange) {
+// options.numbers に false を渡すと番号を出さず前後の矢印だけにする（ホームで使用）
+function renderPagination(container, currentPage, totalPages, onChange, options) {
   if (!container) return;
+  const showNumbers = !(options && options.numbers === false);
   if (totalPages <= 1) { container.style.display = 'none'; return; }
   container.style.display = 'flex';
+  // 矢印だけの時は2つが近づきすぎるので、CSSで間隔を広げるための目印
+  container.classList.toggle('is-arrows-only', !showNumbers);
   const chevron = (d) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"` +
     ` stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
@@ -428,11 +432,13 @@ function renderPagination(container, currentPage, totalPages, onChange) {
   let html =
     `<button class="page-btn page-nav" data-action="prev" ${atFirst ? 'disabled' : ''}` +
     ` aria-label="前のページ">${chevron('M15 18l-6-6 6-6')}</button>`;
-  for (let p = start; p <= end; p++) {
-    const isCurrent = p === currentPage;
-    html +=
-      `<button class="page-btn page-num${isCurrent ? ' is-current' : ''}" data-page="${p}"` +
-      `${isCurrent ? ' aria-current="page"' : ''}>${p}</button>`;
+  if (showNumbers) {
+    for (let p = start; p <= end; p++) {
+      const isCurrent = p === currentPage;
+      html +=
+        `<button class="page-btn page-num${isCurrent ? ' is-current' : ''}" data-page="${p}"` +
+        `${isCurrent ? ' aria-current="page"' : ''}>${p}</button>`;
+    }
   }
   html +=
     `<button class="page-btn page-nav" data-action="next" ${atLast ? 'disabled' : ''}` +

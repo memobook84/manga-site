@@ -940,7 +940,7 @@ body.dark-mode .range-field input {
 
 .volumes-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     column-gap: 40px;
     row-gap: 24px;
 }
@@ -972,6 +972,16 @@ body.dark-mode .range-field input {
     display: block;
 }
 
+/* PCのみ。マスの幅（5列・gap40px）はそのままに、表紙だけ少し小さくする。
+   6列→5列で表紙が大きくなったぶんを戻すため。マスの中央に置く。
+   タブレット（4列）・スマホ（3列）は幅いっぱいのまま */
+@media (min-width: 1025px) {
+    .volume-item img {
+        width: 95%;
+        margin: 0 auto;
+    }
+}
+
 .volume-info {
     padding: 12px;
     text-align: center;
@@ -992,7 +1002,7 @@ body.dark-mode .range-field input {
 
 /* レスポンシブデザイン */
 /* タブレット縦（実質769〜1024px。768px以下は下のブロックで3列に上書きされる）。
-   6列のままだと1マスが小さいので4列にして表紙を大きく見せる（volume.cssのシリーズ一覧と同じ） */
+   PCの5列のままだと1マスが小さいので4列にして表紙を大きく見せる（volume.cssのシリーズ一覧と同じ） */
 @media (max-width: 1024px) {
     .volumes-grid {
         grid-template-columns: repeat(4, 1fr);

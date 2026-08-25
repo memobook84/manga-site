@@ -23,6 +23,8 @@
     --color-text-sub: #5A5A5A;
     --color-link: #366251;
     --color-border: #E5E1DC;
+    /* サイドバー行末の「›」と、押せない項目の文字色 */
+    --sidebar-arrow: #B5B0AA;
     --color-heart: #9B6B6B;
     --color-rakuten: #8B6B5C;
     --color-amazon: #A68A6F;
@@ -45,7 +47,13 @@ body.dark-mode {
     --color-text: #e0e0e0;
     --color-text-sub: #999;
     --color-border: #333;
+    --sidebar-arrow: #5E5E5E;
     --color-link: #8bb8a0;
+}
+
+/* 縦の仕切り線。ダークでは黒が効かないので白側で引く */
+body.dark-mode .sidebar {
+    border-right-color: rgba(255,255,255,0.18);
 }
 
 body.dark-mode .nav-link {
@@ -65,14 +73,24 @@ body.dark-mode .sidebar-link {
     color: #ccc;
 }
 
+/* ライト側と同じく、面は塗らずに文字と矢印の色だけで示す */
 body.dark-mode .sidebar-link:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: transparent;
     color: #fff;
 }
 
+body.dark-mode .sidebar-link:hover::after {
+    border-color: #fff;
+}
+
+/* 紫はダークだと沈むので、明るいラベンダーにする */
 body.dark-mode .sidebar-link.active {
-    background-color: #e0e0e0;
-    color: #1a1a1a;
+    background-color: transparent;
+    color: #B89DE8;
+}
+
+body.dark-mode .sidebar-link.active::after {
+    border-color: #B89DE8;
 }
 
 body.dark-mode .manga-item {
@@ -591,6 +609,7 @@ body.grid-six .page-hero-grid-toggle {
 body.grid-six .main-layout .sidebar {
     width: 0;
     padding: 0;
+    border-left: none;
     border-right: none;
     overflow: hidden;
     opacity: 0;
@@ -610,6 +629,7 @@ body.grid-six .main-layout .sidebar {
 .main-layout.sidebar-collapsed .sidebar {
     width: 0;
     padding: 0;
+    border-left: none;
     border-right: none;
     overflow: hidden;
     opacity: 0;
@@ -619,55 +639,102 @@ body.grid-six .main-layout .sidebar {
 .sidebar {
     width: 192px;
     flex-shrink: 0;
-    /* 上を0にして、PUBLISHER見出しの上端を本の表紙の上端にそろえる */
-    padding: 0 16px 8px 0;
-    border-right: 1px solid rgba(0,0,0,0.1);
+    /* .main-layout は flex なので、既定だとカタログと同じ高さまで引き伸ばされて
+       縦線がページ下端まで伸びてしまう。中身の高さで止める */
+    align-self: flex-start;
+    /* 上を0にして、見出しの上端を本の表紙の上端にそろえる。
+       左右も0にして、段の区切り線を列の端まで通す
+       （カタログとの間隔は .main-layout の gap:36px が受け持つ）。
+       下も0＝最後の段の区切り線でちょうど枠が閉じる */
+    padding: 0;
+    /* 縦線は休止中（お試し）。戻すなら下の2行を有効にする
+    border-left: 1px solid rgba(0,0,0,0.2);
+    border-right: 1px solid rgba(0,0,0,0.2); */
     transition: width 0.3s ease, opacity 0.25s ease, padding 0.3s ease, margin 0.3s ease;
 }
 
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    /* 段の境目は区切り線で見せるので、間隔は空けない */
+    gap: 0;
 }
 
+/* 横の区切り線も休止中（お試し）。戻すなら下の3ルールを有効にする。
+   ※元の考え方＝段の上に1本ずつ、最後だけ下にも引く。
+     閉じている段は見出しの下に線を引かない（次の段の上線と二重になるため）
 .sidebar-section {
-    padding-bottom: 8px;
+    border-top: 1px solid var(--color-border);
 }
 
-.sidebar-section + .sidebar-section {
-    padding-top: 8px;
+.sidebar-section:last-child {
+    border-bottom: 1px solid var(--color-border);
 }
 
+.sidebar-section[open] > .sidebar-heading {
+    border-bottom: 1px solid var(--color-border);
+}
+*/
+
+/* 見出し＝開閉ボタン。右端の ＋／－ は擬似要素で作る（アイコン画像は使わない）。
+   ::before が横棒（常時）、::after が縦棒（閉じている時だけ） */
 .sidebar-heading {
     display: flex;
     align-items: center;
-    gap: 6px;
-    /* リンク項目と同じ13px。太さと色で見出しと区別する */
-    font-size: 13px;
-    /* 奇数のline-heightにして、1pxの罫線が整数座標に来るようにする。
-       normal(19.5px)のままだと中央が9.25pxとなり、行によって
-       線が2デバイスピクセルに分散して太さが不揃いに見える */
-    line-height: 21px;
-    font-weight: 600;
-    color: #2B2B2B;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-    padding: 0 10px;
+    position: relative;
+    /* 右は ＋／－ のぶんを空ける */
+    padding: 16px 34px 16px 14px;
+    /* 項目（13px）より小さいが、字間を広げて見出しだと分かるようにする */
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text);
+    letter-spacing: 0.14em;
     font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    user-select: none;
+    /* summary の既定マーカー（三角）を消す */
+    list-style: none;
 }
 
-/* 見出しの文字の右へ、余った幅ぶんの細い罫線を伸ばす
-   （詳細ページの「ストーリー」「シリーズ一覧」と同じ表現） */
+/* 一番上の見出し（ジャンル）だけ上の余白を落として、
+   カタログ側の「新着作品」と同じ高さから始める */
+.sidebar-section:first-child > .sidebar-heading {
+    padding-top: 0;
+}
+
+/* 上の余白を落としたぶん箱の中央が下にずれるので、＋／－ は箱ではなく
+   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em） */
+.sidebar-section:first-child > .sidebar-heading::before,
+.sidebar-section:first-child > .sidebar-heading::after {
+    top: 0.7em;
+}
+
+.sidebar-heading::-webkit-details-marker {
+    display: none;
+}
+
+.sidebar-heading::before,
 .sidebar-heading::after {
     content: '';
-    flex: 1;
-    /* 端まで伸ばさず短いあしらいにする */
-    max-width: 26px;
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 11px;
     height: 1px;
-    /* リンクのホバー時に出る線と同じ描き方（文字色の55%）にそろえる */
-    background: currentColor;
-    opacity: 0.55;
+    margin-top: -0.5px;
+    background-color: var(--color-text-sub);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.sidebar-heading::after {
+    transform: rotate(90deg);
+}
+
+/* 開いている時は縦棒を消して ＋ を － にする */
+.sidebar-section[open] > .sidebar-heading::after {
+    transform: rotate(90deg) scaleX(0);
+    opacity: 0;
 }
 
 .sidebar-heading svg {
@@ -678,72 +745,85 @@ body.grid-six .main-layout .sidebar {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 0;
+    padding: 6px 0 10px;
 }
 
 .sidebar-link {
-    /* 文字幅に合わせて縮む（ホバー線を文字の長さと同じにするため） */
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
+    display: block;
+    width: 100%;
+    /* 左は見出しより一段下げる。右は矢印のぶんを空ける */
+    padding: 10px 28px 10px 26px;
+    border: 0;
+    background: none;
     color: var(--color-text-sub);
     text-decoration: none;
+    text-align: left;
+    font-family: inherit;
     font-size: 13px;
     font-weight: 400;
-    border-radius: 6px;
-    transition: all 0.15s ease;
+    line-height: 1.5;
+    cursor: pointer;
     position: relative;
+    /* 幅に収まらない名前は末尾を … で省く */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s ease;
 }
 
 .sidebar-link svg {
     display: none;
 }
 
-/* ホバー: グレーの面ではなく、文字の下に細い線を左から引く
-   （文字に重ならないよう、中央ではなく下端に置く） */
+/* 行末の「›」。border 2辺を45度回して作る */
 .sidebar-link::after {
     content: '';
     position: absolute;
-    /* 左右のパディングぶんだけ内側 ＝ ちょうど文字の幅になる */
-    left: 10px;
-    right: 10px;
-    bottom: 5px;
-    height: 1px;
-    background-color: currentColor;
-    opacity: 0.55;
-    transform: scaleX(0);
-    transform-origin: left center;
-    transition: transform 0.22s ease;
+    right: 14px;
+    top: 50%;
+    margin-top: -3px;
+    width: 5px;
+    height: 5px;
+    border-top: 1px solid var(--sidebar-arrow);
+    border-right: 1px solid var(--sidebar-arrow);
+    transform: rotate(45deg);
+    transition: transform 0.15s ease, border-color 0.15s ease;
     pointer-events: none;
-}
-
-.sidebar-link:hover::after {
-    transform: scaleX(1);
 }
 
 .sidebar-link:hover {
     color: var(--color-text);
 }
 
-/* 選択中もホバーと同じ見た目（線を出したままにする） */
-.sidebar-link.active::after {
-    transform: scaleX(1);
+.sidebar-link:hover::after {
+    border-color: var(--color-text);
+    transform: translateX(2px) rotate(45deg);
 }
 
-.sidebar-link:hover svg {
-    opacity: 0.7;
-}
-
+/* 選択中はテーマ紫。矢印も同じ色にそろえる */
 .sidebar-link.active {
     background-color: transparent;
-    color: var(--color-text);
+    color: var(--color-accent);
     font-weight: 500;
 }
 
-.sidebar-link.active svg {
-    opacity: 0.9;
-    stroke: #fff;
+.sidebar-link.active::after {
+    border-color: var(--color-accent);
+}
+
+/* 収録対象外の出版社。押せないので矢印を出さず、ホバーにも反応させない */
+.sidebar-link-off {
+    color: var(--sidebar-arrow);
+    cursor: default;
+}
+
+.sidebar-link-off::after {
+    display: none;
+}
+
+.sidebar-link-off:hover {
+    color: var(--sidebar-arrow);
 }
 
 .sidebar-link.active .sidebar-dot {
@@ -777,8 +857,17 @@ main {
     gap: 40px 24px;
 }
 
+/* サイドバーを出したままでも6冊並べる（PCのみ。1200px以下は下の
+   メディアクエリで4列→3列に落ちるので、この指定が効くのは1201px以上） */
 body.page-database .manga-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
+}
+
+/* database.js は作品を6件ずつ .manga-strip で束ねている。
+   スマホ以外では束を無かったことにして、中の .manga-item を
+   そのままグリッドの子として並べる（＝従来と同じ見た目） */
+.manga-strip {
+    display: contents;
 }
 
 body.page-database .manga-item {
@@ -856,11 +945,16 @@ body.page-database .db-cover-frame::after {
 }
 
 body.page-database .db-cover-frame .manga-cover-placeholder {
-    /* createImageElement が付けるインラインの height（既定320px）を打ち消す。
-       実表紙は max-height:280px だが、その上限いっぱいだと白い面が目立つので
-       単行本の判型に近い比率（およそ0.72）で一回り小さくしている */
-    width: 178px;
-    height: 248px !important;
+    /* 実表紙とまったく同じ箱にする。
+       幅225pxは楽天から落としている画像（_ex=320）の実寸で、列が狭いときは
+       実表紙と同じく max-width:100% で列幅まで縮む。
+       178×248pxの固定にしていた頃は、カタログを6列にして1列が狭くなったぶん
+       白紙カバーだけが大きく飛び出していた。
+       比率も実際の書影を測った値（225×320＝0.70）にそろえる */
+    width: 225px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 225 / 320;
     border-radius: inherit;
 }
 
@@ -952,7 +1046,9 @@ body.hide-titles.page-database .ranking-card h3 {
     body.page-database .db-cover-frame .manga-cover-placeholder {
         width: 100%;
         height: auto;
-        aspect-ratio: 112 / 176; /* 実表紙と同じ判型で並べる */
+        /* 実際の書影を測った比率（225×320＝0.70）。
+           以前の 112/176（0.636）は実表紙より縦長で、白紙だけ背が高かった */
+        aspect-ratio: 225 / 320;
     }
     body.page-database .manga-item:hover .db-cover-frame {
         transform: none;
@@ -972,6 +1068,35 @@ body.hide-titles.page-database .ranking-card h3 {
     body.page-database .manga-item h3 {
         font-size: 11px;
         line-height: 1.35;
+    }
+
+    /* スマホは1段6冊。3冊見えていて、横スワイプで残り3冊が出てくる。
+       60件＝10段になる（PCでは display:contents なのでこの束は見えない）。
+       スケルトンなど束に入っていない .manga-item は
+       これまでどおりグリッドの3列に直接並ぶ */
+    body.page-database .manga-strip {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: calc((100% - 28px) / 3);
+        gap: 14px;
+        overflow-x: auto;
+        /* 端まで来たときにブラウザの「戻る」ジェスチャーへ流れないようにする */
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        /* 3冊ごとに吸着させる＝1スワイプでちょうど次の3冊に切り替わる */
+        scroll-snap-type: x mandatory;
+        /* スクロールバーは出さない。指で送る */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    body.page-database .manga-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    body.page-database .manga-strip .manga-item:nth-child(3n + 1) {
+        scroll-snap-align: start;
     }
 }
 
@@ -1249,6 +1374,270 @@ body.dark-mode .cover-mark-text {
     100% { background-position: -200% 0; }
 }
 
+/* 新着作品（1巻が最近出たシリーズ）。グリッドの上に横1列で置く。
+   件数が増えても縦に伸びないよう、はみ出した分は横スクロールで見せる */
+.new-series {
+    margin-bottom: 36px;
+}
+
+/* 下の区切り線。全幅の border-bottom ではなく、中央に短く引く。
+   ::after を block ＋ margin:auto で置いているので position は要らない
+   （上の 28px が、以前の padding-bottom と同じ「中身と線の間」の余白） */
+.new-series::after {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 1px;
+    margin: 28px auto 0;
+    background: var(--color-border);
+}
+
+.new-series[hidden] {
+    display: none;
+}
+
+.new-series-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    /* 下の線（.new-series::after）と同じ位置にそろえるため、::after の基準にする */
+    position: relative;
+    /* 見出しと表紙の間を詰める。.new-series-row 側に padding-top:6px
+       （表紙の影を切らないための余白）があるので、実際の隙間は +6px になる */
+    margin-bottom: 10px;
+}
+
+/* 見出しの高さにも線を引く。長さ・太さ・色は下の区切り線（.new-series::after）と同じ。
+   横位置も下の線と同じ「箱の真ん中」にしたいので、flexの流れから外して
+   絶対配置で中央に置く（flexのまま置くと見出しの文字のぶんだけ中心がずれる） */
+.new-series-header::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    /* 見出しの文字の高さの中央（1px ぶん上に戻して線の芯を合わせる） */
+    top: 50%;
+    margin-top: -0.5px;
+    width: 120px;
+    height: 1px;
+    background: var(--color-border);
+}
+
+/* 中身は「新着作品」の文字。
+   字間・フォント・色はサイドバーの見出し（.sidebar-heading）に合わせているが、
+   大きさだけはサイドバーの項目（.sidebar-link＝少年漫画など）と同じ 13px */
+.new-series-title {
+    font-size: 13px;
+    /* h2 の既定は太字なので明示的に戻す */
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text);
+    font-family: 'Noto Sans JP', sans-serif;
+    letter-spacing: 0.14em;
+}
+
+/* アイコン版の見出し（休止中。home.html 側もコメントで残してある）
+.new-series-title-icon {
+    display: block;
+    width: 32px;
+    height: 32px;
+    fill: currentColor;
+}
+*/
+
+/* 段は2つ。段ごとに独立した横スクロール枠（.new-series-viewport）を
+   database.js が作るので、送りも段ごとに独立する。
+   段の間隔はカタログの行間（40px）に合わせる */
+.new-series-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+/* 送りボタンを列の左右に重ねるための基準 */
+.new-series-viewport {
+    position: relative;
+}
+
+.new-series-row {
+    /* 1段ぶん。横は6列ぶんが見えていて、残りは左右の矢印で送る */
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 120px) / 6);
+    gap: 24px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /* 表紙の影がスクロール枠で切られないよう上下に余白を取る */
+    padding: 6px 0 10px;
+    scroll-snap-type: x proximity;
+    /* scroll-behavior:smooth はあえて指定しない。矢印の送りは database.js が
+       1フレームずつ動かしていて、ここに smooth があると二重にアニメして
+       かえって鈍くなる（指のスワイプにも余計な慣性がかかる） */
+    -webkit-overflow-scrolling: touch;
+    /* スクロールバーは出さない。PCは左右のボタン、スマホはスワイプで送る */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.new-series-row::-webkit-scrollbar {
+    display: none;
+}
+
+/* 左右の送りボタン。列の端に半分だけ乗せる */
+.new-series-nav {
+    position: absolute;
+    /* 段ごとに表紙の中心へ置く（段の中央だとタイトル2行ぶん下にずれる）。
+       正確な位置は database.js が実測して px で上書きするので、
+       ここの値はJSが動かなかった時のための目安 */
+    top: 107px;
+    transform: translateY(-50%);
+    z-index: 2;
+    /* 縦長の長方形。表紙が縦長なので、丸より列の高さになじむ */
+    width: 30px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    /* すりガラス。後ろの表紙を透かしつつ、ぼかしで矢印が埋もれないようにする */
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    /* 角は落とさない（直角） */
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.38);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    color: var(--color-text);
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.new-series-nav i {
+    font-size: 15px;
+    line-height: 1;
+}
+
+/* ホバーで色は変えない。少しだけ濃くして押せることだけ示す */
+.new-series-nav:hover {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+body.dark-mode .new-series-nav {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(40, 40, 40, 0.42);
+}
+
+body.dark-mode .new-series-nav:hover {
+    background: rgba(64, 64, 64, 0.62);
+}
+
+.new-series-nav[hidden] {
+    display: none;
+}
+
+/* 列の端に半分だけ乗せるので、幅（30px）の半分をはみ出させる */
+.new-series-nav.prev {
+    left: -15px;
+}
+
+.new-series-nav.next {
+    right: -15px;
+}
+
+/* 列の幅は .new-series-row の grid-auto-columns 側で決めている
+   （下のカタログの1列ぶんと同じ式にして表紙の大きさをそろえるため）。
+   表紙まわり（.db-cover-frame）はカタログの指定をそのまま共用し、ここでは上書きしない */
+.new-series-item {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+}
+
+.new-series-item:hover .db-cover-frame {
+    transform: translateY(-3px);
+}
+
+/* 以下はグリッドの列数・gapの変化に列幅を追従させるためのもの。
+   .new-series-row の指定より後ろに置かないと効かない */
+@media (max-width: 1200px) {
+    .new-series-row {
+        grid-auto-columns: calc((100% - 72px) / 4);
+    }
+}
+
+@media (max-width: 900px) {
+    .new-series-row {
+        grid-auto-columns: calc((100% - 48px) / 3);
+    }
+}
+
+.new-series-item h3 {
+    /* 余白・字送りは下のカタログ（.manga-item h3）と同じにする。
+       ここを0にすると、タイトルだけ表紙より左に出てカタログとそろわない */
+    padding: 4px 8px 2px 8px;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    /* タイトルが長い作品が多いので2行で打ち切る */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* 常に2行分の高さを確保する。表紙は .db-cover-frame の margin-top:auto で
+       下寄せになっているため、ここが1行だとその作品だけ表紙が下にずれて
+       下端が凸凹になる（line-height 1.4 × 2行 = 2.8em） */
+    min-height: 2.8em;
+}
+
+@media (max-width: 768px) {
+    .new-series {
+        margin-bottom: 24px;
+    }
+
+    /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味 */
+    .new-series::after {
+        width: 80px;
+        margin: 20px auto 0;
+    }
+
+    /* 見出しの右の線も、下の線と同じ長さにそろえる */
+    .new-series-header::after {
+        width: 80px;
+    }
+
+    /* 段の間隔もカタログの行間（24px）に合わせる */
+    .new-series-rows {
+        gap: 24px;
+    }
+
+    .new-series-row {
+        /* 列幅と列間をカタログに合わせる
+           （body.page-database .manga-grid は gap:24px 14px） */
+        grid-auto-columns: calc((100% - 28px) / 3);
+        gap: 14px;
+        /* 以前は margin:0 -16px ＋ padding:...16px で画面端まで流していたが、
+           下のグリッドと左端がそろわないので廃止した。
+           余計な相殺をせず、.manga-grid とまったく同じ箱にする */
+        margin: 0;
+        padding: 6px 0 10px;
+    }
+
+    .new-series-item h3 {
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    /* スマホは指のスワイプで送るのでボタンは出さない */
+    .new-series-nav {
+        display: none;
+    }
+}
+
 /* 売れ筋ランキングセクション */
 .ranking-section {
     padding: 32px 24px;
@@ -1387,6 +1776,12 @@ body.dark-mode .cover-mark-text {
     gap: 10px;
     margin-top: 0;
     padding: 24px 0;
+}
+
+/* 番号を出さないページネーション（ホーム）。矢印2つだけだと
+   既定の10pxでは近すぎるので間隔を広げる */
+.pagination.is-arrows-only {
+    gap: 28px;
 }
 
 .page-btn {
@@ -1639,10 +2034,11 @@ body.dark-mode .page-btn.is-current::after {
         width: 34px;
         height: 34px;
         fill: currentColor;
-        transition: transform 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+        /* 開いている時は回さない。薄くするだけで状態を示す */
+        transition: opacity 0.3s ease;
     }
     .bottom-nav-fab.open .fab-icon {
-        transform: rotate(180deg);
+        opacity: 0.3;
     }
     .bottom-nav-fab:active {
         transform: scale(0.9);
@@ -2386,6 +2782,30 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
     .page-hero-toggle .page-hero-caret,
     .page-hero-grid-toggle {
         display: none !important;
+    }
+}
+
+/* 新着作品の1列の幅は下のカタログの1列ぶんに合わせている。
+   上のブロックでカタログが4列に変わる幅では、こちらも4列ぶんに追従させる。
+   .new-series-row の既定（6列ぶん）より後ろに置かないと効かない */
+@media (min-width: 600px) and (max-width: 1024px) {
+    .new-series-row {
+        /* この幅ではカタログの列間は24px */
+        grid-auto-columns: calc((100% - 72px) / 4);
+    }
+
+    /* カタログの横スワイプ（1段6冊）はスマホ幅だけの見せ方。
+       この幅はカタログが4列なので、束を無かったことにして普通に並べる */
+    body.page-database .manga-strip {
+        display: contents;
+    }
+}
+
+@media (min-width: 600px) and (max-width: 768px) {
+    /* 768px以下だけカタログの列間が14px */
+    .new-series-row {
+        gap: 14px;
+        grid-auto-columns: calc((100% - 42px) / 4);
     }
 }
 
