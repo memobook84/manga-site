@@ -23,6 +23,12 @@
     --color-text-sub: #5A5A5A;
     --color-link: #366251;
     --color-border: #E5E1DC;
+    /* サイドバーの枠線。縦（左右）と横（段の区切り）で色が違っていたのを
+       ここ1か所にまとめた。--color-accent #422476 を薄めた紫。
+       濃さを変えるなら 0.3 の数字を動かす（0.2＝ごく淡い / 0.45＝はっきり）。
+       太さも一緒に持たせてあるので、2pxにするならここだけ直せば4か所に効く */
+    --sidebar-line: rgba(66, 36, 118, 0.3);
+    --sidebar-line-w: 1px;
     /* サイドバー行末の「›」と、押せない項目の文字色 */
     --sidebar-arrow: #B5B0AA;
     --color-heart: #9B6B6B;
@@ -613,6 +619,8 @@ body.grid-six .main-layout .sidebar {
     border-right: none;
     overflow: hidden;
     opacity: 0;
+    /* 通常時の右寄せ（margin-left:10px）も畳む。残すと隙間が10px居座る */
+    margin-left: 0;
     margin-right: -36px;
 }
 
@@ -633,6 +641,8 @@ body.grid-six .main-layout .sidebar {
     border-right: none;
     overflow: hidden;
     opacity: 0;
+    /* 通常時の右寄せ（margin-left:10px）も畳む。残すと隙間が10px居座る */
+    margin-left: 0;
     margin-right: -36px;
 }
 
@@ -642,39 +652,104 @@ body.grid-six .main-layout .sidebar {
     /* .main-layout は flex なので、既定だとカタログと同じ高さまで引き伸ばされて
        縦線がページ下端まで伸びてしまう。中身の高さで止める */
     align-self: flex-start;
-    /* 上を0にして、見出しの上端を本の表紙の上端にそろえる。
-       左右も0にして、段の区切り線を列の端まで通す
-       （カタログとの間隔は .main-layout の gap:36px が受け持つ）。
-       下も0＝最後の段の区切り線でちょうど枠が閉じる */
+    /* 上下左右とも0。枠は段ごと（.sidebar-section）が持つので、
+       ここで余白を足すと段の箱が内側に寄ってしまう
+       （カタログとの間隔は .main-layout の gap:36px が受け持つ） */
     padding: 0;
-    /* 縦線は休止中（お試し）。戻すなら下の2行を有効にする
-    border-left: 1px solid rgba(0,0,0,0.2);
-    border-right: 1px solid rgba(0,0,0,0.2); */
+    /* .sidebar 自身に線は引かない。以前は左右の縦線をここで引いて
+       サイドバー全体を1枚のパネルにしていたが、段ごとの箱に変えた。
+       段の間を空けるとこの縦線だけが空白を貫通してしまうため */
+    /* 一番上の箱の上辺はカタログ側の表紙の上端とそろう。
+       見出し「ジャンル」の文字はそこから見出しの上余白16pxぶん下がるので、
+       カタログの「新着作品」の見出しとは高さが揃わないが、それでよい。
+       そろえたい時は、箱ごと持ち上げれば両立する
+       margin-top: calc((16px + var(--sidebar-line-w)) * -1); */
+    /* 列ごと少しだけ右に寄せる。右のマイナスで同じ幅を打ち消しているので、
+       カタログ側（main）の位置と幅は動かない＝グリッドの列数・列幅はそのまま。
+       右の縦線も一緒に動くので、線とカタログの間は 36px - 10px = 26px になる。
+       寄せ幅を変えるなら10pxの2か所を同じ値にすること */
+    margin-left: 10px;
+    margin-right: -10px;
     transition: width 0.3s ease, opacity 0.25s ease, padding 0.3s ease, margin 0.3s ease;
 }
 
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    /* 段の境目は区切り線で見せるので、間隔は空けない */
-    gap: 0;
+    /* 段（ジャンル / レーベル / 出版社）はそれぞれ独立した箱なので、
+       箱と箱の間をここで空ける。詰めたいなら0に落とす */
+    gap: 10px;
 }
 
-/* 横の区切り線も休止中（お試し）。戻すなら下の3ルールを有効にする。
-   ※元の考え方＝段の上に1本ずつ、最後だけ下にも引く。
-     閉じている段は見出しの下に線を引かない（次の段の上線と二重になるため）
-.sidebar-section {
-    border-top: 1px solid var(--color-border);
+/* ===== 四隅だけ2pxにする案（不採用） =====
+   線は1pxのまま、四隅にL字の短いマークを重ねて角だけ太く見せるもの。
+   復活させるなら、下のコメントを外したうえで
+   ・:root に --sidebar-corner: 16px; --sidebar-corner-w: 2px; を戻す
+   ・.sidebar と .sidebar-nav に position: relative; を足す
+   の2つも一緒に必要（角マークはその2つを基準に絶対配置している）。
+
+   擬似要素は1要素に2つまでなので、上2つを .sidebar、下2つを .sidebar-nav に割り振る
+   （.sidebar は align-self:flex-start ＋ padding:0 なので、
+     .sidebar-nav の下端＝.sidebar の下端＝最後の段の区切り線の位置になる）。
+
+   ずらし方が上下と左右で違うのは、そこに引かれている線の持ち主が違うため：
+   ・左右の線は .sidebar 自身の border＝箱の外側にあるので、-1px 出して重ねる
+   ・上下の線は .sidebar-section の border＝箱の内側にあるので、0 のままで重なる
+
+.sidebar::before,
+.sidebar::after,
+.sidebar-nav::before,
+.sidebar-nav::after {
+    content: '';
+    position: absolute;
+    width: var(--sidebar-corner);
+    height: var(--sidebar-corner);
+    pointer-events: none;
 }
 
-.sidebar-section:last-child {
-    border-bottom: 1px solid var(--color-border);
+.sidebar::before {
+    top: 0;
+    left: calc(var(--sidebar-line-w) * -1);
+    border-top: var(--sidebar-corner-w) solid var(--sidebar-line);
+    border-left: var(--sidebar-corner-w) solid var(--sidebar-line);
 }
 
-.sidebar-section[open] > .sidebar-heading {
-    border-bottom: 1px solid var(--color-border);
+.sidebar::after {
+    top: 0;
+    right: calc(var(--sidebar-line-w) * -1);
+    border-top: var(--sidebar-corner-w) solid var(--sidebar-line);
+    border-right: var(--sidebar-corner-w) solid var(--sidebar-line);
+}
+
+.sidebar-nav::before {
+    bottom: 0;
+    left: calc(var(--sidebar-line-w) * -1);
+    border-bottom: var(--sidebar-corner-w) solid var(--sidebar-line);
+    border-left: var(--sidebar-corner-w) solid var(--sidebar-line);
+}
+
+.sidebar-nav::after {
+    bottom: 0;
+    right: calc(var(--sidebar-line-w) * -1);
+    border-bottom: var(--sidebar-corner-w) solid var(--sidebar-line);
+    border-right: var(--sidebar-corner-w) solid var(--sidebar-line);
 }
 */
+
+/* 段（ジャンル / レーベル / 出版社）は1つずつ独立した箱。
+   四辺を自分で囲むので、.sidebar 側には線を引かない。
+   箱と箱の間隔は .sidebar-nav の gap が受け持つ。
+   ※1枚のパネルに戻すなら、ここを border-top だけにして
+     :last-child に border-bottom を足し、.sidebar に左右の縦線を戻す */
+.sidebar-section {
+    border: var(--sidebar-line-w) solid var(--sidebar-line);
+}
+
+/* 開いている段だけ、見出しと項目リストの間に仕切りを入れる。
+   閉じている段は見出しだけなので線は要らない */
+.sidebar-section[open] > .sidebar-heading {
+    border-bottom: var(--sidebar-line-w) solid var(--sidebar-line);
+}
 
 /* 見出し＝開閉ボタン。右端の ＋／－ は擬似要素で作る（アイコン画像は使わない）。
    ::before が横棒（常時）、::after が縦棒（閉じている時だけ） */
@@ -682,8 +757,9 @@ body.grid-six .main-layout .sidebar {
     display: flex;
     align-items: center;
     position: relative;
-    /* 右は ＋／－ のぶんを空ける */
-    padding: 16px 34px 16px 14px;
+    /* 右は ＋／－ のぶんを空ける。左は 14px → 6px に詰めた
+       （項目側の 26px → 18px と同じ 8px ぶん動かして、段差12pxは保つ） */
+    padding: 16px 34px 16px 6px;
     /* 項目（13px）より小さいが、字間を広げて見出しだと分かるようにする */
     font-size: 12px;
     font-weight: 400;
@@ -697,18 +773,24 @@ body.grid-six .main-layout .sidebar {
     list-style: none;
 }
 
-/* 一番上の見出し（ジャンル）だけ上の余白を落として、
-   カタログ側の「新着作品」と同じ高さから始める */
+/* 一番上の見出し（ジャンル）も、他の段とまったく同じ扱い。
+   ＝上の余白16pxも ＋／－ の位置も .sidebar-heading の指定そのまま。
+   カタログ側の「新着作品」と高さを揃える必要はないので、特別扱いはしない。
+
+   ※以前は「新着作品」と揃えるためにここで padding-top:0 にしていた。
+     ただしその方式だと上の区切り線と文字がくっついて窮屈になる。
+     揃えたいなら .sidebar の margin-top で枠ごと持ち上げる方が素直
 .sidebar-section:first-child > .sidebar-heading {
     padding-top: 0;
 }
 
-/* 上の余白を落としたぶん箱の中央が下にずれるので、＋／－ は箱ではなく
-   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em） */
+   上の余白を落とすと箱の中央が下にずれるので、＋／－ は箱ではなく
+   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em）
 .sidebar-section:first-child > .sidebar-heading::before,
 .sidebar-section:first-child > .sidebar-heading::after {
     top: 0.7em;
 }
+*/
 
 .sidebar-heading::-webkit-details-marker {
     display: none;
@@ -752,8 +834,9 @@ body.grid-six .main-layout .sidebar {
 .sidebar-link {
     display: block;
     width: 100%;
-    /* 左は見出しより一段下げる。右は矢印のぶんを空ける */
-    padding: 10px 28px 10px 26px;
+    /* 左は見出しより一段下げる（見出し6px ＋ 段差12px＝18px）。
+       右は矢印のぶんを空ける。左は 26px → 18px に詰めた */
+    padding: 10px 28px 10px 18px;
     border: 0;
     background: none;
     color: var(--color-text-sub);
@@ -1377,12 +1460,19 @@ body.dark-mode .cover-mark-text {
 /* 新着作品（1巻が最近出たシリーズ）。グリッドの上に横1列で置く。
    件数が増えても縦に伸びないよう、はみ出した分は横スクロールで見せる */
 .new-series {
-    margin-bottom: 36px;
+    /* 下の区切り線（.new-series::after）を休止したぶん、その余白 28px を
+       こちらに寄せて元の間隔に近づけている（旧: 36px ＋ 線の 28px） */
+    margin-bottom: 56px;
 }
 
-/* 下の区切り線。全幅の border-bottom ではなく、中央に短く引く。
-   ::after を block ＋ margin:auto で置いているので position は要らない
-   （上の 28px が、以前の padding-bottom と同じ「中身と線の間」の余白） */
+/* 下の区切り線（休止中）。
+   すぐ下に「話題の作品」の見出しが来て、そちらも同じ中央の線を持つため、
+   線が2本つづいて重たく見える。復活させる時はこのコメントを外して、
+   上の margin-bottom を 36px に戻すこと。
+
+   ※全幅の border-bottom ではなく、中央に短く引く。
+     ::after を block ＋ margin:auto で置いているので position は要らない
+     （下の 28px が、以前の padding-bottom と同じ「中身と線の間」の余白）
 .new-series::after {
     content: '';
     display: block;
@@ -1391,35 +1481,38 @@ body.dark-mode .cover-mark-text {
     margin: 28px auto 0;
     background: var(--color-border);
 }
+*/
 
 .new-series[hidden] {
     display: none;
 }
 
-.new-series-header {
+/* .grid-header（話題の作品＝下のカタログの見出し）も同じ見た目にそろえる。
+   別々に書くと片方だけ直して食い違うので、セレクタを並べて1か所で持つ */
+.new-series-header,
+.grid-header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
+    /* 文字と、その右に続く線（::after）の間隔 */
     gap: 12px;
-    /* 下の線（.new-series::after）と同じ位置にそろえるため、::after の基準にする */
-    position: relative;
     /* 見出しと表紙の間を詰める。.new-series-row 側に padding-top:6px
        （表紙の影を切らないための余白）があるので、実際の隙間は +6px になる */
     margin-bottom: 10px;
 }
 
-/* 見出しの高さにも線を引く。長さ・太さ・色は下の区切り線（.new-series::after）と同じ。
-   横位置も下の線と同じ「箱の真ん中」にしたいので、flexの流れから外して
-   絶対配置で中央に置く（flexのまま置くと見出しの文字のぶんだけ中心がずれる） */
-.new-series-header::after {
+/* 見出しの文字の右に引く線。文字の右端（gap 12px ぶん空けて）から
+   メインエリアの右端まで伸ばす。
+   以前は 120px の固定長を絶対配置で「箱の真ん中」に置いていたが、
+   flexの子として flex:1 で伸ばす形に変えた（幅を指定しないので画面幅について来る）。
+   親は align-items:baseline なので、高さ1pxのこの線だけ align-self:center で
+   文字の高さの中央にそろえる。
+   長さを固定に戻したい時は flex:1 を消して width:120px（スマホは80px）に戻す */
+.new-series-header::after,
+.grid-header::after {
     content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    /* 見出しの文字の高さの中央（1px ぶん上に戻して線の芯を合わせる） */
-    top: 50%;
-    margin-top: -0.5px;
-    width: 120px;
+    flex: 1;
+    align-self: center;
     height: 1px;
     background: var(--color-border);
 }
@@ -1427,7 +1520,8 @@ body.dark-mode .cover-mark-text {
 /* 中身は「新着作品」の文字。
    字間・フォント・色はサイドバーの見出し（.sidebar-heading）に合わせているが、
    大きさだけはサイドバーの項目（.sidebar-link＝少年漫画など）と同じ 13px */
-.new-series-title {
+.new-series-title,
+.grid-title {
     font-size: 13px;
     /* h2 の既定は太字なので明示的に戻す */
     font-weight: 400;
@@ -1435,6 +1529,17 @@ body.dark-mode .cover-mark-text {
     color: var(--color-text);
     font-family: 'Noto Sans JP', sans-serif;
     letter-spacing: 0.14em;
+}
+
+/* 話題の作品の見出しだけの調整。
+   新着作品の見出しは下に横スクロール枠（padding-top:6px）が続くので 10px で足りるが、
+   こちらは表紙がすぐ下に来るので、その 6px ぶんを margin で足して間隔をそろえる */
+.grid-header {
+    margin-bottom: 16px;
+}
+
+.grid-header[hidden] {
+    display: none;
 }
 
 /* アイコン版の見出し（休止中。home.html 側もコメントで残してある）
@@ -1583,31 +1688,39 @@ body.dark-mode .new-series-nav:hover {
     line-height: 1.4;
     color: var(--color-text);
     font-family: var(--font-heading);
-    /* タイトルが長い作品が多いので2行で打ち切る */
+    /* 1行で打ち切る（はみ出した分は「…」になる）。
+       以前は2行（-webkit-line-clamp: 2 ＋ min-height: 2.8em）だった。
+       2行に戻す時はその2つを戻すこと */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    /* 常に2行分の高さを確保する。表紙は .db-cover-frame の margin-top:auto で
-       下寄せになっているため、ここが1行だとその作品だけ表紙が下にずれて
-       下端が凸凹になる（line-height 1.4 × 2行 = 2.8em） */
-    min-height: 2.8em;
+    /* 表紙は .db-cover-frame の margin-top:auto で下寄せになっているので、
+       ここの高さがバラつくとその作品だけ表紙が下にずれて下端が凸凹になる。
+       全部1行になった今は高さがそろうが、念のため1行分を確保しておく
+       （line-height 1.4 × 1行 = 1.4em） */
+    min-height: 1.4em;
 }
 
 @media (max-width: 768px) {
     .new-series {
-        margin-bottom: 24px;
+        /* PC側と同じ考え方で、休止した区切り線のぶん（20px）を足してある
+           （旧: 24px。線を復活させる時はここも 24px に戻すこと） */
+        margin-bottom: 44px;
     }
 
-    /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味 */
+    /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味（休止中）
     .new-series::after {
         width: 80px;
         margin: 20px auto 0;
     }
+    */
 
-    /* 見出しの右の線も、下の線と同じ長さにそろえる */
-    .new-series-header::after {
-        width: 80px;
+    /* 見出しの線はスマホでも右端まで伸ばすので、長さの指定は要らない
+       （以前は width:80px にしていた） */
+
+    .grid-header {
+        margin-bottom: 12px;
     }
 
     /* 段の間隔もカタログの行間（24px）に合わせる */
@@ -1630,6 +1743,8 @@ body.dark-mode .new-series-nav:hover {
     .new-series-item h3 {
         font-size: 11px;
         line-height: 1.35;
+        /* 行の高さがPC（1.4）と違うので、1行ぶんの確保もここで合わせる */
+        min-height: 1.35em;
     }
 
     /* スマホは指のスワイプで送るのでボタンは出さない */

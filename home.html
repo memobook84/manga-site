@@ -156,6 +156,13 @@
                      PCはこのボタン、スマホは指のスワイプで動かす -->
                 <div class="new-series-rows" id="new-series-rows"></div>
             </section>
+            <!-- 話題の作品＝新着作品の2段より下、カタログのグリッド全体の見出し。
+                 中身は今までどおり（並びも件数も変えていない）。
+                 出す条件は新着欄と同じ「1ページ目・フィルタなし・検索なし」で、
+                 database.js の updateNewSeries() が新着欄と一緒に出し入れする -->
+            <div class="grid-header" id="grid-header" hidden>
+                <h2 class="grid-title">話題の作品</h2>
+            </div>
             <div class="manga-grid">
                 <!-- JavaScriptで動的に漫画が表示されます -->
             </div>

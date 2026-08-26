@@ -417,12 +417,17 @@ function setupNewSeriesNav(viewport) {
 }
 
 // 一覧の状態に合わせて新着欄を出し入れする。
-// 出すのは「ホーム・1ページ目・フィルタなし・検索なし」の時だけ
+// 出すのは「ホーム・1ページ目・フィルタなし・検索なし」の時だけ。
+// 下のグリッドの見出し（話題の作品）も同じ条件で一緒に出し入れする。
+// 2ページ目以降や絞り込み中は中身が入れ替わるので、見出しだけ残さない
 function updateNewSeries() {
     const section = document.getElementById('new-series');
-    if (!section) return;
+    const gridHeader = document.getElementById('grid-header');
 
     const show = isHomePage() && currentPage === 1 && !currentFilter && !currentKeyword;
+    if (gridHeader) gridHeader.hidden = !show;
+
+    if (!section) return;
     if (!show) {
         section.hidden = true;
         return;
