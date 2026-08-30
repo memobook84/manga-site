@@ -271,20 +271,31 @@
   // ===== モバイル: メニューポップアップ（ボトムナビ Menu） =====
   // menu.html へ遷移せず、その場でリスト型のポップアップを開く。
   if (bottomNav) {
-    // 'sep' は行ではなく区切りライン（ピックアップ／ブログの上に入れる）
+    // ボトムナビのランキングと同じ王冠（Lucide の crown）。
+    // Phosphor に同じ形が無いので、ここだけインラインSVGで持つ
+    const CROWN_SVG =
+      '<svg class="mm-icon lucide-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+      ' stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>' +
+      '<path d="M5 21h14"/></svg>';
+
+    // [パス, ラベル, アイコン]。アイコンは Phosphor のクラス名か 'crown'。
+    // 'sep' は行ではなくグループの区切りライン。
+    // Phosphor は全ページで読んでいる @phosphor-icons/web の regular（.ph）を使う
     const MENU_ITEMS = [
-      ['/home.html', 'ホーム'],
-      ['/new-releases.html', '新刊'],
-      ['/ranking.html', 'ランキング'],
-      ['/follow.html', 'ブックマーク'],
-      ['/free.html', 'フリー漫画'],
+      ['/home.html', 'ホーム', 'ph-house'],
+      ['/new-releases.html', '新刊', 'ph-sparkle'],
+      ['/ranking.html', 'ランキング', 'crown'],
+      ['/follow.html', 'ブックマーク', 'ph-bookmark-simple'],
+      ['/free.html', 'フリー漫画', 'ph-gift'],
       'sep',
-      ['/index.html', 'ピックアップ'],
-      ['/blog.html', 'ブログ'],
-      ['/qr.html', 'QRコード'],
-      ['/profile.html', '管理人紹介'],
-      ['/about.html', '運営者情報'],
-      ['/privacy.html', 'プライバシーポリシー'],
+      ['/index.html', 'ピックアップ', 'ph-fire'],
+      ['/blog.html', 'ブログ', 'ph-note-pencil'],
+      'sep',
+      ['/qr.html', 'QRコード', 'ph-qr-code'],
+      ['/profile.html', '管理人紹介', 'ph-user-circle'],
+      ['/about.html', '運営者情報', 'ph-info'],
+      ['/privacy.html', 'プライバシーポリシー', 'ph-shield-check'],
     ];
 
     const mmOverlay = document.createElement('div');
@@ -296,16 +307,21 @@
           ${MENU_ITEMS.map(function (item) {
             if (item === 'sep') return '<div class="mm-sep"></div>';
             const isCurrent = item[0].slice(1).toLowerCase() === file;
+            const icon = item[2] === 'crown'
+              ? CROWN_SVG
+              : `<i class="ph ${item[2]} mm-icon" aria-hidden="true"></i>`;
             return `<a href="${item[0]}" class="mm-row${isCurrent ? ' current' : ''}">
+              ${icon}
               <span class="mm-label">${item[1]}</span>
-              <span class="mm-value">›</span>
+              <i class="ph ph-caret-right mm-value" aria-hidden="true"></i>
             </a>`;
           }).join('')}
+          <div class="mm-sep"></div>
+          <button type="button" class="mm-row mm-close">
+            <i class="ph ph-x mm-icon" aria-hidden="true"></i>
+            <span class="mm-label">閉じる</span>
+          </button>
         </nav>
-        <button type="button" class="mm-close">
-          <i class="ph-bold ph-x" style="font-size:13px"></i>
-          <span>Close</span>
-        </button>
       </div>
     `;
     document.body.appendChild(mmOverlay);
@@ -334,65 +350,37 @@
       if (e.key === 'Escape') closeMobileMenu();
     });
 
-    const menuItem = bottomNav.querySelector('.bottom-nav-item[data-page="menu"]');
-    if (menuItem) {
-      menuItem.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        mmOverlay.classList.contains('active') ? closeMobileMenu() : openMobileMenu();
-      });
-    }
-  }
-
-  // ===== 収納型ボトムナビ（スマホブラウザ表示のみ、PWAは通常ナビ） =====
-  // 表示/非表示はCSSの (display-mode: browser) メディアクエリが制御。
-  // PWA（standalone）ではボタン自体を生成しない。
-  if (bottomNav && window.matchMedia('(display-mode: browser)').matches) {
-    const fab = document.createElement('button');
-    fab.type = 'button';
-    fab.className = 'bottom-nav-fab';
-    fab.setAttribute('aria-label', 'ナビゲーションを開く');
-    // Game Icons の flower-twirl（react-icons の GiFlowerTwirl / lorc 作）。
-    // 元のSVGは黒い背景の四角が1枚目のpathに入っているので、
-    // react-icons と同じくそれは省いて中身のpathだけ使う。
-    // 色はCSSの fill:currentColor に任せるため fill 属性は付けない。
-    // 開いている時はアイコンを差し替えず、.open クラスでCSSが薄くする
-    fab.innerHTML =
-      '<svg class="fab-icon" viewBox="0 0 512 512" aria-hidden="true">' +
-      '<path d="M277.15 15.205C156.242 16.415 55.302 138.49 97.855 259.738c.236-.898.495-1.78.74-2.672 2.014-44.925 29.754-87.052 72.382-111.033C240.472 96.4 349.52 103.243 482.07 207.91 441.497 139.717 395.89 98.6 331.764 64.86c25.326 1.366 52.64 1.44 83.797 6.826-44.575-40.27-92.906-56.936-138.41-56.48zM125.822 52.412c-137.746 41.46-140.07 297.526-7.592 355.668-26.982-5.33-52.944-14.213-75.92-26.867 70.023 139.78 335.9 106.928 329.42-81.266-17.214 37.204-52.435 67.6-97.572 79.705-35.122 9.42-70.577 6.236-100.363-6.76-98.026-39.283-154.31-188.008-47.97-320.48h-.003zm123.96 91.914c-12.187-.084-24.737 1.472-37.323 4.848-67.128 18.003-107.523 80.338-91.952 138.502 7.036 26.283 24.393 47.58 47.498 61.373 17.175 6.946 35.95 9.88 54.303 8.15 50.952-4.81 95.722-48.554 90.434-100.952-3.738-37.02-35.686-69.512-73.648-65.363-26.23 2.867-49.247 25.63-46.123 52.295 2.097 17.902 17.716 33.58 35.705 31.297h.002c11.602-1.472 21.745-11.662 20.197-23.002-.194-1.424-.618-2.803-1.21-4.096-2.036 2.385-4.785 4.204-8.044 5.077-8.567 2.296-17.376-2.79-19.672-11.357-2.294-8.568 2.79-17.373 11.36-19.668.49-.132.984-.235 1.477-.32l-.002-.01c.044-.007.087-.01.13-.016h.005c17.875-2.566 32.265 11.716 34.47 27.86h-.003c3.123 22.877-15.39 41.404-36.358 44.064-29.462 3.737-53.413-20.335-56.614-47.656-4.464-38.11 26.966-69.14 62.65-73.042 3.085-.337 6.134-.493 9.14-.478 45.104.222 80.722 38.92 85.126 82.54 4.628 45.855-21.593 85.602-59.184 106.435 65.427-18.976 104.47-80.37 89.12-137.714-12.652-47.26-58.668-78.407-111.485-78.77zm79.74 5.326c23.968 16.104 42.048 39.66 49.798 68.612.908 3.39 1.65 6.79 2.243 10.187 26.737 85.357-5.167 199.845-63.8 261.392C379.27 473.715 425.278 417.11 441.6 353.756c12.557 44.178 15.743 89.788 7.02 128.187 93.862-152.582 29.32-296.865-119.097-332.29z"/>' +
-      '</svg>';
-    document.body.appendChild(fab);
-
-    // ×アイコンを廃止して向きだけで開閉を示すので、ラベル側で状態を伝える
-    function setFabLabel(opened) {
-      fab.setAttribute('aria-label', opened ? 'ナビゲーションを閉じる' : 'ナビゲーションを開く');
-    }
-
-    function closeFabNav() {
-      bottomNav.classList.remove('fab-open');
-      fab.classList.remove('open');
-      setFabLabel(false);
-    }
-
-    fab.addEventListener('click', function (e) {
+    function toggleMobileMenu(e) {
+      e.preventDefault();
       e.stopPropagation();
-      const opened = bottomNav.classList.toggle('fab-open');
-      fab.classList.toggle('open', opened);
-      setFabLabel(opened);
-    });
+      mmOverlay.classList.contains('active') ? closeMobileMenu() : openMobileMenu();
+    }
 
-    // ナビ外タップ・Escape・ナビ項目タップで閉じる
-    document.addEventListener('click', function (e) {
-      if (bottomNav.classList.contains('fab-open') && !bottomNav.contains(e.target)) {
-        closeFabNav();
-      }
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeFabNav();
-    });
-    bottomNav.querySelectorAll('.bottom-nav-item').forEach(function (item) {
-      item.addEventListener('click', closeFabNav);
-    });
+    // PWA（standalone）はボトムナビの「Menu」から開く
+    const menuItem = bottomNav.querySelector('.bottom-nav-item[data-page="menu"]');
+    if (menuItem) menuItem.addEventListener('click', toggleMobileMenu);
+
+    // ブラウザ表示のスマホはボトムナビを出さない（CSSで display:none）ので、
+    // ヘッダー右の渦巻きボタンがナビの入口になる。
+    // ボタンは常に作っておき、出す／出さないはCSSの
+    // (display-mode: browser) メディアクエリに任せる（検索トグルと同じ方式）
+    if (headerContainer) {
+      const menuToggle = document.createElement('button');
+      menuToggle.type = 'button';
+      menuToggle.className = 'header-menu-toggle';
+      menuToggle.setAttribute('aria-label', 'メニュー');
+      // Game Icons の flower-twirl（react-icons の GiFlowerTwirl / lorc 作）。
+      // 元のSVGは黒い背景の四角が1枚目のpathに入っているので、
+      // react-icons と同じくそれは省いて中身のpathだけ使う。
+      // 色はCSSの fill:currentColor に任せるため fill 属性は付けない
+      menuToggle.innerHTML =
+        '<svg viewBox="0 0 512 512" aria-hidden="true">' +
+        '<path d="M277.15 15.205C156.242 16.415 55.302 138.49 97.855 259.738c.236-.898.495-1.78.74-2.672 2.014-44.925 29.754-87.052 72.382-111.033C240.472 96.4 349.52 103.243 482.07 207.91 441.497 139.717 395.89 98.6 331.764 64.86c25.326 1.366 52.64 1.44 83.797 6.826-44.575-40.27-92.906-56.936-138.41-56.48zM125.822 52.412c-137.746 41.46-140.07 297.526-7.592 355.668-26.982-5.33-52.944-14.213-75.92-26.867 70.023 139.78 335.9 106.928 329.42-81.266-17.214 37.204-52.435 67.6-97.572 79.705-35.122 9.42-70.577 6.236-100.363-6.76-98.026-39.283-154.31-188.008-47.97-320.48h-.003zm123.96 91.914c-12.187-.084-24.737 1.472-37.323 4.848-67.128 18.003-107.523 80.338-91.952 138.502 7.036 26.283 24.393 47.58 47.498 61.373 17.175 6.946 35.95 9.88 54.303 8.15 50.952-4.81 95.722-48.554 90.434-100.952-3.738-37.02-35.686-69.512-73.648-65.363-26.23 2.867-49.247 25.63-46.123 52.295 2.097 17.902 17.716 33.58 35.705 31.297h.002c11.602-1.472 21.745-11.662 20.197-23.002-.194-1.424-.618-2.803-1.21-4.096-2.036 2.385-4.785 4.204-8.044 5.077-8.567 2.296-17.376-2.79-19.672-11.357-2.294-8.568 2.79-17.373 11.36-19.668.49-.132.984-.235 1.477-.32l-.002-.01c.044-.007.087-.01.13-.016h.005c17.875-2.566 32.265 11.716 34.47 27.86h-.003c3.123 22.877-15.39 41.404-36.358 44.064-29.462 3.737-53.413-20.335-56.614-47.656-4.464-38.11 26.966-69.14 62.65-73.042 3.085-.337 6.134-.493 9.14-.478 45.104.222 80.722 38.92 85.126 82.54 4.628 45.855-21.593 85.602-59.184 106.435 65.427-18.976 104.47-80.37 89.12-137.714-12.652-47.26-58.668-78.407-111.485-78.77zm79.74 5.326c23.968 16.104 42.048 39.66 49.798 68.612.908 3.39 1.65 6.79 2.243 10.187 26.737 85.357-5.167 199.845-63.8 261.392C379.27 473.715 425.278 417.11 441.6 353.756c12.557 44.178 15.743 89.788 7.02 128.187 93.862-152.582 29.32-296.865-119.097-332.29z"/>' +
+        '</svg>';
+      headerContainer.appendChild(menuToggle);
+      menuToggle.addEventListener('click', toggleMobileMenu);
+    }
   }
+
 
 })();

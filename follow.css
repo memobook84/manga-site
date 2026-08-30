@@ -154,13 +154,17 @@
 }
 
 /* レスポンシブ */
-@media (max-width: 1100px) {
-    .followed-manga-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
+/* iPadの縦はすべて4列。上の既定（4列）がそのまま効くので、ここには何も書かない。
+   ・iPad mini 744px / iPad 9.7" 768px / 10.2" 810px / 10th・Air 820px
+   ・iPad Pro 11" 834px / Pro 12.9"・13" 1024px
+   ※以前は 821〜1100px を3列、561〜820px を2列にしていた。
+     iPad 10.2"（810px）を4列にすると、それより広い iPad Pro（834px/1024px）の
+     ほうが少なくなって逆転するため、3列の段ごと廃止した。
+   ※タイルは 561px 以上で正方形＋表紙が可変（下の min-width:561px のブロック）
+     なので、列が増えてもタイルが小さくなるだけで崩れない */
 
-@media (max-width: 820px) {
+/* スマホ横向き〜小さいタブレットは2列 */
+@media (max-width: 700px) {
     .followed-manga-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -253,5 +257,135 @@ body.dark-mode .fav-title {
 
     .fav-author-link {
         align-self: center;
+    }
+}
+
+/* ============================================================
+   PC：セレクトショップ風のグリッド
+   カードの下地・影・角丸をやめ、淡いグレーの正方形タイルに表紙を
+   ゆったり置く。文字はタイル下に小さく左寄せ。
+   ※横幅は従来どおり 1200px の中央寄せのまま
+   ※スマホ（560px以下）の横並びレイアウトは触らない
+   ============================================================ */
+@media (min-width: 561px) {
+    /* ページ全体を紙のグレーにして、白いカードを浮かせる。
+       :not(.dark-mode) で外しているのは、ダークモード側が
+       body { background-color: var(--color-bg) } ＋ --color-bg:#121212 で
+       効いているところに、詳細度の高いこの指定が勝ってしまうため */
+    body.page-follow:not(.dark-mode) {
+        background-color: #FCFBFA;
+    }
+
+    /* カード同士の間隔（旧: 10px ＋ .fav-card-body の下 44px） */
+    .followed-manga-grid {
+        gap: 16px;
+    }
+
+    /* 地と図を反転させた。
+       周り（ページ全体）＝紙のグレー、カード＝白。
+       以前は逆で、周りが白・カードが紙のグレーだった。
+       カードの輪郭は影で作らない。地（#FCFBFA）と図（白）の明度差だけで見せる。
+       ※ダークモードは body.dark-mode .followed-manga-item（#1e1e1e）が
+         セレクタの詳細度で勝つので、こちらは効かない */
+    .followed-manga-item {
+        background: #ffffff;
+        box-shadow: none;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .followed-manga-item:hover {
+        box-shadow: none;
+    }
+
+    /* 表紙エリア。背景紙（ホリゾント）は上の .followed-manga-item 側へ移したので、
+       ここは正方形の枠と余白だけを持つ。
+       隅のビネットと床の落ち込みは入れない＝一箇所にグレーを溜めない。
+       全体の濃さは、白飛びせず紙として見える範囲でいちばん薄いところ */
+    .fav-card-cover {
+        aspect-ratio: 1 / 1;
+        min-height: 0;
+        padding: 8%;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    /* 影は「背景紙の上に置かれた本」を作る。
+       立体感を出しすぎると浮いて見えるので、接地影は短く薄く */
+    .fav-card-cover img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        box-shadow:
+            0 7px 14px -10px rgba(38, 32, 28, 0.22),
+            0 1px 4px -2px rgba(38, 32, 28, 0.09),
+            0 0 0 1px rgba(0, 0, 0, 0.035);
+        transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+                    box-shadow 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .followed-manga-item:hover .fav-card-cover img {
+        box-shadow:
+            0 11px 18px -11px rgba(38, 32, 28, 0.26),
+            0 2px 5px -2px rgba(38, 32, 28, 0.11),
+            0 0 0 1px rgba(0, 0, 0, 0.035);
+    }
+
+    .followed-manga-item:hover .fav-card-cover img {
+        transform: scale(1.04);
+    }
+
+    .fav-card-cover .manga-cover-placeholder {
+        width: auto;
+        max-width: 100%;
+        height: 100%;
+        aspect-ratio: 112 / 176;
+        box-shadow:
+            0 7px 14px -10px rgba(38, 32, 28, 0.22),
+            0 1px 4px -2px rgba(38, 32, 28, 0.09);
+        transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .followed-manga-item:hover .fav-card-cover .manga-cover-placeholder {
+        transform: scale(1.04);
+    }
+
+    /* キャプションは表紙の下に左寄せの小さな文字で。
+       下の 44px は「次のカードとの間隔」を兼ねていたが、背景紙がここまで
+       伸びた今は紙の余白として見えてしまうので詰めた。
+       カード同士の間隔は .followed-manga-grid の gap 側で取る */
+    .fav-card-body {
+        padding: 14px 14px 18px;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .fav-card-titlerow {
+        justify-content: flex-start;
+    }
+
+    .fav-title {
+        font-size: 13px;
+        font-weight: 400;
+        color: #1a1a1a;
+        line-height: 1.6;
+        letter-spacing: 0.02em;
+        -webkit-line-clamp: 2;
+    }
+
+    .fav-author-link {
+        align-self: flex-start;
+        margin-top: 5px;
+        font-size: 12px;
+        font-weight: 400;
+        color: #9a9a9a;
+        letter-spacing: 0.02em;
+    }
+
+    .fav-author-link:hover {
+        color: #1a1a1a;
+        text-decoration: none;
     }
 }

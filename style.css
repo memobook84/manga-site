@@ -550,8 +550,9 @@ body:not(.nav-ready) .nav-link {
     stroke: var(--color-text-sub);
 }
 
-/* 収納型検索（スマホのみ有効化。PCでは常に検索バーを直接表示） */
+/* 収納型検索とメニュー（スマホのみ有効化。PCでは検索バーとPCナビを直接表示） */
 .header-search-toggle,
+.header-menu-toggle,
 .search-backdrop {
     display: none;
 }
@@ -676,9 +677,9 @@ body.grid-six .main-layout .sidebar {
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    /* 段（ジャンル / レーベル / 出版社）はそれぞれ独立した箱なので、
-       箱と箱の間をここで空ける。詰めたいなら0に落とす */
-    gap: 10px;
+    /* 枠が無いぶん、段と段の切れ目はこの余白で見せる。
+       段の最後の項目と、次の見出しの間隔を決める数字 */
+    gap: 20px;
 }
 
 /* ===== 四隅だけ2pxにする案（不採用） =====
@@ -736,14 +737,10 @@ body.grid-six .main-layout .sidebar {
 }
 */
 
-/* 段（ジャンル / レーベル / 出版社）は1つずつ独立した箱。
-   四辺を自分で囲むので、.sidebar 側には線を引かない。
-   箱と箱の間隔は .sidebar-nav の gap が受け持つ。
-   ※1枚のパネルに戻すなら、ここを border-top だけにして
-     :last-child に border-bottom を足し、.sidebar に左右の縦線を戻す */
-.sidebar-section {
-    border: var(--sidebar-line-w) solid var(--sidebar-line);
-}
+/* 段（ジャンル / レーベル / 出版社）に枠は付けない。
+   区切りは見出しの下の1本だけで見せる。
+   ※箱で囲む形に戻すなら、ここに
+     border: var(--sidebar-line-w) solid var(--sidebar-line); を足す */
 
 /* 開いている段だけ、見出しと項目リストの間に仕切りを入れる。
    閉じている段は見出しだけなので線は要らない */
@@ -757,13 +754,15 @@ body.grid-six .main-layout .sidebar {
     display: flex;
     align-items: center;
     position: relative;
-    /* 右は ＋／－ のぶんを空ける。左は 14px → 6px に詰めた
-       （項目側の 26px → 18px と同じ 8px ぶん動かして、段差12pxは保つ） */
+    /* 右は ＋／－ のぶんを空ける。左6pxは項目（.sidebar-link）と同じ値で、
+       見出しと項目の左端がそろう */
     padding: 16px 34px 16px 6px;
     /* 項目（13px）より小さいが、字間を広げて見出しだと分かるようにする */
     font-size: 12px;
     font-weight: 400;
     line-height: 1.4;
+    /* 項目と同じ濃さ。見出しらしさは字間（0.14em）と小ささ（12px）で出す。
+       淡くするなら var(--color-text-sub) → var(--sidebar-arrow) の順に薄くなる */
     color: var(--color-text);
     letter-spacing: 0.14em;
     font-family: 'Noto Sans JP', sans-serif;
@@ -773,24 +772,21 @@ body.grid-six .main-layout .sidebar {
     list-style: none;
 }
 
-/* 一番上の見出し（ジャンル）も、他の段とまったく同じ扱い。
-   ＝上の余白16pxも ＋／－ の位置も .sidebar-heading の指定そのまま。
-   カタログ側の「新着作品」と高さを揃える必要はないので、特別扱いはしない。
-
-   ※以前は「新着作品」と揃えるためにここで padding-top:0 にしていた。
-     ただしその方式だと上の区切り線と文字がくっついて窮屈になる。
-     揃えたいなら .sidebar の margin-top で枠ごと持ち上げる方が素直
+/* 一番上の見出し（ジャンル）だけ上の余白を落として、
+   カタログ側の「新着作品」の見出しと同じ高さから始める。
+   .sidebar は padding:0 なので、これで文字の位置がちょうど列の上端になる。
+   ※以前この方式をやめていたのは、段に枠（border-top）があると
+     線と文字がくっついて窮屈だったため。今は枠が無いので問題ない */
 .sidebar-section:first-child > .sidebar-heading {
     padding-top: 0;
 }
 
-   上の余白を落とすと箱の中央が下にずれるので、＋／－ は箱ではなく
-   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em）
+/* 上の余白を落とすと箱の中央が下にずれるので、＋／－ は箱ではなく
+   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em） */
 .sidebar-section:first-child > .sidebar-heading::before,
 .sidebar-section:first-child > .sidebar-heading::after {
     top: 0.7em;
 }
-*/
 
 .sidebar-heading::-webkit-details-marker {
     display: none;
@@ -805,7 +801,8 @@ body.grid-six .main-layout .sidebar {
     width: 11px;
     height: 1px;
     margin-top: -0.5px;
-    background-color: var(--color-text-sub);
+    /* 見出しの文字と同じ淡さにそろえる */
+    background-color: currentColor;
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
@@ -834,12 +831,15 @@ body.grid-six .main-layout .sidebar {
 .sidebar-link {
     display: block;
     width: 100%;
-    /* 左は見出しより一段下げる（見出し6px ＋ 段差12px＝18px）。
-       右は矢印のぶんを空ける。左は 26px → 18px に詰めた */
-    padding: 10px 28px 10px 18px;
+    /* 左は見出しとそろえる（どちらも6px）。下げ幅を付けると
+       見出しの下の線から項目だけがずれて見えるため。
+       右は矢印のぶんを空ける。上下は行間を広めにとって10px→12px */
+    padding: 12px 28px 12px 6px;
     border: 0;
     background: none;
-    color: var(--color-text-sub);
+    /* 見出しを淡くしたぶん、項目は濃いままにして主役をはっきりさせる
+       （淡めに戻すなら var(--color-text-sub)） */
+    color: var(--color-text);
     text-decoration: none;
     text-align: left;
     font-family: inherit;
@@ -1703,10 +1703,21 @@ body.dark-mode .new-series-nav:hover {
 }
 
 @media (max-width: 768px) {
+    /* セクション間の余白は、ヘッダーと「新着作品」の見出しの間隔にそろえる。
+       あちらは .main-layout の padding-top（24px）が作っているので同じ値にする。
+       ※スマホのホームは page-hero（DATABASE見出し）が display:none なので、
+         ヘッダーの下がそのまま .main-layout になる。
+         .main-layout の padding を変えたらここも合わせること
+       （旧: 80px → 60px → 44px → 24px ＋ 休止中の区切り線 20px） */
     .new-series {
-        /* PC側と同じ考え方で、休止した区切り線のぶん（20px）を足してある
-           （旧: 24px。線を復活させる時はここも 24px に戻すこと） */
-        margin-bottom: 44px;
+        margin-bottom: 24px;
+    }
+
+    /* 余白だけでは弱いので、見出し自体も少し大きくして頭を立たせる */
+    .new-series-title,
+    .grid-title {
+        font-size: 15px;
+        font-weight: 500;
     }
 
     /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味（休止中）
@@ -2077,92 +2088,14 @@ body.dark-mode .page-btn.is-current::after {
     }
 }
 
-/* スマホのブラウザ表示（PWA以外）は収納型ボトムナビ。
-   下にSafari等のツールバーがあり常時表示は二重で邪魔になるため、
-   右下のFABボタンを押した時だけナビが縦に展開する。
-   PWA（standalone）は通常の横並びボトムナビのまま。 */
-.bottom-nav-fab {
-    display: none;
-}
-
-@media (display-mode: browser) and (max-width: 1024px) {
-    .bottom-nav {
-        left: auto;
-        right: 18px;
-        transform: translateY(12px) scale(0.95);
-        transform-origin: bottom right;
-        /* FAB(18px + 54px) の真上に12px空けて開く */
-        bottom: calc(84px + env(safe-area-inset-bottom));
-        flex-direction: column;
-        width: 54px;
-        padding: 14px 0;
-        gap: 16px;
-        opacity: 0;
-        pointer-events: none;
-        visibility: hidden;
-        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
-    }
-    .bottom-nav.fab-open {
-        opacity: 1;
-        pointer-events: auto;
-        visibility: visible;
-        transform: translateY(0) scale(1);
-    }
-    /* 展開ナビの項目は横幅いっぱいに広げる（高さはFABに合わせて低め） */
-    .bottom-nav-item {
-        width: 54px;
-        height: 28px;
-    }
-    .bottom-nav-item i {
-        font-size: 20px !important;
-    }
-    .bottom-nav-item svg {
-        width: 20px;
-        height: 20px;
-    }
-
-    .bottom-nav-fab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: fixed;
-        right: 18px;
-        bottom: calc(18px + env(safe-area-inset-bottom));
-        /* 展開するナビと同じ幅にそろえる（中心線が一致する） */
-        width: 54px;
-        height: 54px;
-        border-radius: 50%;
-        border: none;
-        background: #ffffff;
-        color: #111;
-        z-index: 201;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10),
-                    0 2px 8px rgba(0, 0, 0, 0.05);
-        cursor: pointer;
-        -webkit-tap-highlight-color: transparent;
-        transition: transform 0.2s ease;
-    }
-    /* 閉じている時は機首が上、開いている時は180度回して下向き。
-       アイコンの差し替えはせず、向きだけで開閉を表す */
-    .bottom-nav-fab .fab-icon {
-        display: block;
-        width: 34px;
-        height: 34px;
-        fill: currentColor;
-        /* 開いている時は回さない。薄くするだけで状態を示す */
-        transition: opacity 0.3s ease;
-    }
-    .bottom-nav-fab.open .fab-icon {
-        opacity: 0.3;
-    }
-    .bottom-nav-fab:active {
-        transform: scale(0.9);
-    }
-
-    body {
-        padding-bottom: calc(84px + env(safe-area-inset-bottom));
-    }
-}
+/* スマホのブラウザ表示（PWA以外）はボトムナビを出さない。
+   下にSafari等のツールバーがあり二重で邪魔になるため、ナビは
+   ヘッダー右の渦巻きボタン → メニューポップアップに集約している。
+   PWA（standalone）はツールバーが無いので通常のボトムナビのまま。
+   ※切り替え本体は .mm-* の後ろにある
+     @media (display-mode: browser) and (max-width: 768px)。
+     .bottom-nav の display:flex（上のブロック）より後ろに置く必要がある。
+   ※右下のFAB（渦巻き）から扇形にナビが開く旧仕様は廃止した */
 
 /* ========== スプラッシュアニメーション ========== */
 #splashOverlay {
@@ -2479,30 +2412,30 @@ body.dark-mode .nav-menu-btn:hover {
 .nav-menu-cols {
     display: flex;
     align-items: stretch;
-    padding: 20px 24px;
-    gap: 28px;
+    padding: 26px 32px;
+    gap: 36px;
 }
 .nav-menu-col {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-width: 170px;
+    min-width: 205px;
 }
 /* 右カラム（サイト情報）は縦線で区切る */
 .nav-menu-col-sub {
-    padding-left: 28px;
+    padding-left: 36px;
     border-left: 1px solid rgba(0, 0, 0, 0.10);
 }
 
 /* カラム見出し（さがす / サイト情報） */
 .nav-menu-head {
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.10em;
     color: #A0A0A8;
-    padding: 0 4px;
-    margin-bottom: 12px;
+    padding: 0 6px;
+    margin-bottom: 15px;
     white-space: nowrap;
 }
 
@@ -2542,10 +2475,10 @@ body.dark-mode .nav-menu-btn:hover {
 .nav-menu-item {
     position: relative;
     display: block;
-    padding: 9px 4px 9px 22px;
+    padding: 11px 6px 11px 26px;
     border-radius: 0;
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 400;
     line-height: 1.4;
     color: #2B2B2B;
@@ -2560,15 +2493,15 @@ body.dark-mode .nav-menu-btn:hover {
 .nav-menu-item::before {
     content: '';
     position: absolute;
-    left: 5px;
+    left: 6px;
     top: 50%;
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    /* 上下の透明な border で高さ、左の色付き border で幅を作る（6px × 10px） */
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 6px solid #C9C4D4;
+    /* 上下の透明な border で高さ、左の色付き border で幅を作る（7px × 12px） */
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 7px solid #C9C4D4;
     background: none;
     transition: border-left-color 0.15s ease, transform 0.15s ease;
 }
@@ -2592,7 +2525,7 @@ body.dark-mode .nav-menu-btn:hover {
 .nav-menu-sep {
     height: 1px;
     background: #E0DCD6;
-    margin: 8px 4px 9px;
+    margin: 10px 6px 11px;
 }
 body.dark-mode .nav-menu-sep {
     background: rgba(255, 255, 255, 0.16);
@@ -2600,8 +2533,8 @@ body.dark-mode .nav-menu-sep {
 
 /* ===== 右カラム＝情報系のサブ項目 ===== */
 .nav-menu-col-sub .nav-menu-item {
-    font-size: 14px;
-    padding: 8px 4px 8px 22px;
+    font-size: 16px;
+    padding: 10px 6px 10px 26px;
     color: #8B7FA8;
 }
 .nav-menu-col-sub .nav-menu-item:hover {
@@ -2972,6 +2905,38 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         background: rgba(255, 255, 255, 0.18);
     }
 
+    /* メニュートグル（渦巻き）。検索アイコンの右に並ぶ。
+       検索側が margin-left:auto なので、この2つがヘッダー右端に寄る。
+       display は既定 none のまま。ブラウザ表示のときだけ下の
+       (display-mode: browser) ブロックで inline-flex にする */
+    .header-menu-toggle {
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        /* .header-container の gap:20px は2つ並んだアイコンには広すぎるので、
+           負のマージンで詰めて8px相当にする */
+        margin-left: -12px;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+        background: transparent;
+        color: #EFEAF5;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s ease;
+    }
+    .header-menu-toggle svg {
+        width: 21px;
+        height: 21px;
+        fill: currentColor;
+        display: block;
+    }
+    .header-menu-toggle:active {
+        background: rgba(255, 255, 255, 0.14);
+    }
+
     /* 背面の暗転（ヘッダーより下、コンテンツより上） */
     .search-backdrop {
         display: block;
@@ -3114,8 +3079,8 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
 .mm-backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    animation: mmFade 0.2s ease;
+    background: rgba(20, 17, 28, 0.44);
+    animation: mmFade 0.24s ease;
 }
 @keyframes mmFade {
     from { opacity: 0; }
@@ -3125,26 +3090,31 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
 .mm-wrap {
     position: relative;
     width: 100%;
-    max-width: 330px;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
-    animation: mmIn 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: mmIn 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes mmIn {
-    from { opacity: 0; transform: translateY(14px) scale(0.97); }
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
     to   { opacity: 1; transform: none; }
 }
 
+/* 白いフラットなカード。行の区切りはグループ間だけに入れて、
+   1行ごとの罫線は引かない */
 .mm-card {
+    position: relative;
     background: #fff;
-    border-radius: 16px;
+    border: 1px solid rgba(22, 18, 44, 0.07);
+    border-radius: 14px;
     padding: 6px 0;
-    max-height: 68vh;
+    max-height: 74vh;
     overflow-y: auto;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 22px 48px -14px rgba(20, 14, 40, 0.34),
+                0 4px 12px rgba(0, 0, 0, 0.07);
     /* スクロールバーを出さない（右端に出ると角丸が四角く見えるため） */
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -3153,75 +3123,116 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
     display: none;
 }
 
+/* アイコン → ラベル → 右端のシェブロン、の3点で構成した行 */
 .mm-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px 22px;
+    gap: 13px;
+    width: 100%;
+    padding: 10px 14px 10px 16px;
+    border: none;
+    background: none;
+    text-align: left;
     text-decoration: none;
-    color: #3A3A3E;
-    font-size: 14.5px;
-    font-weight: 500;
+    color: #26232E;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 400;
     letter-spacing: 0.01em;
-    /* 行間のヘアライン（最終行には引かない） */
-    border-bottom: 1px solid #F0F0F0;
+    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-}
-.mm-row:last-child {
-    border-bottom: none;
+    transition: background 0.15s ease;
 }
 .mm-row:active {
-    background: #FAFAFA;
+    background: #F4F3F7;
 }
 
-/* 行間ヘアラインより強い区切り（ピックアップ／ブログの上） */
-.mm-sep {
-    height: 7px;
-    background: #F2F1F4;
-    border-top: 1px solid #E4E2E7;
-    border-bottom: 1px solid #E4E2E7;
+/* 行頭のアイコン。幅を固定してラベルの開始位置をそろえる。
+   色は行の文字色を薄めたもの（currentColor）にしてある。
+   固定色にすると背景が変わったときに追従しないため */
+.mm-icon {
+    flex-shrink: 0;
+    width: 19px;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+    color: currentColor;
+    opacity: 0.68;
 }
-/* 区切りの直前の行はヘアラインを重ねない */
-.mm-row:has(+ .mm-sep) {
-    border-bottom: none;
+/* ランキングの王冠だけインラインSVG（ボトムナビと同じ Lucide crown）。
+   フォントアイコンではないので高さを明示して他の行と頭をそろえる */
+svg.mm-icon {
+    width: 19px;
+    height: 19px;
 }
 .mm-label {
     flex: 1;
 }
+/* 右端のシェブロン */
 .mm-value {
-    font-size: 13px;
-    color: #B8B8BC;
     flex-shrink: 0;
+    font-size: 12px;
+    line-height: 1;
+    color: #C3C1CC;
 }
 
-/* 現在開いているページの行をテーマカラーで強調 */
-.mm-row.current .mm-label {
+/* 行が順に立ち上がる（区切りは div なので nth-of-type は a だけを数える）*/
+@keyframes mmRowIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+.mm-card .mm-row {
+    opacity: 0;
+    animation: mmRowIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.mm-card a.mm-row:nth-of-type(1)  { animation-delay: 0.02s; }
+.mm-card a.mm-row:nth-of-type(2)  { animation-delay: 0.04s; }
+.mm-card a.mm-row:nth-of-type(3)  { animation-delay: 0.06s; }
+.mm-card a.mm-row:nth-of-type(4)  { animation-delay: 0.08s; }
+.mm-card a.mm-row:nth-of-type(5)  { animation-delay: 0.10s; }
+.mm-card a.mm-row:nth-of-type(6)  { animation-delay: 0.12s; }
+.mm-card a.mm-row:nth-of-type(7)  { animation-delay: 0.14s; }
+.mm-card a.mm-row:nth-of-type(8)  { animation-delay: 0.16s; }
+.mm-card a.mm-row:nth-of-type(9)  { animation-delay: 0.18s; }
+.mm-card a.mm-row:nth-of-type(10) { animation-delay: 0.20s; }
+.mm-card a.mm-row:nth-of-type(11) { animation-delay: 0.22s; }
+.mm-card a.mm-row:nth-of-type(12) { animation-delay: 0.24s; }
+.mm-card .mm-close { animation-delay: 0.26s; }
+/* アニメーションを切っている端末でも行が消えないように */
+@media (prefers-reduced-motion: reduce) {
+    .mm-card .mm-row { opacity: 1; animation: none; }
+    .mm-wrap { animation: none; }
+}
+
+/* グループの区切り。カードの端から端まで通す1本線 */
+.mm-sep {
+    height: 1px;
+    margin: 6px 0;
+    border: none;
+    background: #EFEEF3;
+}
+
+/* 現在開いているページの行。太字にはせず、薄いグレーの面と文字色だけで示す */
+.mm-row.current {
+    background: #F3F2F4;
     color: #4B2C82;
-    font-weight: 700;
+}
+.mm-row.current .mm-icon {
+    opacity: 1;
 }
 .mm-row.current .mm-value {
     color: #4B2C82;
 }
 
+/* 最下段の「閉じる」。参考デザインの Delete と同じくアクセント赤 */
 .mm-close {
-    align-self: flex-end;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    border: none;
-    background: #1E1E20;
-    color: #fff;
-    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
-    font-size: 12.5px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    padding: 10px 16px;
-    border-radius: 9px;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    color: #D8052E;
+}
+.mm-close .mm-icon {
+    opacity: 1;
 }
 .mm-close:active {
-    background: #333338;
+    background: rgba(216, 5, 46, 0.07);
 }
 
 body.dark-mode .mm-card {
@@ -3242,7 +3253,31 @@ body.dark-mode .mm-row.current .mm-label,
 body.dark-mode .mm-row.current .mm-value {
     color: #A98BE0;
 }
-body.dark-mode .mm-close {
-    background: #E9E9EC;
-    color: #1E1E20;
+/* 閉じるがピル型ボタンだった頃の名残（塗り）を消す。今は行なので色だけ */
+body.dark-mode .mm-close,
+body.dark-mode .mm-close .mm-icon {
+    background: none;
+    color: #FF5C7A;
+}
+
+/* ============================================
+   スマホ × ブラウザ表示（PWA以外）のナビゲーション
+   ボトムナビを出さず、ヘッダー右の「検索 → 渦巻き」の
+   2アイコンに集約する。渦巻きはメニューポップアップを開く。
+   PWA（standalone）はこのブロックが効かないので従来どおり
+   ボトムナビが出る。
+   ※ .bottom-nav の display:flex と body の padding-bottom:84px を
+     上書きするので、必ずそれらより後ろ（＝ファイル末尾）に置くこと
+   ============================================ */
+@media (display-mode: browser) and (max-width: 768px) {
+    .header-menu-toggle {
+        display: inline-flex;
+    }
+    .bottom-nav {
+        display: none;
+    }
+    /* ボトムナビが無くなったぶんの余白を戻す */
+    body {
+        padding-bottom: 0;
+    }
 }
