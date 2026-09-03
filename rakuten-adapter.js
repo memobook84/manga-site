@@ -123,11 +123,31 @@ function adaptApiResponse(response) {
   };
 }
 
-// 表示高さから楽天 _ex サイズを決定（retina対応で2倍、刻みを固定）
+// 表示高さから楽天 _ex サイズを決定。
+// 以前は無条件に2倍（retina決め打ち）していたので、DPR1 の PC では常に
+// 必要の倍を落としていた。実際の devicePixelRatio で掛ける。
+// ※縦長の表紙は _ex=NxN の外接ボックスの N がそのまま高さになるので、
+//   必要な N ＝ 表示高さ × DPR でよい
 function pickRakutenSize(height) {
-  const target = Math.round(height * 2);
+  const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+  const target = Math.round(height * dpr);
   const steps = [240, 320, 480, 640, 800];
   for (const s of steps) if (target <= s) return s;
+  return 800;
+}
+
+// 作品ページ・単行本ページのメイン表紙に必要な _ex を出す。
+// 表示幅は PC 300px（detail.css の .detail-image / volume.css の .volume-image-wrap）、
+// モバイルは max 240px。楽天の _ex=NxN は外接ボックスなので、
+// 新書判(112:176)の表紙は横 N*(112/176) で返ってくる。
+// 800固定だと DPR1 の PC で表示の1.7倍を落としていた（DPR2以上は800のまま）
+function detailCoverSize() {
+  const w = (typeof window !== 'undefined' && window.innerWidth) || 1200;
+  const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+  const cssWidth = w <= 768 ? 240 : 300;
+  const need = Math.round((cssWidth * dpr) / (112 / 176));
+  const steps = [240, 320, 480, 640, 800];
+  for (const s of steps) if (need <= s) return s;
   return 800;
 }
 
@@ -136,6 +156,28 @@ function withRakutenSize(url, size) {
   if (!/thumbnail\.image\.rakuten\.co\.jp/.test(url)) return url;
   const base = url.replace(/\?_ex=\d+x\d+/, '');
   return base + (base.includes('?') ? '&' : '?') + `_ex=${size}x${size}`;
+}
+
+// 作品ページのメイン表紙を遷移先の <head> で先読みさせるための受け渡し。
+//
+// 作品ページは表紙を毎回ランダムに選ぶ（detail.js）ので、遷移先ではURLが
+// バケットJSON(134KB)の到着まで確定せず、画像リクエストが
+// CSS → JS → JSON の後ろ＝最後尾からしか始められなかった。
+// 遷移元でサイコロを振った結果をここに置いておけば、detail.html の
+// インラインscriptがCSSより先に preload を撃てる。
+//
+// 読み出しは2か所。detail.html の <head>（先読み）と detail.js（実描画）で、
+// 両方が同じURLを使うので二重ダウンロードにはならない
+function stashDetailCover(title, item) {
+  if (!title || !item || !item.imageUrl) return;
+  try {
+    sessionStorage.setItem('detailCover', JSON.stringify({
+      title: title,
+      isbn: item.isbn || '',
+      hasRealCover: !!item.hasRealCover,
+      url: withRakutenSize(item.imageUrl, detailCoverSize()),
+    }));
+  } catch (e) {}
 }
 
 // グローバルカウンタ（ファーストビュー画像判定用）
@@ -267,7 +309,7 @@ function createDetailImageElement(item) {
   const noCover = isRakutenNoCover(item.imageUrl);
   const needsUpgrade = (!item.hasRealCover && !noCover && isbn) ? 'data-needs-upgrade="1"' : '';
   const imgStyle = "width:100%;height:auto;";
-  const sizedUrl = withRakutenSize(item.imageUrl, 800);
+  const sizedUrl = withRakutenSize(item.imageUrl, detailCoverSize());
 
   // 書影準備中のテンプレートは表示せず、その場でプレースホルダーに落とす
   // （Google Booksへの問い合わせは待ち時間の割に当たらないので行わない）

@@ -28,10 +28,12 @@ function showSkeleton(count = 60) {
 }
 
 // 詳細ページへ遷移（モバイルはスライドイン演出付き）
-function goToDetail(seriesTitle) {
+// item を渡すと、いま表示している表紙を遷移先に引き継いで <head> で先読みさせる
+function goToDetail(seriesTitle, item) {
     if (window.matchMedia('(max-width: 768px)').matches) {
         sessionStorage.setItem('detailSlideIn', '1');
     }
+    if (item && typeof stashDetailCover === 'function') stashDetailCover(seriesTitle, item);
     window.location.href = `detail.html?title=${encodeURIComponent(seriesTitle)}`;
 }
 
@@ -175,7 +177,7 @@ function createRankingSection(rankingItems, startRank, title) {
         el.addEventListener('click', () => {
             const item = rankingItems[i];
             const seriesTitle = item.displayTitle || item.title;
-            goToDetail(seriesTitle);
+            goToDetail(seriesTitle, item);
         });
     });
 
@@ -243,7 +245,7 @@ function buildNewSeriesRow(chunk, offset, base) {
             <div class="db-cover-frame">${createImageElement(item, 280, homeCoverSize())}</div>
             <h3>${r[0]}</h3>
         `;
-        card.addEventListener('click', () => goToDetail(r[0]));
+        card.addEventListener('click', () => goToDetail(r[0], item));
         row.appendChild(card);
     });
 
@@ -480,7 +482,7 @@ function displayMangaItems(items) {
 
         mangaItem.addEventListener('click', () => {
             const seriesTitle = item.displayTitle || item.title;
-            goToDetail(seriesTitle);
+            goToDetail(seriesTitle, item);
         });
 
         if (useStrips) {

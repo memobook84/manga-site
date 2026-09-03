@@ -36,6 +36,20 @@ function formatMetaDate(dateStr) {
         .join('/');
 }
 
+// 遷移元（home.html の goToDetail）が先読み用に置いていった表紙を読む。
+// detail.html の <head> のインラインscriptが同じものを見て preload を撃っている。
+// タイトルが一致しない＝別の作品から来た古い残骸なので無視する
+function readStashedDetailCover(seriesTitle) {
+    try {
+        const raw = sessionStorage.getItem('detailCover');
+        if (!raw) return null;
+        const c = JSON.parse(raw);
+        return (c && c.isbn && c.title === seriesTitle) ? c : null;
+    } catch (e) {
+        return null;
+    }
+}
+
 // 漫画の詳細を表示（メイン処理 — シリーズページ）
 async function displayMangaDetail() {
     const { title } = getDetailParams();
@@ -146,7 +160,17 @@ async function displayMangaDetail() {
     document.getElementById('manga-description').textContent =
         (withDescription ? withDescription.description : '') || 'ストーリー情報がありません。';
 
-    // 表紙画像: 実カバーがある巻から選択（最新巻除外）
+    // 表紙画像: 実カバーがある巻から選択（最新巻除外）。
+    // ただし遷移元が既にサイコロを振って <head> で先読みしている場合は、
+    // その巻をそのまま使う。ここで引き直すと先読みした1枚が捨てられ、
+    // 結局2枚落とすことになる（＝先読みの意味が無くなる）
+    // 照合は displaySeriesName ではなくURLの title で行う。
+    // <head> 側のインラインscriptも同じ値で判定しているので、両者の結論が必ず揃う
+    const stashedCover = readStashedDetailCover(title);
+    const stashedVol = stashedCover
+        ? volumes.find(v => v.isbn && v.isbn === stashedCover.isbn)
+        : null;
+
     const sortedByDate = [...volumes].sort((a, b) => {
         const dateA = a.firstReleaseDate || '';
         const dateB = b.firstReleaseDate || '';
@@ -155,7 +179,19 @@ async function displayMangaDetail() {
     const nonLatest = sortedByDate.length > 1 ? sortedByDate.slice(1) : sortedByDate;
     const withCover = nonLatest.filter(v => v.hasRealCover);
     const coverPool = withCover.length > 0 ? withCover : nonLatest;
-    const coverVol = coverPool[Math.floor(Math.random() * coverPool.length)];
+    // 先読みがある場合、URLは必ず stash 側を正とする。
+    // data/pages と data/series は別バッチで焼いているので、同じISBNでも
+    // 楽天のリビジョン付きファイル名（_1_2 → _1_5 など）がずれることがある（実測で約1割）。
+    // 巻の付随情報は引き当てた巻から取りつつ、画像URLだけは preload したものに揃える
+    const randomVol = coverPool[Math.floor(Math.random() * coverPool.length)];
+    const coverVol = stashedCover
+        ? {
+            ...(stashedVol || randomVol),
+            imageUrl: stashedCover.url,
+            isbn: stashedCover.isbn,
+            hasRealCover: stashedCover.hasRealCover,
+          }
+        : randomVol;
 
     const imageContainer = document.querySelector('.detail-image');
     const frame = imageContainer.querySelector('.detail-cover-frame');
@@ -221,19 +257,32 @@ async function displayMangaDetail() {
 }
 
 // シリーズ一覧の1マスの実表示幅から、必要な表紙の解像度を出す。
-// 280固定だと PC で常に _ex=640x640（1枚あたり86KB）を引いていたが、
-// 6列グリッドの1マスは約150px幅しかなく、ONE PIECE（111巻）では9.3MBになっていた。
-// 列数はブレークポイントで変わる（6列→5列→3列）ので、値ではなく実測から出す。
-// ※モバイル(≤768px)は createImageElement 内の gridCoverHeight() が
-//   ウィンドウ幅から算出し直すため、ここで渡した値は使われない
+// 列数はブレークポイントで変わる（5列→4列→3列）ので、値ではなく実測から出す。
+//
+// 旧実装は「グリッド全幅 ÷ 列数」で割っていたが、これは column-gap を無視していた。
+// PCは 5列 gap 40px なので、実セル幅 188px を 220px と見積もり、
+// pickRakutenSize が _ex=800 を選んでいた（＝直したつもりで 640 より悪化していた）。
+// getComputedStyle は普通 1fr を解決済みのpx値（"188px 188px ..."）で返すので、
+// 1列目の値がそのまま1マスの実幅になる。px で返らない環境のために
+// 「全幅 − gap合計 ÷ 列数」のフォールバックも持たせる
 function volumeCoverHeight(grid) {
     const FALLBACK = 280;
     if (!grid) return FALLBACK;
-    const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length;
-    const width = grid.getBoundingClientRect().width;
-    if (!cols || !width) return FALLBACK;
+    const cs = getComputedStyle(grid);
+    const tracks = cs.gridTemplateColumns.split(' ').filter(Boolean);
+
+    let cellWidth = parseFloat(tracks[0]);
+    if (!(cellWidth > 0)) {
+        const cols = tracks.length || 1;
+        const gap = parseFloat(cs.columnGap) || 0;
+        const width = grid.getBoundingClientRect().width;
+        if (!width) return FALLBACK;
+        cellWidth = (width - gap * (cols - 1)) / cols;
+    }
+    if (!(cellWidth > 0)) return FALLBACK;
+
     // 表紙は新書判（112:176）。CSS側の .volume-item img と同じ比率で高さに直す
-    return Math.round((width / cols) * (176 / 112));
+    return Math.round(cellWidth * (176 / 112));
 }
 
 // 巻一覧を表示（巻数でソート、volume.htmlへリンク）

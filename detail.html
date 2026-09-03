@@ -28,6 +28,31 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
+    <!-- メイン表紙の先読み。必ずCSSより前に置くこと。
+         この作品ページは表紙を毎回ランダムに選ぶので、URLはバケットJSON(134KB)が
+         届くまで確定せず、画像リクエストは CSS → JS → JSON の後ろ＝最後尾から
+         しか始められない。遷移元（home.html の goToDetail）がサイコロを振って
+         sessionStorage に置いたURLをここで拾い、CSS/JS/JSON と並列で撃つ。
+         detail.js も同じURLを使うので二重ダウンロードにはならない。
+         直接URL・QR・共有リンクで着地した場合は stash が無いので何もしない -->
+    <script>
+    (function () {
+        try {
+            var raw = sessionStorage.getItem('detailCover');
+            if (!raw) return;
+            var c = JSON.parse(raw);
+            if (!c || !c.url) return;
+            var t = new URLSearchParams(location.search).get('title');
+            if (!t || c.title !== decodeURIComponent(t)) return;
+            var l = document.createElement('link');
+            l.rel = 'preload';
+            l.as = 'image';
+            l.setAttribute('fetchpriority', 'high');
+            l.href = c.url;
+            document.head.appendChild(l);
+        } catch (e) {}
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;500;700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
