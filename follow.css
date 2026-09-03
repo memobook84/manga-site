@@ -305,7 +305,7 @@ body.dark-mode .fav-title {
     .fav-card-cover {
         aspect-ratio: 1 / 1;
         min-height: 0;
-        padding: 8%;
+        padding: 6%;
         align-items: center;
         justify-content: center;
         overflow: hidden;
@@ -387,5 +387,15 @@ body.dark-mode .fav-title {
     .fav-author-link:hover {
         color: #1a1a1a;
         text-decoration: none;
+    }
+}
+
+/* PCは横5冊。
+   1025px 以上をPCとみなす＝iPad Pro 12.9"/13" の縦（1024px）までは
+   上の既定どおり4列のまま。タイルは正方形＋表紙可変なので、
+   列が増えても中身は縮むだけで崩れない */
+@media (min-width: 1025px) {
+    .followed-manga-grid {
+        grid-template-columns: repeat(5, 1fr);
     }
 }

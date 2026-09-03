@@ -29,6 +29,12 @@
        太さも一緒に持たせてあるので、2pxにするならここだけ直せば4か所に効く */
     --sidebar-line: rgba(66, 36, 118, 0.3);
     --sidebar-line-w: 1px;
+    /* サイドバーが場所を取る幅。畳んだ時に「この幅ぶんを左右の余白へ振り替える」
+       計算（.main-layout.sidebar-collapsed main の width）で同じ値を使うので変数にした。
+       900px以下は下のメディアクエリで 160px に落ちる */
+    --sidebar-w: 192px;
+    /* サイドバーとカタログの間隔。.main-layout の gap と必ず同じ値にすること */
+    --sidebar-gap: 36px;
     /* サイドバー行末の「›」と、押せない項目の文字色 */
     --sidebar-arrow: #B5B0AA;
     --color-heart: #9B6B6B;
@@ -563,92 +569,115 @@ body:not(.nav-ready) .nav-link {
     margin: 0 auto;
     padding: 32px 20px;
     display: flex;
-    gap: 36px;
+    gap: var(--sidebar-gap);
     position: relative;
 }
 
-/* サイドバー */
-.page-hero-toggle {
-    display: inline-flex;
+/* ===== サイドバー ===== */
+
+/* サイドバー最下段の開閉ボタン。
+   以前は「DATABASE」のタイトル横に矢印を2つ（開閉＋6列表示）置いていたが、
+   タイトル帯ごと廃止したので、開閉はこのボタン1つに集約した */
+/* ボタン2つ（畳む／ワイド）を横並びにする帯。
+   以前はボタンが1つだけで、幅と上余白を .sidebar-collapse-btn 自身が
+   width:100% / margin-top:14px で持っていたので、その2つをここへ移した。
+   縦位置は変わらないので、畳んだ時のボタンの位置も従来どおり動かない */
+.sidebar-btn-row {
+    display: flex;
     align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    user-select: none;
+    margin-top: 14px;
 }
 
-.page-hero-caret {
-    color: #888;
-    transition: transform 0.3s ease, color 0.2s;
-}
-
-.page-hero-toggle:hover .page-hero-caret {
-    color: #4B2C82;
-}
-
-body.sidebar-collapsed .page-hero-caret {
-    transform: rotate(180deg);
-}
-
-/* 2つ目の矢印：サイドバーを隠して6列表示に切替 */
-.page-hero-grid-toggle {
-    background: none;
+.sidebar-collapse-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 2つで帯を等分。畳むと片方が display:none になるので、
+       残ったほうが26pxの帯いっぱいに広がる */
+    flex: 1;
+    min-width: 0;
+    padding: 8px 0;
     border: none;
-    padding: 0;
-    margin-left: 2px;
+    background: none;
+    color: #9A93A8;
+    font-size: 16px;
+    line-height: 1;
     cursor: pointer;
-    color: #888;
-    display: inline-flex;
-    align-items: center;
-    vertical-align: middle;
-    transition: transform 0.3s ease, color 0.2s;
+    transition: color 0.2s ease;
 }
 
-.page-hero-grid-toggle:hover {
+.sidebar-collapse-btn:hover {
     color: #4B2C82;
 }
 
-body.grid-six .page-hero-grid-toggle {
-    transform: rotate(180deg);
-    color: #4B2C82;
+.sidebar-collapse-btn i {
+    display: block;
+    transition: transform 0.3s ease;
 }
 
-/* 6列表示モード：サイドバー非表示 */
-body.grid-six .main-layout .sidebar {
-    width: 0;
+/* 畳んだ状態。sidebar-collapsed（中央寄せ）と sidebar-wide（ワイド）で共通。
+   幅だけ 26px の帯にして、絞り込み（.sidebar-nav）は visibility で消す。
+   display:none だとサイドバーの高さが変わってボタンが上へ飛ぶが、
+   visibility なら高さが残るのでボタンの位置が動かない */
+.main-layout.sidebar-collapsed .sidebar,
+.main-layout.sidebar-wide .sidebar {
+    width: 26px;
     padding: 0;
-    border-left: none;
-    border-right: none;
     overflow: hidden;
-    opacity: 0;
-    /* 通常時の右寄せ（margin-left:10px）も畳む。残すと隙間が10px居座る */
+    /* 通常時の右寄せ（margin-left:10px / margin-right:-10px）は畳む */
     margin-left: 0;
-    margin-right: -36px;
+    margin-right: 0;
 }
 
-@media (min-width: 1201px) {
-    body.page-database.grid-six .manga-grid {
-        grid-template-columns: repeat(6, 1fr);
-        row-gap: 64px;
-    }
-    body.grid-six .main-layout {
-        max-width: 1040px;
-    }
+.main-layout.sidebar-collapsed .sidebar-nav,
+.main-layout.sidebar-wide .sidebar-nav {
+    visibility: hidden;
 }
 
+/* 中央寄せモードだけ、26px の帯を流れから外す。
+   これをしないと帯と gap のぶん（31px）だけカタログの中心が右にずれる。
+   位置は .main-layout の padding（32px 20px）と同じ＝畳む前と同じ場所。
+   ※.main-layout は position:relative なので、この2つはその padding box 基準
+   ※ワイド側は帯を流れに残したまま＝カタログが空いたぶんまで広がる（従来の動き） */
 .main-layout.sidebar-collapsed .sidebar {
-    width: 0;
-    padding: 0;
-    border-left: none;
-    border-right: none;
-    overflow: hidden;
-    opacity: 0;
-    /* 通常時の右寄せ（margin-left:10px）も畳む。残すと隙間が10px居座る */
-    margin-left: 0;
-    margin-right: -36px;
+    position: absolute;
+    top: 32px;
+    left: 20px;
+}
+
+/* 畳んだら、押したほうのボタンだけ残す（もう一度押せば戻る）。
+   26px の帯にボタン2つは入らないので、使っていないほうを消す */
+.main-layout.sidebar-collapsed #sidebar-wide,
+.main-layout.sidebar-wide #sidebar-toggle {
+    display: none;
+}
+
+/* 畳んでもカタログは広げない。空いたサイドバーぶんの幅は左右の余白に振り替えて、
+   表紙の大きさ（＝6列の1列幅）を畳む前のまま保ったまま中央に寄せる。
+   flex:1（= flex-basis:0 + grow）のままだと width が効かないので grow を止める。
+   100% は .main-layout の内側の幅なので、そこから
+   サイドバー（--sidebar-w）＋ 間隔（--sidebar-gap）を引くと畳む前の main の幅になる。
+   ※1024px以下はサイドバー自体を出していない（下の 600〜1024px のブロックで
+     display:none）ので、畳んだ状態が localStorage に残っていても効かないよう
+     min-width で囲う。囲まないとカタログが理由もなく細くなる */
+@media (min-width: 1025px) {
+    .main-layout.sidebar-collapsed main {
+        flex: 0 1 auto;
+        width: calc(100% - var(--sidebar-w) - var(--sidebar-gap));
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* 矢印を反転＝「戻す」を示す。2つのボタンは同じ矢印（ph-caret-left）なので、
+   畳んだ時は押したほうだけが残り、その矢印が反転する */
+.main-layout.sidebar-collapsed #sidebar-toggle i,
+.main-layout.sidebar-wide #sidebar-wide i {
+    transform: rotate(180deg);
 }
 
 .sidebar {
-    width: 192px;
+    width: var(--sidebar-w);
     flex-shrink: 0;
     /* .main-layout は flex なので、既定だとカタログと同じ高さまで引き伸ばされて
        縦線がページ下端まで伸びてしまう。中身の高さで止める */
@@ -944,6 +973,10 @@ main {
    メディアクエリで4列→3列に落ちるので、この指定が効くのは1201px以上） */
 body.page-database .manga-grid {
     grid-template-columns: repeat(6, 1fr);
+    /* 段と段の間隔。列の間隔（24px）は .manga-grid 側のまま動かさない。
+       ここを広げるのはカタログ（ホーム／検索結果）だけで、
+       新刊・ランキングなど他ページの .manga-grid は 40px のまま */
+    row-gap: 56px;
 }
 
 /* database.js は作品を6件ずつ .manga-strip で束ねている。
@@ -1332,8 +1365,8 @@ body.dark-mode .cover-mark-text {
         grid-template-columns: repeat(3, 1fr);
     }
 
-    .sidebar {
-        width: 160px;
+    :root {
+        --sidebar-w: 160px;
     }
 }
 
@@ -1380,10 +1413,6 @@ body.dark-mode .cover-mark-text {
     }
 
     .sidebar-toggle {
-        display: none;
-    }
-
-    .page-hero-grid-toggle {
         display: none;
     }
 
@@ -2806,14 +2835,14 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
 
 /* ============================================
    タブレット縦向き（幅600〜1024px）
-   - ホーム（Databaseカタログ）は4列
+   - ホーム（Databaseカタログ）は3列（旧: 4列。1冊が小さくなりすぎるため）
    - サイドバーは出さない（幅が足りず窮屈になるため全幅で並べる）
    - 表紙は列幅いっぱいだと詰まって見えるので少しだけ小さく（スマホと同じ90%）
-   既存の900px/768px=3列より後ろに置いて上書き
+   既存の1200px=4列より後ろに置いて上書き
    ============================================ */
 @media (min-width: 600px) and (max-width: 1024px) {
     body.page-database .manga-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
+        grid-template-columns: repeat(3, 1fr) !important;
     }
 
     /* フレームごと縮めるので影も一緒に追従する。
@@ -2822,28 +2851,24 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         width: 90%;
     }
 
+    /* サイドバーごと隠す。開閉ボタン（.sidebar-collapse-btn）は
+       サイドバーの中にあるので、これで一緒に消える */
     .main-layout .sidebar {
-        display: none !important;
-    }
-
-    /* サイドバーが無いので開閉の矢印も用が無くなる */
-    .page-hero-toggle .page-hero-caret,
-    .page-hero-grid-toggle {
         display: none !important;
     }
 }
 
 /* 新着作品の1列の幅は下のカタログの1列ぶんに合わせている。
-   上のブロックでカタログが4列に変わる幅では、こちらも4列ぶんに追従させる。
+   上のブロックでカタログが3列に変わる幅では、こちらも3列ぶんに追従させる。
    .new-series-row の既定（6列ぶん）より後ろに置かないと効かない */
 @media (min-width: 600px) and (max-width: 1024px) {
     .new-series-row {
-        /* この幅ではカタログの列間は24px */
-        grid-auto-columns: calc((100% - 72px) / 4);
+        /* この幅ではカタログの列間は24px。3列なので隙間は2つぶん＝48px */
+        grid-auto-columns: calc((100% - 48px) / 3);
     }
 
     /* カタログの横スワイプ（1段6冊）はスマホ幅だけの見せ方。
-       この幅はカタログが4列なので、束を無かったことにして普通に並べる */
+       この幅はカタログが3列なので、束を無かったことにして普通に並べる */
     body.page-database .manga-strip {
         display: contents;
     }

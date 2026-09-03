@@ -40,7 +40,8 @@
     <script defer src="search-index.js"></script>
     <script defer src="database.js"></script>
 <script defer src="https://unpkg.com/@phosphor-icons/web@2.1.2"></script>
-    <script src="page-hero-toggle.js"></script>
+    <!-- page-hero-toggle.js（右下のタイトル表示切替ボタン）は読み込まない。
+         このページには page-hero そのものが無いため。他のページでは従来どおり有効 -->
 </head>
 <body class="page-database">
     <!-- スプラッシュオーバーレイ -->
@@ -70,16 +71,10 @@
         </div>
     </header>
 
-    <section class="page-hero">
-        <h2 id="sidebar-toggle" class="page-hero-toggle">
-            <span>DATABASE</span>
-            <i class="ph-bold ph-caret-left page-hero-caret" style="font-size:18px"></i>
-        </h2>
-        <button id="grid-toggle" class="page-hero-grid-toggle" aria-label="サイドバーを隠して6列表示に切替">
-            <i class="ph-bold ph-caret-left" style="font-size:18px"></i>
-        </button>
-        <p>全作品のカタログを出版社・ジャンル別に検索</p>
-    </section>
+    <!-- ホームには page-hero（「DATABASE」のタイトル帯）を置かない。
+         サイドバーの開閉はタイトル横の矢印ではなく、サイドバー最下段のボタンが担う。
+         右下に出ていたタイトル表示切替ボタン（page-hero-toggle.js の #pageHeroToggle）も
+         このページでは読み込まない -->
     <!-- メインコンテンツ -->
     <div class="main-layout">
         <!-- サイドバー -->
@@ -130,6 +125,23 @@
                     </ul>
                 </details>
             </nav>
+            <!-- サイドバーを畳むボタンが2つ。どちらもサイドバーは細い帯になるが、
+                 カタログの扱いが違う。畳んだ時は押したほうのボタンだけが残る
+                 （ボタンの位置は動かない）
+                 ・左＝畳むだけ。表紙の大きさはそのままで中央に寄る
+                 ・右＝ワイド表示。空いたぶんカタログが広がって表紙も大きくなる
+                 アイコンは2つとも同じ矢印（ph-caret-left）。見た目では区別せず
+                 位置で覚えてもらう。畳むと押したほうだけが残って矢印が反転する -->
+            <div class="sidebar-btn-row">
+                <button type="button" id="sidebar-toggle" class="sidebar-collapse-btn"
+                        aria-label="サイドバーを畳む" aria-expanded="true">
+                    <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+                </button>
+                <button type="button" id="sidebar-wide" class="sidebar-collapse-btn"
+                        aria-label="ワイド表示にする" aria-expanded="true">
+                    <i class="ph-bold ph-caret-left" aria-hidden="true"></i>
+                </button>
+            </div>
         </aside>
 
         <!-- メインエリア -->
@@ -242,30 +254,41 @@
     </script>
 
     <script>
-    // サイドバー開閉
+    // サイドバー開閉（ボタンはサイドバーの最下段に2つ）
+    // モードは3つ。どちらのボタンもトグルで、押すと「開いた状態」に戻る。
+    //   ''          … サイドバーあり（既定）
+    //   'collapsed' … 畳むだけ。カタログの幅は畳む前のままで中央寄せ
+    //   'wide'      … ワイド。カタログが空いたぶんまで広がって表紙も大きくなる
     (function() {
         var layout = document.querySelector('.main-layout');
         var btn = document.getElementById('sidebar-toggle');
-        if (!btn || !layout) return;
+        var wideBtn = document.getElementById('sidebar-wide');
+        if (!btn || !wideBtn || !layout) return;
         // 読み込み時は常に開いた状態。折りたたみは保存せずその場限りにする
         localStorage.removeItem('dbSidebarCollapsed');
-        btn.addEventListener('click', function() {
-            var on = layout.classList.toggle('sidebar-collapsed');
-            document.body.classList.toggle('sidebar-collapsed', on);
-        });
-    })();
-    </script>
 
-    <script>
-    // 6列表示トグル（サイドバーを隠して横6冊並べる）
-    (function() {
-        var btn = document.getElementById('grid-toggle');
-        if (!btn) return;
-        // 6列表示はサイドバーを隠すため、読み込み時は常にオフ（＝サイドバーを出す）。
-        // 切替はその場限りで保存しない
-        localStorage.removeItem('dbGridSix');
+        var mode = '';
+
+        function apply() {
+            layout.classList.toggle('sidebar-collapsed', mode === 'collapsed');
+            layout.classList.toggle('sidebar-wide', mode === 'wide');
+            document.body.classList.toggle('sidebar-collapsed', mode === 'collapsed');
+            document.body.classList.toggle('sidebar-wide', mode === 'wide');
+
+            btn.setAttribute('aria-expanded', String(mode !== 'collapsed'));
+            btn.setAttribute('aria-label', mode === 'collapsed' ? 'サイドバーを戻す' : 'サイドバーを畳む');
+            wideBtn.setAttribute('aria-expanded', String(mode !== 'wide'));
+            wideBtn.setAttribute('aria-label', mode === 'wide' ? 'ワイド表示をやめる' : 'ワイド表示にする');
+            // 矢印の反転はCSS側（.main-layout.sidebar-wide #sidebar-wide i など）
+        }
+
         btn.addEventListener('click', function() {
-            document.body.classList.toggle('grid-six');
+            mode = (mode === 'collapsed') ? '' : 'collapsed';
+            apply();
+        });
+        wideBtn.addEventListener('click', function() {
+            mode = (mode === 'wide') ? '' : 'wide';
+            apply();
         });
     })();
     </script>

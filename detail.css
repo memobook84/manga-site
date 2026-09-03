@@ -1796,6 +1796,36 @@ body.dark-mode .range-field input {
     }
 }
 
+/* スマホのポップアップを縦に伸ばす。幅（max-width:360px）は変えず高さだけ足す。
+   内訳は 表紙を大きく＋表紙パネルの上下余白＋情報パネルの余白＋あらすじ5行→7行。
+   iPhone 14 相当（縦844px）で 約600px → 約710px になる。
+
+   表紙の幅を 23dvh でも頭打ちにしているのは、縦の短い端末でポップアップが
+   画面からはみ出さないようにするため。.quickview-content には max-height も
+   スクロールも無いので、はみ出すと下のボタンがそのまま切れてしまう。
+   23dvh は表紙の高さでいうと約33dvh（表紙の縦横比 ≒ 1:0.7）。
+   これで iPhone SE（縦667px）でもオーバーレイの余白（上下20px）内に収まる。
+   vh ではなく dvh なのはブラウザのURLバーぶんを引いた実寸で測るため。
+   ※背面スクロールは固定してあるので、表示中に dvh が変わって表紙が動くことはない */
+@media (max-width: 600px) {
+    .quickview-cover {
+        padding: 34px 20px 38px;
+    }
+
+    .quickview-cover-img img,
+    .quickview-cover-img .manga-cover-placeholder {
+        width: min(205px, 23dvh);
+    }
+
+    .quickview-info {
+        padding: 24px 22px 26px;
+    }
+
+    .quickview-desc {
+        -webkit-line-clamp: 7;
+    }
+}
+
 /* タブレット縦長ポップアップ: スマホより大きめに */
 @media (min-width: 601px) and (max-width: 1024px) {
     .quickview-content {
