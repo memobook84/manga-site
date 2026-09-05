@@ -32,7 +32,8 @@ async function displaySeriesVolumes() {
         return;
     }
 
-    listEl.innerHTML = '<p class="sv-message">読み込み中...</p>';
+    // 「読み込み中...」は出さない。取得できた時点で一気に描画する
+    listEl.innerHTML = '';
 
     // detail.js と同じ取得方法。まず焼いてあるキャッシュ、無ければAPI検索
     let allVolumes = (typeof loadSeriesVolumes === 'function')

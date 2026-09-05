@@ -28,6 +28,9 @@
     margin-bottom: 0;
     font-family: var(--font-heading);
     font-weight: 400;
+    /* 取得までは空にしてあるので、1行ぶんの高さだけ先に確保しておく。
+       確保しないと空のh1が潰れて、名前が入った瞬間に下の内容がずれる */
+    min-height: 1.2em;
 }
 
 /* 著者名の右に添えるローマ字表記（英語版Wikipediaの記事名）。

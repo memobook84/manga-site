@@ -210,6 +210,9 @@
     line-height: 1.4;
     font-family: var(--font-heading);
     font-weight: 400;
+    /* 取得までは空にしてあるので、1行ぶんの高さだけ先に確保しておく。
+       確保しないと空のh1が潰れて、タイトルが入った瞬間に下の情報がずれる */
+    min-height: 1.4em;
 }
 
 .detail-author-line {
@@ -955,9 +958,11 @@ body.dark-mode .range-field input {
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
+/* ホバーの浮き上がりは控えめに。持ち上げすぎると一覧全体がざわつくので、
+   気付く程度（2px）にとどめ、影も広げずに少し濃くするだけにする */
 .volume-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
 }
 
 .volume-item img {
@@ -1347,6 +1352,57 @@ body.dark-mode .range-field input {
     }
 }
 
+/* ビューアで読める巻だけに出る「読む」アイコンリンク。押すとそのままリーダーへ。
+   形はクイックビューの丸ボタンと揃え、色は「読む」ボタン（#F5C518）に合わせる。
+   表紙は object-position:bottom で下寄せなので、確実に絵に重なる左下に置く
+   （右下はクイックビューの丸ボタンの定位置）。
+   「読める巻がある」ことの目印も兼ねるのでホバー待ちにせず常時表示 */
+.volume-read-link {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #F5C518;
+    color: #121016;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+    transition: background 0.15s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+    z-index: 2;
+}
+
+.volume-read-link[hidden] {
+    display: none;
+}
+
+/* 単行本ページの読むボタンと同じSVG。色は親の color を継いで塗る */
+.volume-read-link svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
+@media (hover: hover) {
+    .volume-read-link:hover {
+        background: #FFD426;
+        transform: scale(1.08);
+    }
+}
+
+/* ---- 現在は休止中（全デバイス非表示） ----
+   表紙にボタンが2つ乗ると一覧が煩いため、「読む」への導線は
+   クイックビューのボタンに一本化している。
+   上のスタイルとJS（detail.js の applyReadLinks）はそのまま残してあるので、
+   復活させるときはこのブロックを消すだけでよい */
+.volume-read-link {
+    display: none;
+}
+
 .quickview-overlay {
     position: fixed;
     inset: 0;
@@ -1653,16 +1709,17 @@ body.dark-mode .range-field input {
     text-decoration: none;
     border-radius: 3px;
     white-space: nowrap;
-    transition: background 0.18s ease, gap 0.18s ease;
+    transition: background 0.18s ease;
 }
 
 .quickview-read[hidden] {
     display: none;
 }
 
+/* ホバーは色だけ。以前は gap を広げてボタンごと横に伸ばしていたが、
+   隣のボタンまで押しやられて落ち着かないので廃止した */
 .quickview-read:hover {
     background: #FFD426;
-    gap: 11px;
 }
 
 .quickview-read svg {
@@ -1688,12 +1745,12 @@ body.dark-mode .range-field input {
     text-transform: uppercase;
     text-decoration: none;
     border-radius: 3px;
-    transition: background 0.18s ease, gap 0.18s ease;
+    transition: background 0.18s ease;
 }
 
+/* .quickview-read と同じく、ホバーで横に伸びるのはやめて色だけ変える */
 .quickview-link:hover {
     background: #371F63;
-    gap: 14px;
 }
 
 /* ---- 前後の巻へ移動する左右ボタン ----

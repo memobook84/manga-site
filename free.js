@@ -154,7 +154,8 @@
     render();
   });
 
-  gridEl.innerHTML = '<p class="free-empty">読み込み中…</p>';
+  // 「読み込み中…」は出さない。取得できた時点で一気に描画する
+  gridEl.innerHTML = '';
 
   fetch(DATA_URL)
     .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('data ' + r.status)); })

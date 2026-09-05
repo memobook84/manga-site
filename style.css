@@ -2174,10 +2174,10 @@ body.dark-mode .page-btn.is-current::after {
     padding: 0 16px;
     font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
     font-weight: 700;
-    /* ヘッダーのサイトタイトルと同じ大きさにそろえる（PC＝30px）。
-       スマホぶんは下の max-width:768px で19pxに落とす。
-       ※ヘッダー側（header h1）の font-size を変えたらここも合わせること */
-    font-size: 30px;
+    /* PCは画面いっぱいのスプラッシュなので、ヘッダーのサイトタイトル(30px)より
+       大きく見せる。スマホぶんは下の max-width:768px で19px（＝スマホの
+       ヘッダーと同じ大きさ）に落とす */
+    font-size: 56px;
     line-height: 1;
     letter-spacing: 0.04em;
     color: #4B2C82;
@@ -2441,18 +2441,18 @@ body.dark-mode .nav-menu-btn:hover {
 .nav-menu-cols {
     display: flex;
     align-items: stretch;
-    padding: 26px 32px;
-    gap: 36px;
+    padding: 26px 44px;
+    gap: 52px;
 }
 .nav-menu-col {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-width: 205px;
+    min-width: 270px;
 }
 /* 右カラム（サイト情報）は縦線で区切る */
 .nav-menu-col-sub {
-    padding-left: 36px;
+    padding-left: 52px;
     border-left: 1px solid rgba(0, 0, 0, 0.10);
 }
 

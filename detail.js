@@ -285,6 +285,11 @@ function volumeCoverHeight(grid) {
     return Math.round(cellWidth * (176 / 112));
 }
 
+// 「読む」のアイコン（Font Awesome 5 solid の book-open ＝ react-icons の FaBookOpen）。
+// 単行本ページ（volume.html）の読むボタンと同じ絵にそろえてある。
+// 一覧のアイコンリンクとクイックビューの「読む」ボタンの2箇所で使い回す
+const READ_ICON_SVG = '<svg viewBox="0 0 576 512" aria-hidden="true"><path d="M542.22 32.05c-54.8 3.11-163.72 14.43-230.96 55.59-4.64 2.84-7.27 7.89-7.27 13.17v363.87c0 11.55 12.63 18.85 23.28 13.49 69.18-34.82 169.23-44.32 218.7-46.92 16.89-.89 30.02-14.43 30.02-30.66V62.75c.01-17.71-15.35-31.74-33.77-30.7zM264.73 87.64C197.5 46.48 88.58 35.17 33.78 32.05 15.36 31.01 0 45.04 0 62.75V400.6c0 16.24 13.13 29.78 30.02 30.66 49.49 2.6 149.59 12.11 218.77 46.95 10.62 5.35 23.21-1.94 23.21-13.46V100.63c0-5.29-2.62-10.14-7.27-12.99z"/></svg>';
+
 // 巻一覧を表示（巻数でソート、volume.htmlへリンク）
 function displayVolumesList(volumes, seriesName) {
     const volumesGrid = document.getElementById('volumes-grid');
@@ -317,9 +322,18 @@ function displayVolumesList(volumes, seriesName) {
         const baseName = seriesName || extractSeriesName(vol.title) || vol.title || '';
         const volumeLabel = vol.volumeNum !== null ? `${baseName}（${vol.volumeNum}巻）` : (vol.title || baseName);
 
+        // 「読む」アイコンリンクの判定に使う。readers.json がまだ届いていない場合に
+        // 後から付け直せるよう、巻数とシリーズ名をDOMに持たせておく
+        volumeItem.dataset.readKey = baseName;
+        if (vol.volumeNum !== null) volumeItem.dataset.volNum = vol.volumeNum;
+
         volumeItem.innerHTML = `
             <div class="volume-cover-wrap">
                 ${imageHtml}
+                <a class="volume-read-link" href="#" hidden
+                   aria-label="この巻を読む" title="読む">
+                    ${READ_ICON_SVG}
+                </a>
                 <button type="button" class="volume-quick-btn" aria-label="クイックビュー">
                     <i class="ph-bold ph-caret-down" style="font-size:17px"></i>
                 </button>
@@ -343,10 +357,39 @@ function displayVolumesList(volumes, seriesName) {
             openQuickView(withVolNum, seriesName, volIndex);
         });
 
+        // 「読む」はカードのクリック（巻ページへ）に食われないよう伝播を止める
+        volumeItem.querySelector('.volume-read-link').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         volumesGrid.appendChild(volumeItem);
     });
 
+    // ビューアで読める巻に「読む」アイコンリンクを出す。
+    // readers.json は非同期なので、間に合わなかった場合は届いてからもう一度当てる
+    applyReadLinks(volumesGrid);
+    if (!readerIndex) loadReaderIndex().then(() => applyReadLinks(volumesGrid));
+
     return withVolNum;
+}
+
+// 一覧の各巻に「読む」アイコンリンクを出す／消す。
+// 索引（readers.json）が未読込のうちは何もしない＝リンクは hidden のまま
+function applyReadLinks(grid) {
+    if (!grid || !readerIndex) return;
+    grid.querySelectorAll('.volume-item').forEach((item) => {
+        const link = item.querySelector('.volume-read-link');
+        if (!link) return;
+        const raw = item.dataset.volNum;
+        const volNum = raw === undefined || raw === '' ? null : Number(raw);
+        const url = readerUrlFor(item.dataset.readKey || '', volNum);
+        if (url) {
+            link.href = url;
+            link.hidden = false;
+        } else {
+            link.hidden = true;
+        }
+    });
 }
 
 // ===== クイックビュー（シリーズ一覧の巻ホバー → 簡易ポップアップ） =====
@@ -373,7 +416,7 @@ function ensureQuickViewModal() {
                 <div class="quickview-actions">
                     <!-- 公式に無料公開されている巻だけ renderQuickView が出す -->
                     <a class="quickview-read" href="#" hidden>
-                        <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M352 96c0-53.02-42.98-96-96-96s-96 42.98-96 96 42.98 96 96 96 96-42.98 96-96zM233.59 241.1c-59.33-36.32-155.43-46.3-203.79-49.05C13.55 191.13 0 203.51 0 219.14v222.8c0 14.33 11.59 26.28 26.49 27.05 43.66 2.29 131.99 10.68 193.04 41.43 9.37 4.72 20.48-1.71 20.48-11.87V252.56c-.01-4.67-2.32-8.95-6.42-11.46zm248.61-49.05c-48.35 2.74-144.46 12.73-203.78 49.05-4.1 2.51-6.41 6.96-6.41 11.63v245.79c0 10.19 11.14 16.63 20.54 11.9 61.04-30.72 149.32-39.11 192.97-41.4 14.9-.78 26.49-12.73 26.49-27.06V219.14c-.01-15.63-13.56-28.01-29.81-27.09z"/></svg>
+                        ${READ_ICON_SVG}
                         <span>読む</span>
                     </a>
                     <a class="quickview-link" href="#">

@@ -130,6 +130,9 @@ body {
     line-height: 1.4;
     font-family: var(--font-heading);
     font-weight: 400;
+    /* 取得までは空にしてあるので、1行ぶんの高さだけ先に確保しておく。
+       確保しないと空のh1が潰れて、タイトルが入った瞬間に下の情報がずれる */
+    min-height: 1.4em;
 }
 
 .volume-number-display {

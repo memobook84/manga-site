@@ -19,6 +19,9 @@
     font-family: 'Noto Sans JP', 'Inter', sans-serif;
     line-height: 1.3;
     margin: 0 0 6px;
+    /* 取得までは空にしてあるので、1行ぶんの高さだけ先に確保しておく。
+       確保しないと空の見出しが潰れて、作品名が入った瞬間に下の一覧がずれる */
+    min-height: 1.3em;
 }
 
 .sv-hero p {
