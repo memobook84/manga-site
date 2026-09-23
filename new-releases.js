@@ -63,7 +63,30 @@ function addEntry(item) {
     return true;
 }
 
+// 毎朝のバッチ（scripts/build-releases-ranking.js）が、60日前〜発売予定までの巻を
+// data/new-releases.json に焼いておくので、まずそれを読んで一度に描く。
+// ファイルが無い・壊れている時だけ、下の fetchReleasesFromApi() で楽天APIを直接呼ぶ
 async function fetchReleases() {
+    try {
+        const res = await fetch('/data/new-releases.json');
+        if (res.ok) {
+            const data = await res.json();
+            if (data && data.items && data.items.length) {
+                adaptApiResponse({ items: data.items }).items.forEach(addEntry);
+                nrLoading = false;
+                renderList();
+                return;
+            }
+        }
+    } catch (e) {
+        console.warn('new-releases.json の読み込みに失敗。APIから取得します:', e);
+    }
+    await fetchReleasesFromApi();
+}
+
+// 予備の取得経路。発売日の新しい順に出版社ごと最大8ページ読むだけなので、
+// 先の予約商品が多い時期は今日までさかのぼれず「発売中」が薄くなる
+async function fetchReleasesFromApi() {
     const cutoff = onsaleCutoff();
     for (const pub of NR_PUBLISHERS) {
         for (let page = 1; page <= MAX_PAGES_PER_PUB; page++) {
@@ -108,7 +131,9 @@ function releaseRow(item) {
     const cover = item.imageUrl
         ? `<img src="${withRakutenSize(item.imageUrl, 320)}" alt="" loading="lazy" onerror="this.style.display='none'">`
         : '';
-    const price = item.price ? `${Number(item.price).toLocaleString()}円` : '';
+    // item.price は adaptItem が「¥660（税込）」の文字列にしているので、数値の priceRaw を使う
+    // （以前は price を Number() に通していて「NaN円」と出ていた）
+    const price = item.priceRaw ? `${Number(item.priceRaw).toLocaleString()}円` : '';
     return `<div class="nr-row" data-isbn="${item.isbn || ''}" data-title="${(item.title || '').replace(/"/g, '&quot;')}">
         <div class="nr-row-cover">${cover}</div>
         <div class="nr-row-info">

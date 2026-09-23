@@ -84,9 +84,10 @@
     var size = book.size;
     var dim = size ? ' width="' + size.width + '" height="' + size.height + '"' : '';
 
-    // 番号を紙面の隅に重ねるので、1枚ずつ包んで位置の基準を作る
+    // 番号を紙面の隅に重ねるので、1枚ずつ包んで位置の基準を作る。
+    // 包みにも左右を付けておく（スマホの単ページで外側に余白を空けるのに使う）
     layer.innerHTML = group.map(function (nth) {
-      return '<div class="rd-page-wrap">' +
+      return '<div class="rd-page-wrap is-' + pageSide(nth) + '">' +
         '<img class="rd-page"' + dim + ' src="' + pageUrl(nth) +
         '" alt="' + nth + 'ページ" draggable="false">' +
         '<span class="rd-nombre is-' + pageSide(nth) + '">' + nth + '</span>' +

@@ -11,6 +11,37 @@
     unicode-range: U+0041-005A, U+0061-007A; /* A-Z, a-z */
 }
 
+/* サイトタイトル用の Luckiest Guy を自前で読み込み直す（Google Fonts の
+   CSSリンクより後に宣言しているので、こちらの定義が使われる）。
+   ------------------------------------------------------------------
+   目的は「文字の縦位置をOSによらず固定する」こと。
+   Luckiest Guy はフォント内の上下メトリクスが2種類あり、値が大きく違う。
+     ・OS/2 usWin  : ascent 0.980em / descent 0.246em  → Windows が使う
+     ・hhea        : ascent 0.703em / descent 0.297em  → iOS・iPadOS・Android・macOS が使う
+   行ボックスの中で文字がどこに乗るかはこの ascent で決まるため、同じCSSでも
+   タブレット／スマホでは Windows より約6px（40px時）高い位置に描かれていた。
+   ＝「ヘッダーのタイトルが上下の中心に来ていない」の原因。
+
+   ascent-override / descent-override を書くとフォント内の値が無視され、
+   全OSでこの値が使われる。大文字の高さ（cap height）は 1424/2048 = 0.6953em で、
+     ascent − descent = cap height
+   を満たす値にすると、大文字の箱の中心が行ボックスのちょうど中心に来る。
+   （font-size や line-height を変えてもこの関係は崩れないので、PCの40px・
+     スマホの24pxどちらも自動的に中央にそろう）
+     ascent 0.84766 − descent 0.15234 = 0.69531 ✓  合計は 1.0em（＝line-height:1 で高さ1em）
+   ※値を変えるときは必ず「差＝0.6953」を保つこと。上下にずらしたいだけなら
+     両方に同じ数を足し引きする（例: 足すと文字が下がる） */
+@font-face {
+    font-family: 'Luckiest Guy';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('fonts/LuckiestGuy-latin.woff2') format('woff2');
+    ascent-override: 84.766%;
+    descent-override: 15.234%;
+    line-gap-override: 0%;
+}
+
 /* === CSS Variables === */
 :root {
     --color-header: #422476;
@@ -320,17 +351,34 @@ header.header-hidden {
     header {
         background-color: #644476;
     }
-    /* Montserratの字形をそのまま見せる。
-       以前は font-weight:900 ＋ 濃紺の縁取り（-webkit-text-stroke）で
-       字が潰れていたので、太さは700に戻し縁取りは外した */
+    /* PCのサイトタイトルだけコミック体（Luckiest Guy）にする。
+       モバイルはロゴ画像／小さい文字に差し替わるので影響なし。
+       ・ウェイトは1種類しかないので400固定（700にすると偽ボールドで潰れる）
+       ・font-size は40pxが上限。超えると行の高さが検索ボックス（40px）を
+         上回って、ヘッダーが68pxより高くなる
+       ・手描き風の字形は字間を空けると間延びするので letter-spacing も詰める */
     header h1, header h1 a {
         color: #F7F7F7 !important;
-        font-weight: 700;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
-        /* PCのサイトタイトルだけ字間を少し広げ、文字は少し小さくする
-           （モバイルはロゴ画像に差し替わるので影響なし） */
-        letter-spacing: 0.08em;
-        font-size: 30px;
+        font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
+        font-weight: 400;
+        /* Luckiest Guy は1ウェイトしかなく font-weight では細くできないので、
+           ヘッダー背景と同じ紫の輪郭線を塗りの上に重ねて白を内側から削る。
+           -webkit-text-stroke は線幅の半分が内側に描かれるため、
+           1.2px 指定で片側0.6pxずつ細くなる（外側半分は背景と同色なので見えない）。
+           ※ヘッダーの背景色を変えたら、この色も同じ値に直すこと
+           ※影は元の太さの輪郭から落ちて縁が濁るので、細くする間は外す
+             （元の指定: text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);） */
+        -webkit-text-stroke: 1.2px #644476;
+        letter-spacing: 0.02em;
+        /* 素の header h1 に入っている top:-2px（Montserrat時代の光学補正）は
+           このフォントでは不要。打ち消すと文字の上下中心がヘッダーの中心
+           （68px の半分＝34px）にちょうど乗る */
+        top: 0;
+        font-size: 40px;
+        /* コミック体は行の余白（ascent/descent）が広く、フォントが読み込まれた
+           瞬間にヘッダーの高さが変わりかねないので行高を固定しておく。
+           これで中身の最大高＝検索ボックス(40px)のままヘッダーは68px */
+        line-height: 1;
     }
     /* ナビはサイトタイトルと同じ色にそろえる */
     header .nav-link {
@@ -592,15 +640,17 @@ body:not(.nav-ready) .nav-link {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* 2つで帯を等分。畳むと片方が display:none になるので、
-       残ったほうが26pxの帯いっぱいに広がる */
-    flex: 1;
+    /* 2つとも26px幅で左に詰める（以前は flex:1 で帯を等分していた）。
+       畳んだ時の帯も26pxなので、残ったほうがちょうど帯に収まる */
+    flex: 0 0 26px;
     min-width: 0;
     padding: 8px 0;
     border: none;
     background: none;
-    color: #9A93A8;
-    font-size: 16px;
+    /* 普段は目立たせない。押せない項目と同じ淡い色で小さめにして、
+       ホバーした時だけ紫になる（以前は #9A93A8 ／ 16px） */
+    color: var(--sidebar-arrow);
+    font-size: 12px;
     line-height: 1;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -706,9 +756,9 @@ body:not(.nav-ready) .nav-link {
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    /* 枠が無いぶん、段と段の切れ目はこの余白で見せる。
+    /* 線が無いぶん、段と段の切れ目はこの余白で見せる。
        段の最後の項目と、次の見出しの間隔を決める数字 */
-    gap: 20px;
+    gap: 18px;
 }
 
 /* ===== 四隅だけ2pxにする案（不採用） =====
@@ -766,35 +816,25 @@ body:not(.nav-ready) .nav-link {
 }
 */
 
-/* 段（ジャンル / レーベル / 出版社）に枠は付けない。
-   区切りは見出しの下の1本だけで見せる。
-   ※箱で囲む形に戻すなら、ここに
-     border: var(--sidebar-line-w) solid var(--sidebar-line); を足す */
+/* 段（ジャンル / レーベル / 出版社）は枠も区切り線も付けない。
+   段の切れ目は .sidebar-nav の gap（余白）だけで見せる */
 
-/* 開いている段だけ、見出しと項目リストの間に仕切りを入れる。
-   閉じている段は見出しだけなので線は要らない */
-.sidebar-section[open] > .sidebar-heading {
-    border-bottom: var(--sidebar-line-w) solid var(--sidebar-line);
-}
-
-/* 見出し＝開閉ボタン。右端の ＋／－ は擬似要素で作る（アイコン画像は使わない）。
-   ::before が横棒（常時）、::after が縦棒（閉じている時だけ） */
+/* 見出し＝開閉ボタン（summary）。開閉の印は付けない
+   （以前は右端に ＋／－、その次は山形 ︿／﹀ を出していた） */
 .sidebar-heading {
     display: flex;
     align-items: center;
     position: relative;
-    /* 右は ＋／－ のぶんを空ける。左6pxは項目（.sidebar-link）と同じ値で、
-       見出しと項目の左端がそろう */
-    padding: 16px 34px 16px 6px;
-    /* 項目（13px）より小さいが、字間を広げて見出しだと分かるようにする */
-    font-size: 12px;
+    /* 左0で「Filter by:」・チェック枠と左端がそろう */
+    padding: 8px 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    /* 太字にはしない（メインの「新着作品」などの見出しと太さをそろえる）。
+       項目（13px・チェック枠付き）とは大きさで区別する */
+    font-size: 15px;
     font-weight: 400;
     line-height: 1.4;
-    /* 項目と同じ濃さ。見出しらしさは字間（0.14em）と小ささ（12px）で出す。
-       淡くするなら var(--color-text-sub) → var(--sidebar-arrow) の順に薄くなる */
+    letter-spacing: 0.04em;
     color: var(--color-text);
-    letter-spacing: 0.14em;
-    font-family: 'Noto Sans JP', sans-serif;
     cursor: pointer;
     user-select: none;
     /* summary の既定マーカー（三角）を消す */
@@ -802,47 +842,13 @@ body:not(.nav-ready) .nav-link {
 }
 
 /* 一番上の見出し（ジャンル）だけ上の余白を落として、
-   カタログ側の「新着作品」の見出しと同じ高さから始める。
-   .sidebar は padding:0 なので、これで文字の位置がちょうど列の上端になる。
-   ※以前この方式をやめていたのは、段に枠（border-top）があると
-     線と文字がくっついて窮屈だったため。今は枠が無いので問題ない */
+   カタログ側の「新着作品」の見出しと同じ高さから始める */
 .sidebar-section:first-child > .sidebar-heading {
     padding-top: 0;
 }
 
-/* 上の余白を落とすと箱の中央が下にずれるので、＋／－ は箱ではなく
-   文字の中央に合わせ直す（行の高さ1.4emの半分＝0.7em） */
-.sidebar-section:first-child > .sidebar-heading::before,
-.sidebar-section:first-child > .sidebar-heading::after {
-    top: 0.7em;
-}
-
 .sidebar-heading::-webkit-details-marker {
     display: none;
-}
-
-.sidebar-heading::before,
-.sidebar-heading::after {
-    content: '';
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    width: 11px;
-    height: 1px;
-    margin-top: -0.5px;
-    /* 見出しの文字と同じ淡さにそろえる */
-    background-color: currentColor;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.sidebar-heading::after {
-    transform: rotate(90deg);
-}
-
-/* 開いている時は縦棒を消して ＋ を － にする */
-.sidebar-section[open] > .sidebar-heading::after {
-    transform: rotate(90deg) scaleX(0);
-    opacity: 0;
 }
 
 .sidebar-heading svg {
@@ -854,20 +860,18 @@ body:not(.nav-ready) .nav-link {
     display: flex;
     flex-direction: column;
     gap: 0;
-    padding: 6px 0 10px;
+    padding: 4px 0 0;
 }
 
+/* 項目。左にチェック枠を付けているが、選べるのは今までどおり1つだけ
+   （別の項目を押すと前の選択は外れる。JSは database.js の setupSidebar） */
 .sidebar-link {
     display: block;
     width: 100%;
-    /* 左は見出しとそろえる（どちらも6px）。下げ幅を付けると
-       見出しの下の線から項目だけがずれて見えるため。
-       右は矢印のぶんを空ける。上下は行間を広めにとって10px→12px */
-    padding: 12px 28px 12px 6px;
+    /* 左はチェック枠（16px）＋すき間（12px）のぶんを空ける */
+    padding: 7px 0 7px 28px;
     border: 0;
     background: none;
-    /* 見出しを淡くしたぶん、項目は濃いままにして主役をはっきりさせる
-       （淡めに戻すなら var(--color-text-sub)） */
     color: var(--color-text);
     text-decoration: none;
     text-align: left;
@@ -888,19 +892,37 @@ body:not(.nav-ready) .nav-link {
     display: none;
 }
 
-/* 行末の「›」。border 2辺を45度回して作る */
+/* ::before がチェック枠、::after が中のチェック印（選択中だけ見せる） */
+.sidebar-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    box-sizing: border-box;
+    border: 1.5px solid var(--color-text);
+    border-radius: 3px;
+    background-color: transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    pointer-events: none;
+}
+
 .sidebar-link::after {
     content: '';
     position: absolute;
-    right: 14px;
+    left: 5.5px;
     top: 50%;
-    margin-top: -3px;
     width: 5px;
-    height: 5px;
-    border-top: 1px solid var(--sidebar-arrow);
-    border-right: 1px solid var(--sidebar-arrow);
+    height: 9px;
+    margin-top: -6px;
+    box-sizing: border-box;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
     transform: rotate(45deg);
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    opacity: 0;
+    transition: opacity 0.15s ease;
     pointer-events: none;
 }
 
@@ -908,26 +930,35 @@ body:not(.nav-ready) .nav-link {
     color: var(--color-text);
 }
 
-.sidebar-link:hover::after {
-    border-color: var(--color-text);
-    transform: translateX(2px) rotate(45deg);
+.sidebar-link:hover::before {
+    border-color: var(--color-accent);
 }
 
-/* 選択中はテーマ紫。矢印も同じ色にそろえる */
+/* 選択中は枠をテーマ紫で塗って白いチェックを出す */
 .sidebar-link.active {
     background-color: transparent;
     color: var(--color-accent);
     font-weight: 500;
 }
 
-.sidebar-link.active::after {
+.sidebar-link.active::before {
+    background-color: var(--color-accent);
     border-color: var(--color-accent);
 }
 
-/* 収録対象外の出版社。押せないので矢印を出さず、ホバーにも反応させない */
+.sidebar-link.active::after {
+    opacity: 1;
+}
+
+/* 収録対象外の出版社。押せないので枠も文字も淡くして、ホバーにも反応させない */
 .sidebar-link-off {
     color: var(--sidebar-arrow);
     cursor: default;
+}
+
+.sidebar-link-off::before,
+.sidebar-link-off:hover::before {
+    border-color: var(--sidebar-arrow);
 }
 
 .sidebar-link-off::after {
@@ -1518,53 +1549,35 @@ body.dark-mode .cover-mark-text {
 
 /* .grid-header（話題の作品＝下のカタログの見出し）も同じ見た目にそろえる。
    別々に書くと片方だけ直して食い違うので、セレクタを並べて1か所で持つ */
+/* 見出しの下に、メインエリアの幅いっぱいの線を1本引く。
+   以前は文字の右に線を伸ばす形（flex ＋ ::after の flex:1）だった */
 .new-series-header,
 .grid-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    /* 文字と、その右に続く線（::after）の間隔 */
-    gap: 12px;
-    /* 見出しと表紙の間を詰める。.new-series-row 側に padding-top:6px
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+    /* 線と表紙の間。.new-series-row 側に padding-top:6px
        （表紙の影を切らないための余白）があるので、実際の隙間は +6px になる */
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
-/* 見出しの文字の右に引く線。文字の右端（gap 12px ぶん空けて）から
-   メインエリアの右端まで伸ばす。
-   以前は 120px の固定長を絶対配置で「箱の真ん中」に置いていたが、
-   flexの子として flex:1 で伸ばす形に変えた（幅を指定しないので画面幅について来る）。
-   親は align-items:baseline なので、高さ1pxのこの線だけ align-self:center で
-   文字の高さの中央にそろえる。
-   長さを固定に戻したい時は flex:1 を消して width:120px（スマホは80px）に戻す */
-.new-series-header::after,
-.grid-header::after {
-    content: '';
-    flex: 1;
-    align-self: center;
-    height: 1px;
-    background: var(--color-border);
-}
-
-/* 中身は「新着作品」の文字。
-   字間・フォント・色はサイドバーの見出し（.sidebar-heading）に合わせているが、
-   大きさだけはサイドバーの項目（.sidebar-link＝少年漫画など）と同じ 13px */
+/* 中身は「新着作品」の文字。メインの見出しなのでサイドバーの見出しより
+   一回り大きくするが、太字にはしない（太字は試して不採用） */
 .new-series-title,
 .grid-title {
-    font-size: 13px;
+    font-size: 18px;
     /* h2 の既定は太字なので明示的に戻す */
     font-weight: 400;
     line-height: 1.4;
     color: var(--color-text);
     font-family: 'Noto Sans JP', sans-serif;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.04em;
 }
 
 /* 話題の作品の見出しだけの調整。
-   新着作品の見出しは下に横スクロール枠（padding-top:6px）が続くので 10px で足りるが、
+   新着作品の見出しは下に横スクロール枠（padding-top:6px）が続くが、
    こちらは表紙がすぐ下に来るので、その 6px ぶんを margin で足して間隔をそろえる */
 .grid-header {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .grid-header[hidden] {
@@ -1742,11 +1755,10 @@ body.dark-mode .new-series-nav:hover {
         margin-bottom: 24px;
     }
 
-    /* 余白だけでは弱いので、見出し自体も少し大きくして頭を立たせる */
+    /* 画面が狭いぶん、PC（18px）より一段小さくする */
     .new-series-title,
     .grid-title {
-        font-size: 15px;
-        font-weight: 500;
+        font-size: 16px;
     }
 
     /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味（休止中）
@@ -1756,11 +1768,14 @@ body.dark-mode .new-series-nav:hover {
     }
     */
 
-    /* 見出しの線はスマホでも右端まで伸ばすので、長さの指定は要らない
-       （以前は width:80px にしていた） */
+    /* 線と表紙の間はPCより詰める。新着作品は下の横スクロール枠の
+       padding-top:6px が足されるので、どちらも実際の隙間は16pxになる */
+    .new-series-header {
+        margin-bottom: 10px;
+    }
 
     .grid-header {
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
 
     /* 段の間隔もカタログの行間（24px）に合わせる */
@@ -2172,15 +2187,19 @@ body.dark-mode .page-btn.is-current::after {
 .splash-title {
     margin: 0;
     padding: 0 16px;
-    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
-    font-weight: 700;
-    /* PCは画面いっぱいのスプラッシュなので、ヘッダーのサイトタイトル(30px)より
+    /* ヘッダーのサイトタイトルと同じコミック体にそろえる */
+    font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    /* PCは画面いっぱいのスプラッシュなので、ヘッダーのサイトタイトル(40px)より
        大きく見せる。スマホぶんは下の max-width:768px で19px（＝スマホの
        ヘッダーと同じ大きさ）に落とす */
     font-size: 56px;
     line-height: 1;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
     color: #4B2C82;
+    /* ヘッダーと同じ細らせ方。ここは背景が白（splash.js が #splashCanvas を
+       非表示にするので下地は #ffffff 一色）なので、輪郭線は白にする */
+    -webkit-text-stroke: 1.2px #ffffff;
     text-align: center;
     white-space: nowrap;
     text-shadow: none;
@@ -2275,12 +2294,14 @@ body.dark-mode .page-btn.is-current::after {
     }
 }
 
-/* スプラッシュのタイトルはヘッダーのサイトタイトルと同じ大きさにそろえる。
-   スマホのヘッダーは 19px（style.css の max-width:768px ブロック）なので合わせる。
+/* スプラッシュのタイトルはスマホでも大きく見せる（36px）。
    上の max-width:480px より後ろに置いて、480px以下でもこちらが勝つようにしている */
 @media (max-width: 768px) {
     .splash-title {
-        font-size: 19px;
+        font-size: 36px;
+        /* 細らせる線も字の大きさに比例させる（36pxなら1.05px）。
+           下地は白なので色は #ffffff のまま */
+        -webkit-text-stroke: 1.05px #ffffff;
     }
 }
 
@@ -2352,15 +2373,15 @@ body.dark-mode .page-btn.is-current::after {
     background: rgba(0,0,0,0.06);
 }
 .nav-menu-btn .nav-caret {
-    /* Tabler Icons の menu-2（react-icons の tb/TbMenu2）＝等長の3本線。
-       塗りではなく線で描くアイコンなので fill:none + stroke で指定する */
+    /* Devicons の ghost_small（react-icons の di/DiGhostSmall）＝長短の棒が3段。
+       線ではなく塗りで描くアイコンなので fill:currentColor + stroke:none で指定する。
+       ※その前は Heroicons v1 solid の view-grid（hi/HiViewGrid）＝2×2のマス目、
+         さらに前は Tabler Icons の menu-2（tb/TbMenu2）＝3本線で、
+         その時は fill:none + stroke:currentColor / stroke-width:2 だった */
     width: 1.25em;
     height: 1.25em;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    fill: currentColor;
+    stroke: none;
     display: block;
 }
 /* 開いている時も背景の枠は出さない。
@@ -2930,7 +2951,7 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         background: rgba(255, 255, 255, 0.18);
     }
 
-    /* メニュートグル（渦巻き）。検索アイコンの右に並ぶ。
+    /* メニュートグル（ダッシュボード）。検索アイコンの右に並ぶ。
        検索側が margin-left:auto なので、この2つがヘッダー右端に寄る。
        display は既定 none のまま。ブラウザ表示のときだけ下の
        (display-mode: browser) ブロックで inline-flex にする */
@@ -3066,12 +3087,19 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         height: auto;
         margin: 0 auto 0 0;
         top: 0; /* ヘッダーのパディングは上下同じなので補正なしで中央 */
-        font-size: 19px !important;
-        letter-spacing: 0.06em;
-        line-height: 34px; /* 検索トグル(34px)と同じ高さで縦中央にそろえる */
+        /* PC・スプラッシュと同じコミック体。ウェイトは1種類なので400固定 */
+        font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
+        font-weight: 400;
+        font-size: 24px !important;
+        letter-spacing: 0.02em;
+        /* 行高は検索トグル(34px)に固定。font-size を上げても
+           ヘッダーの高さ(7px+34px+7px=48px)は変わらない */
+        line-height: 34px;
         white-space: nowrap;
         text-shadow: none !important;
-        -webkit-text-stroke: 0 !important;
+        /* PCと同じ細らせ方。字の大きさに比例させる
+           （PCは40pxに1.2px＝3%なので、24pxなら0.7px） */
+        -webkit-text-stroke: 0.7px #644476 !important;
         background: none;
         border-radius: 0;
         overflow: visible;

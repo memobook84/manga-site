@@ -23,7 +23,8 @@ function rakutenFetch(url) {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
       res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
+        // 楽天はエラーでもJSONで返すので、HTTPステータスも一緒に渡して呼び出し側で見分ける
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
         catch (e) { reject(new Error('JSON parse error')); }
       });
     });
@@ -98,10 +99,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const data = await rakutenFetch(`${RAKUTEN_BASE}?${params}`);
+    const { status, body: data } = await rakutenFetch(`${RAKUTEN_BASE}?${params}`);
 
-    if (data.errors) {
-      return res.status(502).json({ error: data.errors });
+    // 楽天に断られた時（呼びすぎの too_many_requests など）は error（単数）で返ってきて、
+    // 以前は errors（複数）しか見ていなかったので「0件」として200で返していた。
+    // それが vercel.json の s-maxage=43200 で12時間キャッシュされ、
+    // スケジュールの読み込みが途中の空ページで止まる原因になっていた。
+    // 5xx は Vercel のCDNに保存されないので、失敗は必ず 502 で返す
+    if (status !== 200 || data.error || data.errors || !Array.isArray(data.Items)) {
+      console.error('Rakuten API error:', status, JSON.stringify(data).slice(0, 200));
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(502).json({ error: data.errors || data.error || `status ${status}` });
     }
 
     res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');

@@ -124,9 +124,12 @@
 
 /* ===== カードグリッド ===== */
 /* 枠線も背景も持たせず、表紙と3行のテキストだけで見せる（公式の無料作品一覧と同じ形） */
+/* 列は minmax(0, 1fr)。ただの 1fr は「中身より狭くならない」ので、
+   表紙画像の読み込み順しだいで1列だけ中身に押し広げられ、
+   その列のカードだけ巨大になることがあった */
 .free-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 26px 18px;
 }
 
@@ -156,8 +159,12 @@
     transform: scale(1.04);
 }
 
-/* 余白を出さず枠いっぱいに詰める。はみ出したぶんは上下（または左右）から切り落とす */
+/* 余白を出さず枠いっぱいに詰める。はみ出したぶんは上下（または左右）から切り落とす。
+   絶対配置にして、画像そのものの大きさ（500x500 など）が枠やカードの幅の
+   計算に一切混ざらないようにする（枠の大きさは .fc-cover の aspect-ratio だけで決まる） */
 .fc-cover-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -319,7 +326,7 @@ body.dark-mode .fc-meta {
 /* ===== レスポンシブ ===== */
 @media (min-width: 769px) {
     .free-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 30px 20px;
     }
 }

@@ -273,7 +273,7 @@ body.dark-mode .fav-title {
        body { background-color: var(--color-bg) } ＋ --color-bg:#121212 で
        効いているところに、詳細度の高いこの指定が勝ってしまうため */
     body.page-follow:not(.dark-mode) {
-        background-color: #FCFBFA;
+        background-color: #FAF9F7;
     }
 
     /* カード同士の間隔（旧: 10px ＋ .fav-card-body の下 44px） */

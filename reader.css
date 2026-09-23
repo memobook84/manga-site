@@ -251,9 +251,10 @@ body.rd-chrome-hidden .rd-bar-bottom {
 .rd-zone-next { left: 0; }
 .rd-zone-prev { right: 0; }
 
-/* カーソルを寄せた側に、その向きの矢印を出す（PCのみ）。
-   左＝次へ進む側なので左向き、右＝前へ戻る側なので右向き。
-   矢印自体はクリックを受けない（下のボタンにそのまま通す） */
+/* 画面の左右端に出していた丸い矢印バッジ（.rd-zone-arrow）は廃止。
+   向きはマウスカーソル（下の cursor: url(...)）だけで示す。
+   戻す場合はここのコメントを外し、reader.html の span も入れ直すこと。
+
 .rd-zone-arrow {
     position: absolute;
     top: 50%;
@@ -292,15 +293,22 @@ body.rd-chrome-hidden .rd-bar-bottom {
     stroke-linejoin: round;
 }
 
-/* 端の巻端では zone を disabled にしてあるので、矢印も出さない */
+*/
+
 @media (hover: hover) and (pointer: fine) {
-    .rd-zone:not(:disabled):hover .rd-zone-arrow {
-        opacity: 1;
+    /* マウスカーソル自体を進む向きの矢印にする。
+       左＝次へ進む側なので左向き、右＝前へ戻る側なので右向き。
+       CSSの標準カーソルに片方向の矢印は無いので画像を使う（32px・中心を基準点に）。
+       絵柄は Heroicons v1 solid の arrow-narrow-left / -right
+       （react-icons の hi/HiArrowNarrowLeft、hi/HiArrowNarrowRight）をそのまま白で描画。
+       読み込めない環境向けに pointer をフォールバックに残す。
+       端の巻端（:disabled）は素の pointer のまま＝向きを出さない */
+    .rd-zone-next:not(:disabled) {
+        cursor: url("cursor-arrow-left.png") 16 16, pointer;
     }
 
-    .rd-zone-next:not(:disabled):hover .rd-zone-arrow,
-    .rd-zone-prev:not(:disabled):hover .rd-zone-arrow {
-        transform: translateY(-50%) translateX(0);
+    .rd-zone-prev:not(:disabled) {
+        cursor: url("cursor-arrow-right.png") 16 16, pointer;
     }
 }
 
@@ -443,12 +451,7 @@ body.rd-chrome-hidden .rd-bar-bottom {
         max-height: 100dvh;
     }
 
-    /* スマホだけノンブルを上の隅に置く（右ページ＝右上、左ページ＝左上）。
-       左右の振り分けは .is-right / .is-left のままなので、上下だけ入れ替える */
-    .rd-nombre {
-        top: 10px;
-        bottom: auto;
-    }
+    /* ノンブルはスマホもPCと同じ下の隅（以前はスマホだけ上の隅に置いていた） */
 
     .rd-zone {
         width: 38%;
@@ -457,6 +460,25 @@ body.rd-chrome-hidden .rd-bar-bottom {
     .rd-series {
         font-size: 12.5px;
     }
+}
+
+/* 縦持ちのスマホ（1ページずつ）は、紙の本の外側にあたる端に少し余白を空ける。
+   右ページは右端、左ページは左端。左右の判定は reader.js の pageSide()
+   （表紙と偶数ページ＝右、奇数ページ＝左）。
+   紙面を余白のぶん細くして、包みの外側に同じ幅の margin を付けるので、
+   紙面＋余白でちょうど画面幅になり、紙面は綴じ側の端に付いたままになる。
+   余白の幅は --rd-outer-gap の1か所で変える */
+@media (max-width: 768px) and (orientation: portrait) {
+    .rd-spread {
+        --rd-outer-gap: 14px;
+    }
+
+    .rd-page {
+        width: calc(100vw - var(--rd-outer-gap));
+    }
+
+    .rd-page-wrap.is-right { margin-right: var(--rd-outer-gap); }
+    .rd-page-wrap.is-left  { margin-left: var(--rd-outer-gap); }
 }
 
 /* 横に寝かせたスマホは見開きが成立するので、そのときだけ2ページ出す。

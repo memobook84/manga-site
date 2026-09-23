@@ -48,6 +48,13 @@ function resolveImageUrl(item) {
   return { imageUrl: url, hasRealCover };
 }
 
+// 楽天に断られた時（呼びすぎの too_many_requests など）は error（単数）で返り、Items が無い。
+// 以前は errors（複数）しか見ていなかったので「0件」として200で返し、
+// vercel.json の s-maxage=43200 で12時間キャッシュされてしまっていた
+function isRakutenError(data) {
+  return !data || data.error || data.errors || !Array.isArray(data.Items);
+}
+
 function cleanText(str) {
   return str ? str.replace(/\uFFFD+/g, '') : '';
 }
@@ -105,8 +112,16 @@ module.exports = async function handler(req, res) {
   try {
     let data = await rakutenFetch(`${RAKUTEN_BOOK}?${bookParams}`);
 
+    // 断られた時は「結果なし」ではないので、フォールバックせずにそのまま失敗で返す
+    // （5xx は Vercel のCDNに保存されない）
+    if (isRakutenError(data)) {
+      console.error('Rakuten API error:', JSON.stringify(data).slice(0, 200));
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(502).json({ error: (data && (data.errors || data.error)) || 'bad response' });
+    }
+
     // BooksBookで結果がない場合、BooksTotal（keyword検索）にフォールバック
-    if (!data.Items || data.Items.length === 0) {
+    if (data.Items.length === 0) {
       const totalParams = new URLSearchParams({
         applicationId: APP_ID,
         accessKey: accessKey,
@@ -120,8 +135,10 @@ module.exports = async function handler(req, res) {
       data = await rakutenFetch(`${RAKUTEN_TOTAL}?${totalParams}`);
     }
 
-    if (data.errors) {
-      return res.status(502).json({ error: data.errors });
+    if (isRakutenError(data)) {
+      console.error('Rakuten API error:', JSON.stringify(data).slice(0, 200));
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(502).json({ error: (data && (data.errors || data.error)) || 'bad response' });
     }
 
     // BooksTotal returns Items[].Item, BooksBook returns Items[] directly (formatVersion=2)

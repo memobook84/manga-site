@@ -5,7 +5,25 @@
 // 3ページ（＝最大90巻）まとめて取ってから作品単位に畳む
 var RANKING_PAGES = 3;
 
+// 毎朝のバッチ（scripts/build-releases-ranking.js）が同じ3ページ分を
+// data/ranking.json に焼いておくので、まずそれを読む（1回の通信で済む）。
+// ファイルが無い・壊れている時だけ、従来どおり楽天APIを直接呼ぶ
 async function fetchRankingItems() {
+    try {
+        var res = await fetch('/data/ranking.json');
+        if (res.ok) {
+            var data = await res.json();
+            if (data && data.items && data.items.length) {
+                return adaptApiResponse({ items: data.items }).items;
+            }
+        }
+    } catch (e) {
+        console.warn('ranking.json の読み込みに失敗。APIから取得します:', e);
+    }
+    return fetchRankingItemsFromApi();
+}
+
+async function fetchRankingItemsFromApi() {
     var requests = [];
     for (var p = 1; p <= RANKING_PAGES; p++) {
         requests.push(
