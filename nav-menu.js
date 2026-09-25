@@ -60,32 +60,35 @@
 
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
-  function popupItem(href, title) {
+  // icon は Phosphor の名前（ph-◯◯ の ◯◯ 部分）。行頭に置く
+  function popupItem(href, title, icon) {
     const isCurrent = href.slice(1).toLowerCase() === file;
-    return `<a href="${href}" class="nav-menu-item${isCurrent ? ' current' : ''}">${title}</a>`;
+    return `<a href="${href}" class="nav-menu-item${isCurrent ? ' current' : ''}">`
+      + `<i class="ph ph-${icon} nav-menu-icon" aria-hidden="true"></i><span>${title}</span></a>`;
   }
 
-  // 2カラム構成（左＝さがす／右＝サイト情報）。上端に紫のバーが入るカード型
+  // 2カラム構成（左＝さがす／右＝サイト情報）。上端に紫のバーが入るカード型。
+  // アイコンはボトムナビと揃えられるものは揃えている（ホーム＝家、ブックマーク＝しおり、ピックアップ＝炎）
   overlay.innerHTML = `
     <div id="navMenuPopup">
       <div class="nav-menu-cols">
         <div class="nav-menu-col">
           <div class="nav-menu-head">さがす</div>
-          ${popupItem('/home.html', 'ホーム')}
-          ${popupItem('/new-releases.html', '新刊')}
-          ${popupItem('/ranking.html', 'ランキング')}
-          ${popupItem('/follow.html', 'ブックマーク')}
-          ${popupItem('/free.html', 'フリー漫画')}
+          ${popupItem('/home.html', 'ホーム', 'house')}
+          ${popupItem('/new-releases.html', '新刊', 'calendar-blank')}
+          ${popupItem('/ranking.html', 'ランキング', 'crown-simple')}
+          ${popupItem('/follow.html', 'ブックマーク', 'bookmark')}
+          ${popupItem('/free.html', 'フリー漫画', 'book-open')}
           <div class="nav-menu-sep"></div>
-          ${popupItem('/index.html', 'ピックアップ')}
-          ${popupItem('/blog.html', 'ブログ')}
+          ${popupItem('/index.html', 'ピックアップ', 'fire')}
+          ${popupItem('/blog.html', 'ブログ', 'note-pencil')}
         </div>
         <div class="nav-menu-col nav-menu-col-sub">
           <div class="nav-menu-head">サイト情報</div>
-          ${popupItem('/qr.html', 'QRコード')}
-          ${popupItem('/profile.html', '管理人紹介')}
-          ${popupItem('/about.html', '運営者情報')}
-          ${popupItem('/privacy.html', 'プライバシーポリシー')}
+          ${popupItem('/qr.html', 'QRコード', 'qr-code')}
+          ${popupItem('/profile.html', '管理人紹介', 'user-circle')}
+          ${popupItem('/about.html', '運営者情報', 'info')}
+          ${popupItem('/privacy.html', 'プライバシーポリシー', 'shield-check')}
         </div>
       </div>
     </div>

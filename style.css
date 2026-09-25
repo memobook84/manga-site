@@ -2521,11 +2521,13 @@ body.dark-mode .nav-menu-btn:hover {
 }
 
 /* ドロップダウンの項目。
-   面で塗らず、文字色の変化だけで反応させる。行頭に小さなドットを置く */
+   面で塗らず、文字色の変化だけで反応させる。行頭にページごとのアイコンを置く（nav-menu.js） */
 .nav-menu-item {
     position: relative;
-    display: block;
-    padding: 11px 6px 11px 26px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 6px;
     border-radius: 0;
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 17px;
@@ -2536,10 +2538,33 @@ body.dark-mode .nav-menu-btn:hover {
     white-space: nowrap;
     transition: color 0.15s ease;
 }
-/* 行頭のマーカー（縦位置は行の中央）。右向きの三角。
-   mask ではなく border で三角を作っている。図形が単純なぶんこのほうが軽く、
-   色は border-left-color 一箇所で切り替わる。
-   ※以前は Boxicons の bxs-hand-right（指）を mask で抜いていた */
+/* 行頭のアイコン。普段は落ち着いた紫で、ホバー／表示中のページだけテーマ紫に */
+.nav-menu-icon {
+    flex: 0 0 auto;
+    font-size: 20px;
+    color: #8B7FA8;
+    transition: color 0.15s ease;
+}
+.nav-menu-item:hover {
+    color: #4B2C82;
+}
+.nav-menu-item:hover .nav-menu-icon {
+    color: #4B2C82;
+}
+
+/* 現在開いているページは太字で示す */
+.nav-menu-item.current {
+    color: #1D1D1F;
+    font-weight: 700;
+}
+.nav-menu-item.current .nav-menu-icon {
+    color: #4B2C82;
+}
+
+/* 以前の行頭マーカー（右向きの三角）。アイコンに置き換えたので休止中。
+   戻す時は .nav-menu-item の padding を「11px 6px 11px 26px」、display を block にして、
+   nav-menu.js の popupItem からアイコンを外す。
+   ※さらに以前は Boxicons の bxs-hand-right（指）を mask で抜いていた
 .nav-menu-item::before {
     content: '';
     position: absolute;
@@ -2548,28 +2573,19 @@ body.dark-mode .nav-menu-btn:hover {
     transform: translateY(-50%);
     width: 0;
     height: 0;
-    /* 上下の透明な border で高さ、左の色付き border で幅を作る（7px × 12px） */
     border-top: 6px solid transparent;
     border-bottom: 6px solid transparent;
     border-left: 7px solid #C9C4D4;
     background: none;
     transition: border-left-color 0.15s ease, transform 0.15s ease;
 }
-.nav-menu-item:hover {
-    color: #4B2C82;
-}
 .nav-menu-item:hover::before {
     border-left-color: #4B2C82;
-}
-
-/* 現在開いているページは太字で示す */
-.nav-menu-item.current {
-    color: #1D1D1F;
-    font-weight: 700;
 }
 .nav-menu-item.current::before {
     border-left-color: #4B2C82;
 }
+*/
 
 /* ピックアップ／ブログを上の項目群から切り離す区切りライン */
 .nav-menu-sep {
@@ -2584,8 +2600,11 @@ body.dark-mode .nav-menu-sep {
 /* ===== 右カラム＝情報系のサブ項目 ===== */
 .nav-menu-col-sub .nav-menu-item {
     font-size: 16px;
-    padding: 10px 6px 10px 26px;
+    padding: 10px 6px;
     color: #8B7FA8;
+}
+.nav-menu-col-sub .nav-menu-icon {
+    font-size: 19px;
 }
 .nav-menu-col-sub .nav-menu-item:hover {
     color: #4B2C82;

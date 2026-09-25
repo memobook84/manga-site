@@ -153,12 +153,17 @@
                     <div class="meta-item" id="manga-anime-item" hidden>
                         <span class="meta-label">アニメ</span>
                         <span class="meta-dots"></span>
-                        <span class="meta-value">
-                            <a id="manga-anime-link" class="meta-link"
-                               target="_blank" rel="noopener noreferrer sponsored">
-                                Prime Video<i class="ph-bold ph-arrow-square-out" aria-hidden="true"></i>
-                            </a>
-                        </span>
+                        <!-- アニメ名を押すと配信サービスの一覧が開く。
+                             一覧のリンクは detail.js がアニメ名から組み立てて入れる -->
+                        <div class="meta-value anime-value">
+                            <button type="button" id="manga-anime-toggle" class="anime-toggle"
+                                    aria-expanded="false" aria-controls="manga-anime-menu">
+                                <span id="manga-anime-title"></span><i class="ph-bold ph-caret-down" aria-hidden="true"></i>
+                            </button>
+                            <div id="manga-anime-menu" class="anime-menu" hidden>
+                                <span class="anime-menu-caption">配信サービスで探す</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

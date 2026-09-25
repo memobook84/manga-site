@@ -446,26 +446,172 @@ body.dark-mode .detail-divider {
     text-decoration: underline;
 }
 
-/* メタ欄の外部リンク（アニメ→Prime Video）。
-   色は付けず、他のメタ値と同じ文字色のまま。
-   リンクであることは末尾の外部リンクアイコンとホバーの下線で示す */
-.meta-link {
+/* メタ欄の「アニメ」。値のアニメ名を押すと配信サービスの一覧が下に開く。
+   アニメ名は他のメタ値と同じ文字色のまま、押せることは末尾の青い▼とホバーの下線で示す */
+.anime-value {
+    position: relative;
+}
+
+.anime-toggle {
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font: inherit;
     color: inherit;
-    text-decoration: none;
-    font-weight: 400;
+    text-align: left;
+    cursor: pointer;
 }
 
-.meta-link:hover {
+.anime-toggle:hover {
     text-decoration: underline;
 }
 
-/* 外部リンクアイコンだけ青。文字は他のメタ値と同じ色のまま */
-.meta-link i {
+.anime-toggle i {
+    flex: 0 0 auto;
     font-size: 12px;
     color: #2563eb;
+    transition: transform 0.2s;
+}
+
+.anime-toggle[aria-expanded="true"] i {
+    transform: rotate(180deg);
+}
+
+.anime-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+    padding: 6px 0;
+    background: #fff;
+    border: 1px solid var(--color-border, #e5e1dc);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* display:flex が UA既定の [hidden] より優先されるので打ち消す */
+.anime-menu[hidden] {
+    display: none;
+}
+
+.anime-menu-caption {
+    padding: 4px 14px 6px;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--color-text-sub);
+    opacity: 0.55;
+}
+
+.anime-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    font-size: 14px;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.anime-menu-link:hover {
+    background: #f4f1f8;
+}
+
+/* 各サービスのロゴ（ファビコン）。角だけ少し丸めてアプリアイコン風に */
+.anime-menu-logo {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+/* 外部リンクアイコンだけ青で右端に寄せる。文字は他のメタ値と同じ色のまま */
+.anime-menu-link i {
+    margin-left: auto;
+    padding-left: 16px;
+    font-size: 12px;
+    color: #2563eb;
+}
+
+/* PCはポップアップをアニメ名の下ではなく右横に出し、中のサービスも横一列に並べる。
+   .meta-item は align-items:flex-start なので .anime-value の幅＝アニメ名の幅になり、
+   left:100% がそのままアニメ名の右端になる */
+@media (min-width: 1025px) {
+    .anime-menu {
+        top: 50%;
+        left: calc(100% + 16px);
+        transform: translateY(-50%);
+        flex-direction: row;
+        align-items: center;
+        gap: 2px;
+        min-width: 0;
+        padding: 6px;
+        white-space: nowrap;
+        /* フラットに：影と枠線をやめ、薄紫の面だけで置く（浮いて見えないように） */
+        background: #F4F1F8;
+        border: none;
+        border-radius: 4px;
+        box-shadow: none;
+    }
+
+    /* 横一列なら見れば分かるので見出しは出さない */
+    .anime-menu-caption {
+        display: none;
+    }
+
+    /* ホバーは面より一段濃い紫のチップ */
+    .anime-menu-link {
+        gap: 6px;
+        padding: 6px 8px;
+        font-size: 13px;
+        border-radius: 3px;
+    }
+
+    .anime-menu-link:hover {
+        background: #E6DFF0;
+    }
+
+    /* 横並びではロゴがあれば外部リンクと分かるので、幅を食う↗は出さない */
+    .anime-menu-link i {
+        display: none;
+    }
+
+    /* アニメ名を指す左向きのしっぽ。面と同じ色の正方形を45度回して半分だけ出す。
+       ポップアップ自体をアニメ名の行の中央に揃えているので、しっぽも縦中央 */
+    .anime-menu::before {
+        content: '';
+        position: absolute;
+        top: calc(50% - 5px);
+        left: -5px;
+        width: 10px;
+        height: 10px;
+        background: #F4F1F8;
+        transform: rotate(45deg);
+    }
+
+    /* ▼は右向き（開く方向）にして、開いている間は左向きに返す */
+    .anime-toggle i {
+        transform: rotate(-90deg);
+    }
+
+    .anime-toggle[aria-expanded="true"] i {
+        transform: rotate(90deg);
+    }
+}
+
+/* 1025〜1279px は横一列（約600px）だと画面の右端からはみ出すので、3列×2段に折る */
+@media (min-width: 1025px) and (max-width: 1279px) {
+    .anime-menu {
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+    }
 }
 
 /* .meta-item の display:flex は [hidden] のUA既定(display:none)より
@@ -1139,6 +1285,12 @@ body.dark-mode .range-field input {
     }
 
     .meta-value {
+        font-size: 13px;
+    }
+
+    /* 指で押すので行を高めに取る */
+    .anime-menu-link {
+        padding: 11px 14px;
         font-size: 13px;
     }
 

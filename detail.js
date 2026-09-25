@@ -765,33 +765,83 @@ async function loadAnimeIndex() {
     return animeIndex;
 }
 
-// Prime Video の検索URL。ディープリンクは公式に取得する手段が無い
-// （Netflixも含め配信APIは公開されていない）ので、
-// Amazonの検索を映像カテゴリ（i=instant-video）に絞って渡している。
-// アソシエイトタグ付きなので他のAmazon導線と同じ扱いになる
-function buildPrimeVideoUrl(animeTitle) {
-    const q = (animeTitle || '').trim();
-    if (!q) return null;
-    return `https://www.amazon.co.jp/s?k=${encodeURIComponent(q)}&i=instant-video&tag=atlascomic-22`;
-}
+// アニメ欄の一覧に出す配信サービス。ディープリンクは公式に取得する手段が無い
+// （配信APIはどこも公開されていない）ので、各サービスの検索にアニメ名を渡している。
+// Prime Video だけは Amazon の検索を映像カテゴリ（i=instant-video）に絞り、
+// アソシエイトタグを付けて他のAmazon導線と同じ扱いにしている。
+// q は encodeURIComponent 済みのアニメ名。
+// icon は各サービスのファビコン（64px）を service-icons/ に置いたもの
+const ANIME_SERVICES = [
+    { name: 'Prime Video', icon: 'prime-video', sponsored: true,
+      url: q => `https://www.amazon.co.jp/s?k=${q}&i=instant-video&tag=atlascomic-22` },
+    { name: 'Netflix',       icon: 'netflix',       url: q => `https://www.netflix.com/search?q=${q}` },
+    { name: 'U-NEXT',        icon: 'u-next',        url: q => `https://video.unext.jp/freeword?query=${q}` },
+    { name: 'dアニメストア', icon: 'd-anime-store', url: q => `https://animestore.docomo.ne.jp/animestore/sch_pc?searchKey=${q}` },
+    { name: 'ABEMA',         icon: 'abema',         url: q => `https://abema.tv/search?q=${q}` },
+    { name: 'Hulu',          icon: 'hulu',          url: q => `https://www.hulu.jp/search?q=${q}` },
+];
 
-// メタ欄の「アニメ」行。アニメ化されている作品でだけ出す
+// メタ欄の「アニメ」行。アニメ化されている作品でだけ出す。
+// 値のアニメ名を押すと、配信サービスの一覧が下に開く
 async function setupAnimeRow(seriesName) {
     const item = document.getElementById('manga-anime-item');
-    const link = document.getElementById('manga-anime-link');
-    if (!item || !link || typeof normalizeSearchKey !== 'function') return;
+    const toggle = document.getElementById('manga-anime-toggle');
+    const titleEl = document.getElementById('manga-anime-title');
+    const menu = document.getElementById('manga-anime-menu');
+    if (!item || !toggle || !titleEl || !menu || typeof normalizeSearchKey !== 'function') return;
 
     const index = await loadAnimeIndex();
     const anime = index[normalizeSearchKey(seriesName)];
-    if (!anime) return;
+    const title = (anime?.title || '').trim();
+    if (!title) return;
 
-    const url = buildPrimeVideoUrl(anime.title);
-    if (!url) return;
+    const q = encodeURIComponent(title);
+    for (const service of ANIME_SERVICES) {
+        const a = document.createElement('a');
+        a.className = 'anime-menu-link';
+        a.href = service.url(q);
+        a.target = '_blank';
+        a.rel = service.sponsored ? 'noopener noreferrer sponsored' : 'noopener noreferrer';
 
-    link.href = url;
-    // 原作名とアニメ名が違うことがあるので、実際に検索する名前をtitleに出す
-    link.title = `「${anime.title}」をPrime Videoで検索`;
+        // ロゴは飾り（名前を文字でも出している）なので alt は空
+        const logo = document.createElement('img');
+        logo.className = 'anime-menu-logo';
+        logo.src = `/service-icons/${service.icon}.png`;
+        logo.alt = '';
+        logo.width = 18;
+        logo.height = 18;
+        const name = document.createElement('span');
+        name.textContent = service.name;
+        const icon = document.createElement('i');
+        icon.className = 'ph-bold ph-arrow-square-out';
+        icon.setAttribute('aria-hidden', 'true');
+        a.append(logo, name, icon);
+        menu.appendChild(a);
+    }
+
+    // 原作名とアニメ名が違うことがあるので、実際に検索する名前をそのまま出す
+    titleEl.textContent = title;
     item.hidden = false;
+
+    const setOpen = (open) => {
+        menu.hidden = !open;
+        toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => setOpen(menu.hidden));
+    // サービスを選んだら閉じる（別タブで開くので、戻った時に開きっぱなしにしない）
+    menu.addEventListener('click', (e) => {
+        if (e.target.closest('a')) setOpen(false);
+    });
+    // 欄の外を押す／Escで閉じる
+    document.addEventListener('click', (e) => {
+        if (!menu.hidden && !item.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !menu.hidden) {
+            setOpen(false);
+            toggle.focus();
+        }
+    });
 }
 
 // Amazon 検索URL生成（シリーズ名で全巻を一覧させる）
