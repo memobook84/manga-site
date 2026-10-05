@@ -802,20 +802,16 @@ async function setupAnimeRow(seriesName) {
         a.href = service.url(q);
         a.target = '_blank';
         a.rel = service.sponsored ? 'noopener noreferrer sponsored' : 'noopener noreferrer';
+        a.title = service.name;
 
-        // ロゴは飾り（名前を文字でも出している）なので alt は空
+        // アイコンだけ並べる（名前の文字は出さない）ので、サービス名は alt に持たせる
         const logo = document.createElement('img');
         logo.className = 'anime-menu-logo';
         logo.src = `/service-icons/${service.icon}.png`;
-        logo.alt = '';
-        logo.width = 18;
-        logo.height = 18;
-        const name = document.createElement('span');
-        name.textContent = service.name;
-        const icon = document.createElement('i');
-        icon.className = 'ph-bold ph-arrow-square-out';
-        icon.setAttribute('aria-hidden', 'true');
-        a.append(logo, name, icon);
+        logo.alt = service.name;
+        logo.width = 22;
+        logo.height = 22;
+        a.appendChild(logo);
         menu.appendChild(a);
     }
 

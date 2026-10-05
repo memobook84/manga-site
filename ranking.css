@@ -408,233 +408,237 @@
     }
 }
 
-/* ============================================
-   PC: 編集記事風のランキング
-   トップ3は罫線カード＋カード外のフッター行、4位以降は横罫線で区切る一覧。
-   文字は既存のまま Inter / Noto Sans JP、順位数字だけ Archivo。
-   スマホ（max-width:768px）のデザインには一切触れていない。
-   ============================================ */
+/* ===== PC: Amazon Charts 風 =====
+   https://www.amazon.com/charts の横長カード（.kc-horizontal-rank-card）の見た目に寄せ、
+   1位から全件を縦に1枚ずつ並べる。
+   ・ページ全体は薄いグレー（#F9F9F9）
+   ・カード＝白地＋薄い影。左から 順位 → 表紙 → タイトル・著者 → 右端に薄いグレーの帯（出版社／レーベル）
+   ・参考の青い小見出し「N weeks on the list」（こちらでは発売日）と、帯の見出し
+     「CUSTOMER REVIEWS」（こちらでは PUBLISHER）は不要とのことで出していない
+   ※以前のデザイン（どれも git に残っている ranking.css）：
+     罫線で区切って縦に1行ずつ＝commit e317b0e、3枚カード横並び＝commit 7fc3b42 */
 @media (min-width: 769px) {
+    body {
+        background: #F9F9F9;
+    }
+
+    /* 見出し（ランキング）はブックマーク・スケジュールと同じ素の .page-hero（style.css）のまま。
+       以前はここで白い帯＋下に影・中央揃え・50px の見出しにしていた（git の履歴に残っている） */
+
+    /* ---- 共通 ---- */
     .ranking-main {
-        max-width: 1120px;
-        padding: 8px 24px 0;
+        max-width: 1200px;
+        /* 上と左右はブックマークの .follow-main と同じ20px（見出しの左端とカードの左端がそろう） */
+        padding: 20px 20px 40px;
 
-        --rank-sans: 'Inter', 'Noto Sans JP', sans-serif;
-        --rank-line: #E6E1D8;   /* 罫線・枠（温かみのあるグレー） */
-        --rank-num: #1F1D1A;    /* 順位数字 */
-        --rank-sub: #8C857A;    /* 補助テキスト */
-        --rank-card: #FDFCFA;   /* カードの地色 */
-        --rank-ink: #1F1D1A;    /* 見出し */
+        /* 英字も含めて全部 Noto Sans JP（以前は英字だけ Inter / Bree Serif） */
+        --rank-sans: 'Noto Sans JP', sans-serif;
+        --rank-ink: #222;
+        --rank-bar: #F6F5F3;    /* 下端の帯（ごく薄いグレー。黒 #100B06 → #EFEDEA → もう少し薄く） */
+        --rank-bar-text: #5C564F;
+        /* カードの影。参考の #C1BBBB（不透明）だと枠がくっきりしすぎるので、薄い半透明に */
+        --rank-shadow: rgba(60, 50, 40, 0.08);
+        --rank-shadow-hover: rgba(60, 50, 40, 0.12);
     }
 
-    .rank-eyebrow,
     .rank-meta {
         display: block;
     }
 
-    .rank-footer {
-        display: flex;
-    }
-
-    /* ---- 共通パーツ ---- */
-    .rank-eyebrow {
-        font-family: var(--rank-sans);
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.14em;
-        color: var(--rank-sub);
-    }
-
-    .rank-meta {
-        font-family: var(--rank-sans);
-        font-size: 12px;
-        letter-spacing: 0.04em;
-        color: var(--rank-sub);
-    }
-
-    .rank-meta-sep {
-        margin: 0 6px;
-        opacity: 0.5;
-    }
-
-    /* ---- トップ3 ----
-       4位以降と同じ横並びの行にして、1位から縦にそのまま続ける。
-       ※3枚のカードを横に並べる旧デザインは commit 7fc3b42 の ranking.css に入っている。
-         戻すときは `git show 7fc3b42:ranking.css` を参照。 */
-    .ranking-top3 {
-        display: block;
-        /* ページ見出しとの間を空ける */
-        margin-top: 36px;
-        margin-bottom: 0;
-    }
-
-    .ranking-top3-item {
-        /* DOMは旧デザインのまま（title/author/発売日がラップされていない）なので、
-           grid-template-areas で4位以降と同じ配置に組み直す。
-           上下の 1fr は余白行。表紙240pxとの高さの差をここが吸収して、
-           発売日・タイトル・著者の3行が離れずに縦中央でまとまる。 */
-        display: grid;
-        grid-template-columns: 76px 170px minmax(0, 1fr) auto;
-        grid-template-rows: 1fr auto auto auto 1fr;
-        grid-template-areas:
-            "num cover .       meta"
-            "num cover eyebrow meta"
-            "num cover title   meta"
-            "num cover author  meta"
-            "num cover .       meta";
-        align-items: center;
-        column-gap: 30px;
-        padding: 30px 4px;
+    /* カードの白地と影は 1〜3位・4位以降 共通 */
+    .ranking-top3-item,
+    .ranking-list-item {
+        position: relative;
+        min-width: 0;
+        padding: 0;
         border: none;
-        border-top: 1px solid var(--rank-line);
         border-radius: 0;
-        background: transparent;
-        text-align: left;
-        transition: background 0.15s;
+        background: #fff;
+        box-shadow: 0 1px 4px var(--rank-shadow);
+        overflow: hidden;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease;
     }
 
-    /* 1位の上には罫線を引かない（区切り線は2位以降の間だけ） */
-    .ranking-top3-item:first-child {
-        border-top: none;
+    .ranking-top3-item:hover,
+    .ranking-list-item:hover {
+        background: #fff;
+        box-shadow: 0 4px 14px var(--rank-shadow-hover);
     }
 
-    .ranking-top3-item:hover {
-        background-color: rgba(31, 29, 26, 0.025);
-        box-shadow: none;
-    }
-
-    .ranking-top3-number {
-        grid-area: num;
-        font-family: 'Savate', 'Archivo', sans-serif;
-        font-size: 48px;
-        font-weight: 400;
-        color: var(--rank-num);
-        line-height: 1;
-        text-align: center;
-        margin-bottom: 0;
-    }
-
-    .ranking-top3-cover {
-        grid-area: cover;
-        width: 170px;
+    /* 順位の数字。参考は Bree Serif の 80px だが、小さくしてほしいとのことで 44px、
+       書体もタイトル（日本語は Noto Sans JP で表示される）と同じにしてほしいとのことで Noto Sans JP */
+    .ranking-top3-number,
+    .ranking-list-number {
+        min-width: 0;
         margin: 0;
-    }
-
-    .ranking-top3-cover img,
-    .ranking-top3-cover .manga-cover-placeholder {
-        width: 170px;
-        height: 240px;
-        border-radius: 1px;
-        box-shadow: 0 8px 22px rgba(31, 29, 26, 0.16);
-    }
-
-    .ranking-top3-item .rank-footer {
-        grid-area: eyebrow;
-        display: block;
-        margin-bottom: 8px;
-    }
-
-    .ranking-top3-title {
-        grid-area: title;
-        font-family: var(--rank-sans);
-        font-size: 22px;
+        font-family: 'Noto Sans JP', sans-serif;
+        font-size: 44px;
         font-weight: 400;
+        line-height: 1;
         color: var(--rank-ink);
-        line-height: 1.4;
-        letter-spacing: -0.01em;
-        margin-bottom: 7px;
+        text-align: center;
+    }
+
+    /* 表紙は幅140px・高さは本の縦横比のまま（最大215px） */
+    .ranking-top3-cover img,
+    .ranking-list-cover img {
+        display: block;
+        width: 140px;
+        height: auto;
+        max-height: 215px;
+        border-radius: 0;
+        box-shadow: 0 0 4px 1px #ccc;
+    }
+
+    .ranking-top3-cover .manga-cover-placeholder,
+    .ranking-list-cover .manga-cover-placeholder {
+        width: 140px;
+        height: 200px;
+        border-radius: 0;
+        box-shadow: 0 0 4px 1px #ccc;
+    }
+
+    .ranking-top3-title,
+    .ranking-list-title {
+        min-width: 0;
+        font-family: var(--rank-sans);
+        font-size: 16px; /* 22px は大きすぎるとのことで縮小 */
+        font-weight: 400;
+        line-height: 1.45;
+        letter-spacing: 0;
+        color: var(--rank-ink);
         white-space: normal;
         overflow: hidden;
         text-overflow: clip;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
-    .ranking-top3-author {
-        grid-area: author;
+    .ranking-top3-author,
+    .ranking-list-author {
+        min-width: 0;
+        margin: 0;
+        font-family: var(--rank-sans);
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--rank-ink);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 下端の帯（出版社／レーベル）の地と文字 */
+    .ranking-top3-item .rank-meta,
+    .ranking-list-item .rank-meta {
+        min-width: 0;
+        margin: 0;
+        background: var(--rank-bar);
+        color: var(--rank-bar-text);
         font-family: var(--rank-sans);
         font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.14em;
-        color: var(--rank-sub);
-        margin-bottom: 0;
-    }
-
-    .ranking-top3-item .rank-meta {
-        grid-area: meta;
-        text-align: right;
-        font-size: 12.5px;
-        line-height: 1.7;
-    }
-
-    /* ---- 4位以降 ---- */
-    .ranking-list-item {
-        display: grid;
-        grid-template-columns: 76px 170px minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 30px;
-        padding: 30px 4px;
-        border: none;
-        border-top: 1px solid var(--rank-line);
-        background: transparent;
-    }
-
-    /* 角丸・左右下の枠を付けている素のルールを打ち消す（詳細度を合わせる必要がある） */
-    .ranking-list-item:first-child,
-    .ranking-list-item:last-child,
-    .ranking-list-item:first-child:last-child {
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        border-bottom: none;
-    }
-
-    .ranking-list-item:hover {
-        background-color: rgba(31, 29, 26, 0.025);
-    }
-
-    .ranking-list-number {
-        font-family: 'Savate', 'Archivo', sans-serif;
-        font-size: 48px;
-        font-weight: 400;
-        color: var(--rank-num);
-        min-width: 0;
+        letter-spacing: 0.02em;
         text-align: center;
     }
 
-    /* 表紙はトップ3と同じ 170×240 に揃える */
-    .ranking-list-cover img,
-    .ranking-list-cover .manga-cover-placeholder {
-        width: 170px;
-        height: 240px;
-        border-radius: 1px;
-        box-shadow: 0 8px 22px rgba(31, 29, 26, 0.16);
+    .rank-meta-sep {
+        margin: 0 5px;
+        opacity: 0.5;
     }
 
-    .ranking-list-info .rank-eyebrow {
-        margin-bottom: 8px;
+    /* ==== 横長のカードを1位から縦に1枚ずつ ====
+       DOMはトップ3（.ranking-top3）と4位以降（.ranking-list）で入れ物が分かれているが、
+       両方を display:contents で消して、全件を .ranking-container の縦の並びに流す
+       （1位〜3位と4位以降で間隔が変わらないように）。
+       ※横4枚のカード（Amazon Charts の上位カード風）も試したが、縦に戻した */
+    .ranking-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
 
+    .ranking-top3,
+    .ranking-list,
+    .ranking-list-info {
+        display: contents;
+    }
+
+    /* 左から 順位（90px）→ 表紙（170px）→ タイトル・著者 → 右端の帯（128px）。
+       参考（Amazon Charts の横長カード）の 順位＋表紙で幅270px・高さ240px と同じ寸法。
+       上下の 1fr は余白行で、タイトル・著者の2行を縦中央でまとめる */
+    .ranking-top3-item,
+    .ranking-list-item {
+        display: grid;
+        grid-template-columns: 90px 170px minmax(0, 1fr) 128px;
+        grid-template-rows: 1fr auto auto 1fr;
+        grid-template-areas:
+            "num cover .      meta"
+            "num cover title  meta"
+            "num cover author meta"
+            "num cover .      meta";
+        min-height: 240px;
+        text-align: left;
+    }
+
+    /* 角丸・枠を付けている素のルールを打ち消す（詳細度を合わせる必要がある） */
+    .ranking-list-item:first-child,
+    .ranking-list-item:last-child,
+    .ranking-list-item:first-child:last-child {
+        border: none;
+        border-radius: 0;
+    }
+
+    /* 順位は参考と同じく上寄せ */
+    .ranking-top3-number,
+    .ranking-list-number {
+        grid-area: num;
+        align-self: start;
+        padding-top: 18px;
+    }
+
+    .ranking-top3-cover,
+    .ranking-list-cover {
+        grid-area: cover;
+        align-self: center;
+        justify-self: center;
+        width: auto;
+        margin: 0;
+    }
+
+    .ranking-top3-title,
     .ranking-list-title {
-        font-family: var(--rank-sans);
-        font-size: 22px;
-        font-weight: 400;
-        color: var(--rank-ink);
-        line-height: 1.4;
-        letter-spacing: -0.01em;
-        margin-bottom: 7px;
+        grid-area: title;
+        padding: 0 28px 0 16px;
+        margin: 0 0 8px;
     }
 
+    .ranking-top3-author,
     .ranking-list-author {
-        font-family: var(--rank-sans);
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.14em;
-        color: var(--rank-sub);
+        grid-area: author;
+        padding: 0 28px 0 16px;
     }
 
+    /* 右端の帯。幅が細いので 出版社 と レーベル を2行に分ける
+       （区切りの「/」は消す。中身の文字がそれぞれ縦に並ぶ） */
+    .ranking-top3-item .rank-meta,
     .ranking-list-item .rank-meta {
-        text-align: right;
-        font-size: 12.5px;
-        line-height: 1.7;
+        grid-area: meta;
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 16px 8px;
+        line-height: 1.5;
+    }
+
+    .ranking-top3-item .rank-meta-sep,
+    .ranking-list-item .rank-meta-sep {
+        display: none;
     }
 }
 

@@ -30,12 +30,18 @@
      スマホの24pxどちらも自動的に中央にそろう）
      ascent 0.84766 − descent 0.15234 = 0.69531 ✓  合計は 1.0em（＝line-height:1 で高さ1em）
    ※値を変えるときは必ず「差＝0.6953」を保つこと。上下にずらしたいだけなら
-     両方に同じ数を足し引きする（例: 足すと文字が下がる） */
+     両方に同じ数を足し引きする（例: 足すと文字が下がる）
+
+   font-display は block（以前は swap）。swap だと届くまでの一瞬だけ
+   代わりのフォント（Montserrat など）でタイトルが描かれ、PCでナビを押して
+   遷移するたびに「変なフォントのタイトル」がチラッと見えていた。
+   block は届くまで文字を出さずに待つ（最大3秒）。各HTMLの <head> で
+   このファイルを preload しているので、待ち時間はほぼ無い */
 @font-face {
     font-family: 'Luckiest Guy';
     font-style: normal;
     font-weight: 400;
-    font-display: swap;
+    font-display: block;
     src: url('fonts/LuckiestGuy-latin.woff2') format('woff2');
     ascent-override: 84.766%;
     descent-override: 15.234%;
@@ -349,7 +355,7 @@ header.header-hidden {
 
 @media (min-width: 769px) {
     header {
-        background-color: #644476;
+        background-color: #100B06; /* 試用中。元は #644476（紫） */
     }
     /* PCのサイトタイトルだけコミック体（Luckiest Guy）にする。
        モバイルはロゴ画像／小さい文字に差し替わるので影響なし。
@@ -368,11 +374,13 @@ header.header-hidden {
            ※ヘッダーの背景色を変えたら、この色も同じ値に直すこと
            ※影は元の太さの輪郭から落ちて縁が濁るので、細くする間は外す
              （元の指定: text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);） */
-        -webkit-text-stroke: 1.2px #644476;
+        -webkit-text-stroke: 1.2px #100B06; /* 試用中。元は #644476 */
         letter-spacing: 0.02em;
         /* 素の header h1 に入っている top:-2px（Montserrat時代の光学補正）は
            このフォントでは不要。打ち消すと文字の上下中心がヘッダーの中心
-           （68px の半分＝34px）にちょうど乗る */
+           （68px の半分＝34px）にちょうど乗る。
+           ※ h1 側はこの指定だと素のルール（後ろにあって同じ詳細度）に負けるので、
+             実際の打ち消しは素の header h1 の直後に置いてある */
         top: 0;
         font-size: 40px;
         /* コミック体は行の余白（ascent/descent）が広く、フォントが読み込まれた
@@ -486,6 +494,15 @@ header h1 {
     text-transform: uppercase;
     position: relative;
     top: -2px;
+}
+
+/* PC（Luckiest Guy）では上の top:-2px を打ち消す。
+   769px以上のブロックの top:0 はこのルールより前にあるため効いておらず、
+   タイトルが2px上に浮いていた */
+@media (min-width: 769px) {
+    header h1 {
+        top: 0;
+    }
 }
 
 header h1 a {
@@ -931,19 +948,20 @@ body:not(.nav-ready) .nav-link {
 }
 
 .sidebar-link:hover::before {
-    border-color: var(--color-accent);
+    border-color: #100B06;
 }
 
-/* 選択中は枠をテーマ紫で塗って白いチェックを出す */
+/* 選択中は枠を黒（ヘッダーと同じ #100B06）で塗って白いチェックを出す。
+   以前はテーマ紫（var(--color-accent)）。ホバー時の枠・選択中の文字も同じく紫→黒 */
 .sidebar-link.active {
     background-color: transparent;
-    color: var(--color-accent);
+    color: #100B06;
     font-weight: 500;
 }
 
 .sidebar-link.active::before {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
+    background-color: #100B06;
+    border-color: #100B06;
 }
 
 .sidebar-link.active::after {
@@ -1549,28 +1567,55 @@ body.dark-mode .cover-mark-text {
 
 /* .grid-header（話題の作品＝下のカタログの見出し）も同じ見た目にそろえる。
    別々に書くと片方だけ直して食い違うので、セレクタを並べて1か所で持つ */
-/* 見出しの下に、メインエリアの幅いっぱいの線を1本引く。
-   以前は文字の右に線を伸ばす形（flex ＋ ::after の flex:1）だった */
+/* 見出しの下に、メインエリアの幅いっぱいの太い線を1本引く。色はヘッダーと同じ #100B06。
+   以前は 文字の右に線を伸ばす形（flex ＋ ::after の flex:1）
+   → 灰色の細線1本 → 灰色の細線＋文字の真下だけ太線、だった */
 .new-series-header,
 .grid-header {
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 3px solid #100B06;
     /* 線と表紙の間。.new-series-row 側に padding-top:6px
        （表紙の影を切らないための余白）があるので、実際の隙間は +6px になる */
     margin-bottom: 14px;
 }
 
-/* 中身は「新着作品」の文字。メインの見出しなのでサイドバーの見出しより
-   一回り大きくするが、太字にはしない（太字は試して不採用） */
+/* 中身は「新着作品」「話題の作品」の文字。大きさの経緯：
+   18px（スマホ16px）→ サイドバーの見出しと同じ15px → 下の線を消したので区切りが弱くならないよう 18px（スマホ16px）に戻した */
 .new-series-title,
 .grid-title {
     font-size: 18px;
-    /* h2 の既定は太字なので明示的に戻す */
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--color-text);
+    /* 少しだけ太く（Medium）。700 の太字は試して不採用、その後しばらく 400 だった */
+    font-weight: 500;
+    /* 行の上下の余白を持たせない（以前は 1.4）。
+       PCでは「新着作品」の文字の下端（ベースライン）が、左のサイドバーの「ジャンル」
+       （15px・行高1.4・上の余白0）とちょうど同じ高さに来る。
+       大きさを変えたらこの一致も崩れるので、並べて確認すること */
+    line-height: 1;
+    color: #100B06;
     font-family: 'Noto Sans JP', sans-serif;
     letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+    .new-series-title,
+    .grid-title {
+        font-size: 16px;
+    }
+}
+
+/* 試用中：新着作品・話題の作品とも見出しの下の線を消す。
+   線が無いと線用の下の余白（padding-bottom:10px）が浮くので消す。
+   話題の作品はその10pxを上に回して見出しを下げ、表紙に近づけている。
+   新着作品は上に何も足さない（左の「ジャンル」と高さをそろえるため）。
+   戻す時はこの2つのルールを消すだけでいい */
+.new-series-header,
+.grid-header {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.grid-header {
+    padding-top: 10px;
 }
 
 /* 話題の作品の見出しだけの調整。
@@ -1753,12 +1798,6 @@ body.dark-mode .new-series-nav:hover {
        （旧: 80px → 60px → 44px → 24px ＋ 休止中の区切り線 20px） */
     .new-series {
         margin-bottom: 24px;
-    }
-
-    /* 画面が狭いぶん、PC（18px）より一段小さくする */
-    .new-series-title,
-    .grid-title {
-        font-size: 16px;
     }
 
     /* 画面が狭いぶん線も短く。上の20pxは以前の padding-bottom と同じ意味（休止中）
@@ -2041,7 +2080,7 @@ body.dark-mode .page-btn.is-current::after {
 
 @media (max-width: 768px) {
     header {
-        background-color: #644476;
+        background-color: #100B06; /* 試用中。元は #644476（紫） */
         box-shadow: none;
         position: fixed;
         top: 0;
@@ -2141,20 +2180,27 @@ body.dark-mode .page-btn.is-current::after {
      .bottom-nav の display:flex（上のブロック）より後ろに置く必要がある。
    ※右下のFAB（渦巻き）から扇形にナビが開く旧仕様は廃止した */
 
-/* ========== スプラッシュアニメーション ========== */
+/* ========== スプラッシュアニメーション ==========
+   ロゴ「ATLAS COMIC」が1文字ずつ上からドーンと落ちてくるだけ（動きは splash.js）。
+   ※以前の「紫の文字が赤と水色にずれるグリッチ」版は git の履歴（commit e317b0e まで）に残っている */
 #splashOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: #ffffff;
+    /* ヘッダーと同じ黒。以前は紙の色 #FBF8F2 に黒文字だった */
+    background: #100B06;
     z-index: 10000;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     transition: opacity 0.7s ease;
+    /* タイトルを押す（隠しコマンド）・連打した時に文字が青く選択されないように */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #splashOverlay.splash-fadeout {
@@ -2162,147 +2208,42 @@ body.dark-mode .page-btn.is-current::after {
     pointer-events: none;
 }
 
-#splashCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.splash-logo {
-    display: none;
-}
-
-.splash-title,
-.splash-title-img {
-    position: relative;
-    z-index: 2;
-    opacity: 0;
-    transform: translateY(10px) scale(0.96);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
 .splash-title {
+    position: relative;
     margin: 0;
     padding: 0 16px;
-    /* ヘッダーのサイトタイトルと同じコミック体にそろえる */
+    /* ヘッダーのサイトタイトルと同じコミック体 */
     font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
     font-weight: 400;
-    /* PCは画面いっぱいのスプラッシュなので、ヘッダーのサイトタイトル(40px)より
-       大きく見せる。スマホぶんは下の max-width:768px で19px（＝スマホの
-       ヘッダーと同じ大きさ）に落とす */
-    font-size: 56px;
+    /* スマホ（390px幅）で約29px、PCは最大72px。
+       以前は clamp(38px, 11vw, 112px) で画面いっぱいに出していた */
+    font-size: clamp(28px, 7.5vw, 72px);
     line-height: 1;
     letter-spacing: 0.02em;
-    color: #4B2C82;
-    /* ヘッダーと同じ細らせ方。ここは背景が白（splash.js が #splashCanvas を
-       非表示にするので下地は #ffffff 一色）なので、輪郭線は白にする */
-    -webkit-text-stroke: 1.2px #ffffff;
+    /* 背景を黒にしたので色は反転（文字=紙の色、輪郭=黒、影=暗いグレー）。
+       反転前: 文字 #100B06 / 輪郭 #FBF8F2 / 影 #C8C2B8 */
+    color: #FBF8F2;
+    /* 背景と同じ色の輪郭線で字を少し細らせる（ヘッダーと同じ手法）。
+       右下にずらしたグレーの影との間に背景色の縁が入って、漫画のロゴらしく見える
+       ※背景色を変えたら、この色も同じ値に直すこと */
+    -webkit-text-stroke: 0.025em #100B06;
+    /* 黒の上でもはっきり見える中間のグレー（#45403A だと暗すぎて沈んだ）。以前は赤 #D8052E */
+    text-shadow: 0.07em 0.07em 0 #7A7369;
     text-align: center;
     white-space: nowrap;
-    text-shadow: none;
+    /* splash.js が .splash-visible を付けるまで隠しておく */
+    opacity: 0;
 }
 
-.splash-title.splash-glitch {
-    position: relative;
-    color: #4B2C82;
-    text-shadow: none;
-    animation: splashGlitchJitter 1.6s steps(1) 0.2s forwards;
-}
-
-.splash-title.splash-glitch::before,
-.splash-title.splash-glitch::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* 白背景なので screen（明るく合成）ではズレが見えない。multiply で暗く重ねる */
-    mix-blend-mode: multiply;
-    pointer-events: none;
-}
-
-.splash-title.splash-glitch::before {
-    color: #ff3b3b;
-    animation: splashGlitchRed 1.6s steps(1) 0.2s forwards;
-}
-
-.splash-title.splash-glitch::after {
-    color: #2bd9ff;
-    animation: splashGlitchCyan 1.6s steps(1) 0.2s forwards;
-}
-
-@keyframes splashGlitchJitter {
-    0%   { transform: translate(0, 0); }
-    8%   { transform: translate(-3px, 1px); }
-    16%  { transform: translate(2px, -2px); }
-    24%  { transform: translate(-1px, 2px); }
-    32%  { transform: translate(3px, 0); }
-    40%  { transform: translate(-2px, -1px); }
-    55%  { transform: translate(1px, 1px); }
-    70%  { transform: translate(0, 0); }
-    100% { transform: translate(0, 0); }
-}
-
-@keyframes splashGlitchRed {
-    0%   { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-    10%  { transform: translate(-6px, 2px); clip-path: inset(15% 0 55% 0); }
-    20%  { transform: translate(-4px, -3px); clip-path: inset(60% 0 10% 0); }
-    30%  { transform: translate(-7px, 1px); clip-path: inset(30% 0 35% 0); }
-    45%  { transform: translate(-3px, 2px); clip-path: inset(5% 0 70% 0); }
-    60%  { transform: translate(-2px, 0); clip-path: inset(0 0 0 0); }
-    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); opacity: 0; }
-}
-
-@keyframes splashGlitchCyan {
-    0%   { transform: translate(0, 0); clip-path: inset(0 0 0 0); }
-    10%  { transform: translate(6px, -2px); clip-path: inset(50% 0 20% 0); }
-    20%  { transform: translate(4px, 3px); clip-path: inset(10% 0 60% 0); }
-    30%  { transform: translate(7px, -1px); clip-path: inset(40% 0 25% 0); }
-    45%  { transform: translate(3px, -2px); clip-path: inset(65% 0 5% 0); }
-    60%  { transform: translate(2px, 0); clip-path: inset(0 0 0 0); }
-    100% { transform: translate(0, 0); clip-path: inset(0 0 0 0); opacity: 0; }
-}
-
-.splash-title-img {
-    width: min(78vw, 720px);
-    height: auto;
-    display: block;
-}
-
-.splash-text-visible .splash-title,
-.splash-text-visible .splash-title-img {
+.splash-visible .splash-title {
     opacity: 1;
-    transform: translateY(0) scale(1);
 }
 
-@media (max-width: 480px) {
-    .splash-logo {
-        width: 90px;
-        height: 90px;
-    }
-
-    .splash-title {
-        letter-spacing: 0.03em;
-    }
-
-    .splash-title-img {
-        width: 88vw;
-    }
-}
-
-/* スプラッシュのタイトルはスマホでも大きく見せる（36px）。
-   上の max-width:480px より後ろに置いて、480px以下でもこちらが勝つようにしている */
-@media (max-width: 768px) {
-    .splash-title {
-        font-size: 36px;
-        /* 細らせる線も字の大きさに比例させる（36pxなら1.05px）。
-           下地は白なので色は #ffffff のまま */
-        -webkit-text-stroke: 1.05px #ffffff;
-    }
+/* 1文字ずつ落とす（splash.js の WAAPI）。動かす前は見えない */
+.splash-letter {
+    display: inline-block;
+    opacity: 0;
+    will-change: transform, opacity;
 }
 
 /* ===== ページヒーローバナー（共通） ===== */
@@ -2324,8 +2265,25 @@ body.dark-mode .page-btn.is-current::after {
     letter-spacing: 0.02em;
     margin: 0;
     white-space: nowrap;
-    border-left: 4px solid #4B2C82;
-    padding-left: 12px;
+    position: relative;
+    /* 左の縦線を消したので、文字は左端（下の一覧の左端）から始める。
+       線を戻す時は padding-left: 16px（線3px＋すき間13px）に戻して、下の ::before の display:none を消す */
+    padding-left: 0;
+}
+
+/* 見出しの左の縦線（今は非表示）。ヘッダーのサイトタイトル（丸いコミック体）に合わせて両端を丸く。
+   ::before にしているのは border-left だと端を丸められないため
+   （以前は border-left: 4px solid、色は紫 #4B2C82 → 黒） */
+.page-hero h2::before {
+    display: none;
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    border-radius: 1.5px;
+    background: #100B06; /* ヘッダーと同じ黒 */
 }
 
 .page-hero p {
@@ -2538,18 +2496,23 @@ body.dark-mode .nav-menu-btn:hover {
     white-space: nowrap;
     transition: color 0.15s ease;
 }
-/* 行頭のアイコン。普段は落ち着いた紫で、ホバー／表示中のページだけテーマ紫に */
+/* 行頭のアイコン。普段は落ち着いたグレーで、ホバー／表示中のページだけヘッダーと同じ #100B06 に
+   （元は 普段 #8B7FA8・ホバー／表示中 #4B2C82 の紫） */
 .nav-menu-icon {
     flex: 0 0 auto;
     font-size: 20px;
-    color: #8B7FA8;
+    color: #8C857D;
     transition: color 0.15s ease;
 }
+/* アイコンは中を塗りつぶした形（ph-fill）で、普段から黒（左右のカラムとも） */
+.nav-menu-icon.ph-fill {
+    color: #100B06;
+}
 .nav-menu-item:hover {
-    color: #4B2C82;
+    color: #100B06;
 }
 .nav-menu-item:hover .nav-menu-icon {
-    color: #4B2C82;
+    color: #100B06;
 }
 
 /* 現在開いているページは太字で示す */
@@ -2558,7 +2521,7 @@ body.dark-mode .nav-menu-btn:hover {
     font-weight: 700;
 }
 .nav-menu-item.current .nav-menu-icon {
-    color: #4B2C82;
+    color: #100B06;
 }
 
 /* 以前の行頭マーカー（右向きの三角）。アイコンに置き換えたので休止中。
@@ -2601,16 +2564,16 @@ body.dark-mode .nav-menu-sep {
 .nav-menu-col-sub .nav-menu-item {
     font-size: 16px;
     padding: 10px 6px;
-    color: #8B7FA8;
+    color: #8C857D;
 }
 .nav-menu-col-sub .nav-menu-icon {
     font-size: 19px;
 }
 .nav-menu-col-sub .nav-menu-item:hover {
-    color: #4B2C82;
+    color: #100B06;
 }
 .nav-menu-col-sub .nav-menu-item.current {
-    color: #4B2C82;
+    color: #100B06;
     font-weight: 700;
 }
 
@@ -2951,7 +2914,7 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         border: none;
         border-radius: 50%;
         background: transparent;
-        color: #EFEAF5;
+        color: #FFFFFF; /* 試用中。元は #EFEAF5 */
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
         transition: background 0.15s ease;
@@ -2987,7 +2950,7 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         border: none;
         border-radius: 50%;
         background: transparent;
-        color: #EFEAF5;
+        color: #FFFFFF; /* 試用中。元は #EFEAF5 */
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
         transition: background 0.15s ease;
@@ -3105,7 +3068,9 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         width: auto;
         height: auto;
         margin: 0 auto 0 0;
-        top: 0; /* ヘッダーのパディングは上下同じなので補正なしで中央 */
+        /* Luckiest Guy は大文字だけだと行ボックスの上寄りに乗るので、
+           右の検索・メニューアイコンと中心をそろえるため2px下げる */
+        top: 2px;
         /* PC・スプラッシュと同じコミック体。ウェイトは1種類なので400固定 */
         font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
         font-weight: 400;
@@ -3118,7 +3083,7 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         text-shadow: none !important;
         /* PCと同じ細らせ方。字の大きさに比例させる
            （PCは40pxに1.2px＝3%なので、24pxなら0.7px） */
-        -webkit-text-stroke: 0.7px #644476 !important;
+        -webkit-text-stroke: 0.7px #100B06 !important; /* 試用中。ヘッダー背景と同色。元は #644476 */
         background: none;
         border-radius: 0;
         overflow: visible;
@@ -3287,13 +3252,13 @@ svg.mm-icon {
 /* 現在開いているページの行。太字にはせず、薄いグレーの面と文字色だけで示す */
 .mm-row.current {
     background: #F3F2F4;
-    color: #4B2C82;
+    color: #100B06; /* 元は #4B2C82（紫） */
 }
 .mm-row.current .mm-icon {
     opacity: 1;
 }
 .mm-row.current .mm-value {
-    color: #4B2C82;
+    color: #100B06;
 }
 
 /* 最下段の「閉じる」。参考デザインの Delete と同じくアクセント赤 */

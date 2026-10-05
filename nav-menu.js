@@ -60,11 +60,12 @@
 
   const overlay = document.createElement('div');
   overlay.id = 'navMenuOverlay';
-  // icon は Phosphor の名前（ph-◯◯ の ◯◯ 部分）。行頭に置く
+  // icon は Phosphor の名前（ph-◯◯ の ◯◯ 部分）。行頭に置く。
+  // 中を塗りつぶした形（ph-fill）で出す
   function popupItem(href, title, icon) {
     const isCurrent = href.slice(1).toLowerCase() === file;
     return `<a href="${href}" class="nav-menu-item${isCurrent ? ' current' : ''}">`
-      + `<i class="ph ph-${icon} nav-menu-icon" aria-hidden="true"></i><span>${title}</span></a>`;
+      + `<i class="ph-fill ph-${icon} nav-menu-icon" aria-hidden="true"></i><span>${title}</span></a>`;
   }
 
   // 2カラム構成（左＝さがす／右＝サイト情報）。上端に紫のバーが入るカード型。

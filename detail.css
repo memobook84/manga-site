@@ -481,19 +481,22 @@ body.dark-mode .detail-divider {
     transform: rotate(180deg);
 }
 
+/* 中身は配信サービスのアイコンだけ（名前の文字は出さない）を横一列に並べる。
+   枠線・影は付けない（以前は 1px の枠＋ぼかした影の白いパネル）。
+   下の内容と重なった時に透けないよう、背景の白だけ残す。
+   left の -6px は .anime-menu-link の padding ぶん。1つ目のアイコンの左端をアニメ名の左端にそろえる */
 .anime-menu {
     position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
+    top: calc(100% + 4px);
+    left: -6px;
     z-index: 20;
     display: flex;
-    flex-direction: column;
-    min-width: 200px;
-    padding: 6px 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    white-space: nowrap;
     background: #fff;
-    border: 1px solid var(--color-border, #e5e1dc);
-    border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* display:flex が UA既定の [hidden] より優先されるので打ち消す */
@@ -501,118 +504,26 @@ body.dark-mode .detail-divider {
     display: none;
 }
 
-.anime-menu-caption {
-    padding: 4px 14px 6px;
-    font-family: 'Montserrat', 'Noto Sans JP', sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    color: var(--color-text-sub);
-    opacity: 0.55;
-}
-
 .anime-menu-link {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 14px;
-    font-size: 14px;
-    color: var(--color-text);
-    text-decoration: none;
+    padding: 6px;
+    border-radius: 6px;
 }
 
 .anime-menu-link:hover {
     background: #f4f1f8;
 }
 
-/* 各サービスのロゴ（ファビコン）。角だけ少し丸めてアプリアイコン風に */
+/* 各サービスのロゴ（ファビコン）。角だけ少し丸めてアプリアイコン風に（以前は 28px） */
 .anime-menu-logo {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
 }
 
-/* 外部リンクアイコンだけ青で右端に寄せる。文字は他のメタ値と同じ色のまま */
-.anime-menu-link i {
-    margin-left: auto;
-    padding-left: 16px;
-    font-size: 12px;
-    color: #2563eb;
-}
-
-/* PCはポップアップをアニメ名の下ではなく右横に出し、中のサービスも横一列に並べる。
-   .meta-item は align-items:flex-start なので .anime-value の幅＝アニメ名の幅になり、
-   left:100% がそのままアニメ名の右端になる */
-@media (min-width: 1025px) {
-    .anime-menu {
-        top: 50%;
-        left: calc(100% + 16px);
-        transform: translateY(-50%);
-        flex-direction: row;
-        align-items: center;
-        gap: 2px;
-        min-width: 0;
-        padding: 6px;
-        white-space: nowrap;
-        /* フラットに：影と枠線をやめ、薄紫の面だけで置く（浮いて見えないように） */
-        background: #F4F1F8;
-        border: none;
-        border-radius: 4px;
-        box-shadow: none;
-    }
-
-    /* 横一列なら見れば分かるので見出しは出さない */
-    .anime-menu-caption {
-        display: none;
-    }
-
-    /* ホバーは面より一段濃い紫のチップ */
-    .anime-menu-link {
-        gap: 6px;
-        padding: 6px 8px;
-        font-size: 13px;
-        border-radius: 3px;
-    }
-
-    .anime-menu-link:hover {
-        background: #E6DFF0;
-    }
-
-    /* 横並びではロゴがあれば外部リンクと分かるので、幅を食う↗は出さない */
-    .anime-menu-link i {
-        display: none;
-    }
-
-    /* アニメ名を指す左向きのしっぽ。面と同じ色の正方形を45度回して半分だけ出す。
-       ポップアップ自体をアニメ名の行の中央に揃えているので、しっぽも縦中央 */
-    .anime-menu::before {
-        content: '';
-        position: absolute;
-        top: calc(50% - 5px);
-        left: -5px;
-        width: 10px;
-        height: 10px;
-        background: #F4F1F8;
-        transform: rotate(45deg);
-    }
-
-    /* ▼は右向き（開く方向）にして、開いている間は左向きに返す */
-    .anime-toggle i {
-        transform: rotate(-90deg);
-    }
-
-    .anime-toggle[aria-expanded="true"] i {
-        transform: rotate(90deg);
-    }
-}
-
-/* 1025〜1279px は横一列（約600px）だと画面の右端からはみ出すので、3列×2段に折る */
-@media (min-width: 1025px) and (max-width: 1279px) {
-    .anime-menu {
-        display: grid;
-        grid-template-columns: repeat(3, max-content);
-    }
-}
+/* PCもスマホと同じく、アニメ名の下に開いてアイコンを横一列に並べる。
+   （以前のPCは右横に開き、枠・影なしの面＋左向きのしっぽ＋▼を横向きにしていた。git の履歴に残っている） */
 
 /* .meta-item の display:flex は [hidden] のUA既定(display:none)より
    優先度が高いので、明示的に打ち消さないと隠れない */
@@ -651,7 +562,7 @@ body.dark-mode .detail-divider {
     background: var(--color-border, #e5e1dc);
 }
 
-/* 見出し左の小さな四角（テーマ紫）。ストーリー／作品情報／シリーズ一覧で共通 */
+/* 見出し左の小さな四角（ヘッダーと同じ黒。以前はテーマ紫 #4B2C82）。ストーリー／作品情報／シリーズ一覧で共通 */
 .detail-description h2::before,
 .detail-meta-title::before,
 .volumes-title::before {
@@ -660,7 +571,7 @@ body.dark-mode .detail-divider {
     width: 8px;
     height: 8px;
     margin-right: 10px;
-    background: #4B2C82;
+    background: #100B06;
 }
 
 .detail-description p {
@@ -760,6 +671,14 @@ body.dark-mode .detail-divider {
     background: var(--color-border, #e5e1dc);
 }
 
+/* 見出し（作品情報／ストーリー／シリーズ一覧）の右に伸びる区切り線は試用で消している。
+   戻す時はこのルールを消すだけでよい（線の定義は上の3つの ::after にそのまま残してある） */
+.detail-meta-title::after,
+.detail-description h2::after,
+.volumes-title::after {
+    display: none;
+}
+
 .volumes-header {
     display: flex;
     align-items: center;
@@ -768,6 +687,19 @@ body.dark-mode .detail-divider {
     margin-bottom: 24px;
     flex-wrap: wrap;
 }
+
+/* PCは見出しと中身の間を少し広げて、見出しだと分かりやすくする。
+   作品情報・ストーリー・シリーズ一覧の3つとも 28px にそろえる
+   （.detail-description h2 と .volumes-header の素のルールより後ろに置かないと負ける）
+   （以前は 作品情報／ストーリー＝18px、シリーズ一覧＝24px。タブレット・スマホは据え置き） */
+@media (min-width: 1025px) {
+    .detail-meta-title,
+    .detail-description h2,
+    .volumes-header {
+        margin-bottom: 28px;
+    }
+}
+
 
 .volumes-actions-wrap {
     position: relative;
@@ -1288,10 +1220,9 @@ body.dark-mode .range-field input {
         font-size: 13px;
     }
 
-    /* 指で押すので行を高めに取る */
+    /* 指で押すので押せる範囲を広めに取る（22px＋上下10px＝42px） */
     .anime-menu-link {
-        padding: 11px 14px;
-        font-size: 13px;
+        padding: 10px;
     }
 
     .detail-divider {

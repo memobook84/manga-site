@@ -177,12 +177,12 @@
 }
 
 .nr-tab:hover {
-    color: #4B2C82;
+    color: #100B06;
 }
 
-/* 選択中は下線をテーマ色で引く */
+/* 選択中は下線をヘッダーと同じ #100B06 で引く（元はテーマ紫 #4B2C82） */
 .nr-tab.active {
-    color: #4B2C82;
+    color: #100B06;
 }
 
 .nr-tab.active::after {
@@ -192,7 +192,7 @@
     right: 0;
     bottom: -1px;
     height: 2px;
-    background: #4B2C82;
+    background: #100B06;
 }
 
 .nr-empty {

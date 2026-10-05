@@ -80,10 +80,26 @@
     background: var(--color-border, #e5e1dc);
 }
 
-.author-profile p {
+.author-profile p,
+.author-bio {
     font-size: 15px;
     line-height: 1.9;
     color: var(--color-text);
+}
+
+/* 要約プロフィール（author-profiles.js に載っている著者だけ） */
+.author-profile .author-summary-text {
+    margin: 0 0 16px;
+}
+
+.author-profile .author-source {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-text-sub);
+}
+.author-source a {
+    color: inherit;
+    text-decoration: underline;
 }
 
 /* 作品一覧セクション */

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>巻詳細 - ATLAS COMIC</title>
-    <link rel="icon" type="image/png" href="favicon.png?v=5">
+    <link rel="icon" type="image/png" href="favicon.png?v=6">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,6 +28,9 @@
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preconnect" href="https://thumbnail.image.rakuten.co.jp">
     <link rel="preconnect" href="https://books.google.com">
+    <!-- ヘッダーのサイトタイトル（Luckiest Guy・style.css で自前読み込み）を先に取りに行く。
+         CSSを読んでから取りに行くと、遷移のたびに一瞬別のフォントでタイトルが出るため -->
+    <link rel="preload" href="/fonts/LuckiestGuy-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">

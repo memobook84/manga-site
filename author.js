@@ -14,6 +14,30 @@ function getAuthorNameFromUrl() {
     return params.get('name') || '';
 }
 
+// 要約プロフィール（data/author-profiles.json）を表示する。
+// 中身はWikipediaの記事全体を段落ごとの文章にまとめたもの。キーはスペースを除いた著者名。
+// 段落ごとの文章 → 出典 の順
+function renderAuthorProfile(container, paragraphs, wikipediaUrl) {
+    paragraphs.forEach(text => {
+        const p = document.createElement('p');
+        p.className = 'author-summary-text';
+        p.textContent = text;
+        container.appendChild(p);
+    });
+
+    // Wikipediaの記事をもとにしているので出典を添える
+    const source = document.createElement('p');
+    source.className = 'author-source';
+    source.append('出典：');
+    const a = document.createElement('a');
+    a.href = wikipediaUrl;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = 'Wikipedia';
+    source.append(a);
+    container.appendChild(source);
+}
+
 // 著者の詳細を表示（メイン処理）
 async function displayAuthorDetail() {
     const authorName = decodeURIComponent(getAuthorNameFromUrl());
@@ -33,12 +57,20 @@ async function displayAuthorDetail() {
     // Wikipedia APIから著者情報を取得
     const cleanName = authorName.replace(/[\s\u3000]+/g, '');
     let bio = authorBiosFallback[authorName] || authorBiosFallback[cleanName] || '';
+    let wikipediaUrl = `https://ja.wikipedia.org/wiki/${encodeURIComponent(cleanName)}`;
+    // 要約プロフィール（自前データ）はWikipediaへの問い合わせと並行して取る
+    const profilesPromise = fetch('/data/author-profiles.json')
+        .then(r => r.ok ? r.json() : {})
+        .catch(() => ({}));
     try {
         const wikiResp = await fetch(`/api/author?name=${encodeURIComponent(authorName)}`);
         if (wikiResp.ok) {
             const wikiData = await wikiResp.json();
             if (wikiData.extract) {
                 bio = wikiData.extract;
+            }
+            if (wikiData.wikipediaUrl) {
+                wikipediaUrl = wikiData.wikipediaUrl;
             }
             if (wikiData.romaji && romajiEl) {
                 romajiEl.textContent = wikiData.romaji;
@@ -55,25 +87,31 @@ async function displayAuthorDetail() {
     const bioEl = document.getElementById('author-bio');
     bioEl.innerHTML = '';
 
-    // Wikipediaのextractをセクション分けして整形表示
-    const sections = bio.split(/\n+/);
-    sections.forEach(section => {
-        const trimmed = section.trim();
-        if (!trimmed) return;
-        // セクション見出し（== xxx ==）を検出
-        const headingMatch = trimmed.match(/^=+\s*(.+?)\s*=+$/);
-        if (headingMatch) {
-            const h = document.createElement('strong');
-            h.textContent = headingMatch[1];
-            h.style.cssText = 'display:block;margin-top:16px;margin-bottom:6px;font-size:15px;';
-            bioEl.appendChild(h);
-        } else {
-            const p = document.createElement('p');
-            p.textContent = trimmed;
-            p.style.cssText = 'margin:0 0 8px 0;';
-            bioEl.appendChild(p);
-        }
-    });
+    // 要約プロフィールがある著者は、Wikipediaの長い本文の代わりにそちらを出す
+    const profile = (await profilesPromise)[cleanName];
+    if (profile) {
+        renderAuthorProfile(bioEl, profile, wikipediaUrl);
+    } else {
+        // Wikipediaのextractをセクション分けして整形表示
+        const sections = bio.split(/\n+/);
+        sections.forEach(section => {
+            const trimmed = section.trim();
+            if (!trimmed) return;
+            // セクション見出し（== xxx ==）を検出
+            const headingMatch = trimmed.match(/^=+\s*(.+?)\s*=+$/);
+            if (headingMatch) {
+                const h = document.createElement('strong');
+                h.textContent = headingMatch[1];
+                h.style.cssText = 'display:block;margin-top:16px;margin-bottom:6px;font-size:15px;';
+                bioEl.appendChild(h);
+            } else {
+                const p = document.createElement('p');
+                p.textContent = trimmed;
+                p.style.cssText = 'margin:0 0 8px 0;';
+                bioEl.appendChild(p);
+            }
+        });
+    }
 
     // APIから著者の作品を取得
     let works = await fetchAuthorWorks(authorName);

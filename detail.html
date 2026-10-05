@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>漫画詳細 - ATLAS COMIC</title>
-    <link rel="icon" type="image/png" href="favicon.png?v=5">
+    <link rel="icon" type="image/png" href="favicon.png?v=6">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -53,6 +53,9 @@
         } catch (e) {}
     })();
     </script>
+    <!-- ヘッダーのサイトタイトル（Luckiest Guy・style.css で自前読み込み）を先に取りに行く。
+         CSSを読んでから取りに行くと、遷移のたびに一瞬別のフォントでタイトルが出るため -->
+    <link rel="preload" href="/fonts/LuckiestGuy-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Archivo+Black&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;500;700;900&family=Barlow:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="legal.css">
@@ -153,16 +156,14 @@
                     <div class="meta-item" id="manga-anime-item" hidden>
                         <span class="meta-label">アニメ</span>
                         <span class="meta-dots"></span>
-                        <!-- アニメ名を押すと配信サービスの一覧が開く。
-                             一覧のリンクは detail.js がアニメ名から組み立てて入れる -->
+                        <!-- アニメ名を押すと配信サービスのアイコンが並ぶ。
+                             リンクは detail.js がアニメ名から組み立てて入れる -->
                         <div class="meta-value anime-value">
                             <button type="button" id="manga-anime-toggle" class="anime-toggle"
                                     aria-expanded="false" aria-controls="manga-anime-menu">
                                 <span id="manga-anime-title"></span><i class="ph-bold ph-caret-down" aria-hidden="true"></i>
                             </button>
-                            <div id="manga-anime-menu" class="anime-menu" hidden>
-                                <span class="anime-menu-caption">配信サービスで探す</span>
-                            </div>
+                            <div id="manga-anime-menu" class="anime-menu" hidden></div>
                         </div>
                     </div>
                 </div>
