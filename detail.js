@@ -138,21 +138,21 @@ async function displayMangaDetail() {
         : '';
     document.getElementById('manga-latest-date').textContent = formatMetaDate(latestDate) || '-';
 
-    // 価格帯: 巻によって定価が違うことがあるので最安〜最高で示す。
-    // 全巻同じ価格なら範囲にせず1つだけ出す
-    const prices = volumes.map(v => Number(v.price)).filter(p => p > 0);
-    const priceEl = document.getElementById('manga-price-range');
-    if (prices.length) {
-        const min = Math.min(...prices);
-        const max = Math.max(...prices);
-        priceEl.textContent = min === max
-            ? `¥${min.toLocaleString()}`
-            : `¥${min.toLocaleString()}〜¥${max.toLocaleString()}`;
-    } else {
-        priceEl.textContent = '-';
-    }
+    // 初刊（1巻）の発売日。巻数の付いた巻があるなら「1巻」の巻だけを見る
+    // （1巻が楽天に無い作品で、2巻の日付を初刊として出さないため。その場合は「-」）。
+    // 巻数が1つも付いていない単巻作品などは、一番古い日付をそのまま使う。
+    // 新装版の1巻が混ざっても、古い方を取るので元の1巻の日付になる
+    const oldest = (list) => list.length
+        ? list.reduce((a, b) => (a.firstReleaseDate < b.firstReleaseDate ? a : b)).firstReleaseDate
+        : '';
+    const hasNumbered = volumes.some(v => extractVolumeNumber(v.title) !== null);
+    const firstDate = hasNumbered
+        ? oldest(dated.filter(v => extractVolumeNumber(v.title) === 1))
+        : oldest(dated);
+    document.getElementById('manga-first-date').textContent = formatMetaDate(firstDate) || '-';
 
-    // アニメ欄。索引の取得を待たせたくないので await しない
+    // 連載誌欄・アニメ欄。索引の取得を待たせたくないので await しない
+    setupMagazineRow(displaySeriesName);
     setupAnimeRow(displaySeriesName);
 
     // あらすじ: descriptionが空でない最初の巻から取得
@@ -556,10 +556,12 @@ function renderQuickView() {
     overlay.querySelector('.quickview-next').disabled = qvState.index >= qvState.volumes.length - 1;
 
     // Release / Price / Label は非表示にした（2026-08-05・ユーザー指示）。
-    // 復活させる場合は下の3行のコメントを戻すだけ。削除しないこと。
+    // 発売日だけ戻した（2026-11-22・ユーザー指示）。見出しは作品情報に合わせて日本語、
+    // 日付も作品情報の「初刊」「最新刊」と同じ書式（2026/4/3。日の無いデータは 2014/4）。
+    // Price / Label を復活させる場合は下の2行のコメントを戻すだけ。削除しないこと。
     // （空になった .quickview-meta は detail.css の :empty で消える）
     const metaRows = [
-        // ['Release', formatQuickViewDate(vol.firstReleaseDate)],
+        ['発売日', formatMetaDate(vol.firstReleaseDate)],
         // ['Price', vol.price],
         // ['Label', vol.label],
     ].filter(([, v]) => v);
@@ -711,12 +713,6 @@ function setupQuickViewSwipe(overlay) {
     }, { passive: true });
 }
 
-function formatQuickViewDate(dateStr) {
-    if (!dateStr) return '';
-    const m = String(dateStr).match(/(\d{4})[年\-\/](\d{1,2})[月\-\/](\d{1,2})/);
-    if (!m) return dateStr;
-    return `${m[1]}/${String(m[2]).padStart(2, '0')}/${String(m[3]).padStart(2, '0')}`;
-}
 
 // ISBN-13 → ASIN(ISBN-10) 変換（978始まりのみ）
 function isbn13ToAsin(isbn13) {
@@ -746,6 +742,38 @@ function buildAmazonCartUrl(volumes) {
     }
     if (idx === 1) return null;
     return `https://www.amazon.co.jp/gp/aws/cart/add.html?${params.join('&')}`;
+}
+
+// ===== 連載誌（data/magazines.json）=====
+// scripts/collect-magazines.js が Wikidata の「掲載誌」から作った索引。
+// キーは normalizeSearchKey 済みの作品名で、値は連載誌名の配列（連載開始の早い順）。
+// 楽天APIにはレーベルまでしか無いので、連載誌はこの索引でしか分からない
+let magazineIndex = null;
+
+async function loadMagazineIndex() {
+    if (magazineIndex) return magazineIndex;
+    try {
+        const res = await fetch('/data/magazines.json');
+        magazineIndex = res.ok ? await res.json() : {};
+    } catch (err) {
+        magazineIndex = {};   // 索引が無い＝連載誌欄を出さない、として扱う
+    }
+    return magazineIndex;
+}
+
+// メタ欄の「連載誌」行。連載誌が分かる作品でだけ出す。
+// 移籍した作品（チェンソーマン等）は「週刊少年ジャンプ / 少年ジャンプ+」のように並べる
+async function setupMagazineRow(seriesName) {
+    const item = document.getElementById('manga-magazine-item');
+    const valueEl = document.getElementById('manga-magazine');
+    if (!item || !valueEl || typeof normalizeSearchKey !== 'function') return;
+
+    const index = await loadMagazineIndex();
+    const magazines = index[normalizeSearchKey(seriesName)];
+    if (!Array.isArray(magazines) || magazines.length === 0) return;
+
+    valueEl.textContent = magazines.join(' / ');
+    item.hidden = false;
 }
 
 // ===== アニメ化情報（data/anime.json）=====
@@ -1256,9 +1284,9 @@ function setupSlideNavigation() {
     }, { passive: true });
 }
 
-// ※ 以前はモバイルだけ「ストーリー → 作品情報」の順に DOM を入れ替えていたが、
-//    作品情報を先に見せる方針になったので廃止。PC・モバイルとも HTML の記述順
-//    （作品情報 → ストーリー）のまま表示する
+// ※ スマホだけ「ストーリー → 作品情報」の順に見せている。DOM は入れ替えず、
+//    detail.css の @media (max-width: 768px) で order を付け直している
+//    （JSで入れ替えると表示の途中で順番が変わって見えるため）
 
 window.addEventListener('DOMContentLoaded', () => {
     displayMangaDetail();

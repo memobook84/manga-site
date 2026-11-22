@@ -120,11 +120,19 @@
 
                 <!-- メタ情報（表紙の横に表示・volumeページと同レイアウト） -->
                 <h2 class="detail-meta-title">作品情報</h2>
+                <!-- 並び順：ジャンル → 連載誌 → レーベル → 出版社 → 初刊 → 最新刊 → 全巻数 → アニメ -->
                 <div class="detail-meta">
                     <div class="meta-item">
-                        <span class="meta-label">出版社</span>
+                        <span class="meta-label">ジャンル</span>
                         <span class="meta-dots"></span>
-                        <span id="manga-publisher" class="meta-value">-</span>
+                        <span id="manga-genre" class="meta-value">-</span>
+                    </div>
+                    <!-- 連載誌がわかる作品だけ detail.js が hidden を外す（data/magazines.json）。
+                         わからない作品に「-」の行を出さないため、既定は非表示 -->
+                    <div class="meta-item" id="manga-magazine-item" hidden>
+                        <span class="meta-label">連載誌</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-magazine" class="meta-value"></span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">レーベル</span>
@@ -132,9 +140,14 @@
                         <span id="manga-label" class="meta-value">-</span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">ジャンル</span>
+                        <span class="meta-label">出版社</span>
                         <span class="meta-dots"></span>
-                        <span id="manga-genre" class="meta-value">-</span>
+                        <span id="manga-publisher" class="meta-value">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">初刊</span>
+                        <span class="meta-dots"></span>
+                        <span id="manga-first-date" class="meta-value">-</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label">最新刊</span>
@@ -145,11 +158,6 @@
                         <span class="meta-label">全巻数</span>
                         <span class="meta-dots"></span>
                         <span id="manga-date" class="meta-value">-</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">価格帯</span>
-                        <span class="meta-dots"></span>
-                        <span id="manga-price-range" class="meta-value">-</span>
                     </div>
                     <!-- アニメ化されている作品だけ detail.js が hidden を外す。
                          データが無い作品に空欄の行を出さないため、既定は非表示 -->

@@ -1,8 +1,9 @@
 /* スプラッシュ（index.html / home.html）。同一セッションで1回だけ。
    長さは従来どおり 表示2.4秒 ＋ フェード0.7秒 ＝ 3.1秒。
 
-   ロゴ「ATLAS COMIC」が1文字ずつ上からドーンと叩きつけられるだけのシンプルな演出。
+   ロゴ「ATLAS COMIC」がまとめて一度に、その場で奥からぼわっと浮かび上がってくるだけのシンプルな演出。
    ・点滅なし・画面を揺らさない。動きは減速して止まる
+   ※以前は1文字ずつ上から叩きつける版（左の文字から順に出る）だった。git の履歴（commit 87ef710 まで）に残っている
    ・OSの「視差効果を減らす」（prefers-reduced-motion）が有効なら、動かさずにロゴを出すだけ
    ・タップ／クリック／キー操作でいつでも飛ばせる（その場でフェード）
    ・隠しコマンド：スプラッシュ中にタイトル「ATLAS COMIC」そのものを押すと、約1分のモーションビデオ
@@ -11,9 +12,8 @@
 (function () {
     var HOLD_MS = 2400;
     var FADE_MS = 700;
-    var SLAM_START = 250;   // 最初の文字が落ち始めるまで
-    var SLAM_STAGGER = 40;  // 文字ごとのずれ
-    var SLAM_MS = 560;      // 1文字が落ちて着地するまで
+    var RISE_START = 200;   // 浮かび上がり始めるまで
+    var RISE_MS = 1400;     // 奥から出てきて止まるまで（750msだと勢いが強すぎた）
 
     function run() {
         if (sessionStorage.getItem('splashShown')) {
@@ -31,7 +31,7 @@
 
         var reduce = window.matchMedia &&
             window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!reduce && Element.prototype.animate) slam(title);
+        if (!reduce && Element.prototype.animate) rise(title);
         overlay.classList.add('splash-visible');
 
         var ended = false;
@@ -98,28 +98,15 @@
         document.head.appendChild(s);
     }
 
-    // ロゴを1文字ずつに分けて、上から大きく落として着地させる
-    function slam(title) {
-        var text = title.textContent.trim();
-        title.setAttribute('aria-label', text);
-        title.textContent = '';
-        var i = 0;
-        text.split('').forEach(function (ch) {
-            var s = document.createElement('span');
-            s.className = 'splash-letter';
-            s.setAttribute('aria-hidden', 'true');
-            s.textContent = ch === ' ' ? ' ' : ch;
-            title.appendChild(s);
-            if (ch === ' ') return;
-            var r = (i % 2 ? 1 : -1) * (6 + (i * 37 % 7));   // 文字ごとに少しだけ傾けて落とす
-            s.animate([
-                { opacity: 0, transform: 'translateY(-0.55em) scale(1.9) rotate(' + r + 'deg)', offset: 0, easing: 'cubic-bezier(.3,0,.6,1)' },
-                { opacity: 1, transform: 'translateY(0.05em) scale(0.9) rotate(' + (-r * 0.25) + 'deg)', offset: 0.5, easing: 'cubic-bezier(.3,0,.4,1)' },
-                { opacity: 1, transform: 'translateY(-0.02em) scale(1.05) rotate(0deg)', offset: 0.75, easing: 'ease-in-out' },
-                { opacity: 1, transform: 'none', offset: 1 }
-            ], { duration: SLAM_MS, delay: SLAM_START + i * SLAM_STAGGER, fill: 'both' });
-            i++;
-        });
+    // ロゴ全体を一度に、その場で奥からぼわっと浮かび上がらせる。
+    // 上下には動かさず、少し小さく・ぼけた状態から元の大きさへ。行き過ぎ（ポンと膨らむ）もなし
+    // ※最初の版は下から上へせり上げて（translateY 0.9em→0）、最後に1.06倍まで膨らませていた。
+    //   勢いが強い・上に移動して見えるとのことで、移動と膨らみを外した
+    function rise(title) {
+        title.animate([
+            { opacity: 0, transform: 'scale(0.8)', filter: 'blur(12px)' },
+            { opacity: 1, transform: 'none', filter: 'blur(0)' }
+        ], { duration: RISE_MS, delay: RISE_START, easing: 'cubic-bezier(.25,.1,.25,1)', fill: 'both' });
     }
 
     // ナビの先読み（Speculation Rules / nav-menu.js）でこのページが裏で

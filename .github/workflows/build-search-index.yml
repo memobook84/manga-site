@@ -52,9 +52,16 @@ jobs:
           DELAY_MS: '1500'
         run: node scripts/collect-free-manga.js
 
+      # 作品ページの「連載誌」欄の索引。Wikidata から取るので楽天のキーは不要。
+      # その日に増えた作品にも付くよう、インデックス構築の「後」に作り直す。
+      # 失敗した時はファイルを書き換えないので、前日の索引がそのまま残る
+      - name: 連載誌の索引を作成
+        continue-on-error: true
+        run: node scripts/collect-magazines.js
+
       - name: 変更があればコミット
         run: |
-          FILES="data/search-index.json data/free-manga.json data/new-series.json data/ranking.json data/new-releases.json"
+          FILES="data/search-index.json data/free-manga.json data/new-series.json data/ranking.json data/new-releases.json data/magazines.json"
           if git diff --quiet -- $FILES; then
             echo "変更なし"
             exit 0

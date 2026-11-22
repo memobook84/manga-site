@@ -93,7 +93,7 @@
     left: calc(100% + 48px);
     /* 下端はブックマークの丸ボタンが使うので、その上に積む */
     bottom: 60px;
-    color: #4B2C82;
+    color: #5A5A5A;
     background: transparent;
     border: none;
     padding: 0;
@@ -112,7 +112,7 @@
 }
 
 .detail-image-badge:hover {
-    color: #3f2470;
+    color: #3A3A3A;
     transform: scale(1.1);
 }
 
@@ -511,7 +511,7 @@ body.dark-mode .detail-divider {
 }
 
 .anime-menu-link:hover {
-    background: #f4f1f8;
+    background: #f2f2f2;
 }
 
 /* 各サービスのロゴ（ファビコン）。角だけ少し丸めてアプリアイコン風に（以前は 28px） */
@@ -568,9 +568,10 @@ body.dark-mode .detail-divider {
 .volumes-title::before {
     content: '';
     flex: 0 0 auto;
-    width: 8px;
-    height: 8px;
-    margin-right: 10px;
+    /* 8px → 10px に大きくした（文字との間も 10px → 12px） */
+    width: 10px;
+    height: 10px;
+    margin-right: 12px;
     background: #100B06;
 }
 
@@ -700,6 +701,49 @@ body.dark-mode .detail-divider {
     }
 }
 
+/* PCは作品情報を下に寄せ、いちばん下の行の下端を左の表紙の下端にそろえる
+   （タイトル・著者は上に残す）。.detail-info は .detail-container（flex の横並び）の
+   stretch で表紙と同じ高さになるので、見出しの上を margin-top:auto で空けて下へ押し下げる。
+   右側の方が高くなる作品（タイトルが長い等）でも詰まりすぎないよう、
+   著者名の下に元の見出しの上余白と同じ 42px を最低限確保する */
+@media (min-width: 1025px) {
+    .detail-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-author-line {
+        margin-bottom: 42px;
+    }
+
+    .detail-meta-title {
+        margin-top: auto;
+    }
+
+    /* 表紙の下端ぴったりだと下に行き過ぎに見えたので、そこから 24px 上げる。
+       行の間も詰めてコンパクトに（20px → 12px） */
+    .detail-meta {
+        margin-bottom: 24px;
+        row-gap: 12px;
+    }
+
+    /* ラベルと値の間（4px → 2px）と値の行の高さ（1.45 → 1.35）も詰める */
+    .meta-item {
+        gap: 2px;
+    }
+
+    .meta-value {
+        line-height: 1.35;
+    }
+
+    /* 表紙は読み込まれるまで高さ0なので、そのままだと作品情報が上に出てから下へ飛ぶ。
+       表紙の高さが決まるまで（ブックマークボタンに .is-ready が付くまで）は、
+       一般的な単行本の表紙の高さ（幅300px × 1.42 ≒ 426px）を仮に確保しておく */
+    .detail-image:has(.follow-button:not(.is-ready)) {
+        min-height: 426px;
+    }
+}
+
 
 .volumes-actions-wrap {
     position: relative;
@@ -749,7 +793,7 @@ body.dark-mode .detail-divider {
 }
 
 .cart-toggle-btn:focus-visible {
-    outline: 2px solid #4B2C82;
+    outline: 2px solid #5A5A5A;
     outline-offset: 3px;
 }
 
@@ -789,9 +833,9 @@ body.dark-mode .detail-divider {
     cursor: pointer;
     transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
     line-height: 1;
-    border: 1px solid #4B2C82;
+    border: 1px solid #5A5A5A;
     background: transparent;
-    color: #4B2C82;
+    color: #5A5A5A;
     box-shadow: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -805,15 +849,15 @@ body.dark-mode .detail-divider {
 }
 
 .cart-btn:hover:not(:disabled) {
-    background: #4B2C82;
+    background: #5A5A5A;
     color: #fff;
     box-shadow: none;
     transform: none;
 }
 
 .cart-btn:active:not(:disabled) {
-    background: #371F63;
-    border-color: #371F63;
+    background: #3A3A3A;
+    border-color: #3A3A3A;
     transform: none;
 }
 
@@ -925,7 +969,7 @@ body.dark-mode .detail-divider {
 
 .range-field input:focus {
     outline: none;
-    border-color: #4B2C82;
+    border-color: #5A5A5A;
 }
 
 .range-sep {
@@ -940,17 +984,17 @@ body.dark-mode .detail-divider {
     height: 44px;
     padding: 0 16px;
     font-size: 14px;
-    background: #422476;
-    border-color: #422476;
+    background: #5A5A5A;
+    border-color: #5A5A5A;
     color: #ffffff;
-    box-shadow: 0 1px 2px rgba(66, 36, 118, 0.25), 0 0 0 0.5px rgba(66, 36, 118, 0.3);
+    box-shadow: 0 1px 2px rgba(90, 90, 90, 0.25), 0 0 0 0.5px rgba(90, 90, 90, 0.3);
 }
 
 .range-submit i { color: #ffffff; }
 
 .range-submit:hover {
-    background: #2d1656;
-    box-shadow: 0 6px 16px rgba(66, 36, 118, 0.28), 0 0 0 0.5px rgba(66, 36, 118, 0.4);
+    background: #3A3A3A;
+    box-shadow: 0 6px 16px rgba(90, 90, 90, 0.28), 0 0 0 0.5px rgba(90, 90, 90, 0.4);
 }
 
 .range-keypad {
@@ -979,23 +1023,23 @@ body.dark-mode .detail-divider {
 }
 
 .keypad-btn:hover {
-    background: #f0ebf8;
-    border-color: #422476;
+    background: #f0f0f0;
+    border-color: #5A5A5A;
 }
 
 .keypad-btn:active {
     transform: scale(0.96);
-    background: #e8e0f5;
+    background: #e6e6e6;
 }
 
 .keypad-btn-util {
-    color: #422476;
+    color: #5A5A5A;
     font-size: 16px;
 }
 
 .range-field input.range-field-active {
-    border-color: #422476;
-    box-shadow: 0 0 0 3px rgba(66, 36, 118, 0.12);
+    border-color: #5A5A5A;
+    box-shadow: 0 0 0 3px rgba(90, 90, 90, 0.12);
 }
 
 body.dark-mode .keypad-btn {
@@ -1195,7 +1239,13 @@ body.dark-mode .range-field input {
         /* モバイルは従来どおり幅いっぱい（PC用の上限を解除） */
         max-width: none;
         column-gap: 20px;
-        row-gap: 16px;
+        /* 縦に間延びして見えたので詰めた（16px → 10px） */
+        row-gap: 10px;
+    }
+
+    /* ラベルと値の間も詰める（4px → 1px） */
+    .meta-item {
+        gap: 1px;
     }
 
     /* スマホの文字サイズはタイトル17pxを頂点に段を付ける。
@@ -1214,10 +1264,13 @@ body.dark-mode .range-field input {
 
     .meta-label {
         font-size: 10px;
+        line-height: 1.3;
     }
 
+    /* 行の高さも 1.45 → 1.35 に。2行に折り返す値（連載誌が2誌の時など）も詰まりすぎない程度 */
     .meta-value {
         font-size: 13px;
+        line-height: 1.35;
     }
 
     /* 指で押すので押せる範囲を広めに取る（22px＋上下10px＝42px） */
@@ -1250,13 +1303,13 @@ body.dark-mode .range-field input {
         font-size: 13px;
     }
 
-    /* 文字が小さくなるぶん、左のブロックと余白も少し詰める */
+    /* 文字が小さくなるぶん、左のブロックと余白も少し詰める（PCより一回り小さく。7px → 9px に大きくした） */
     .detail-description h2::before,
     .detail-meta-title::before,
     .volumes-title::before {
-        width: 7px;
-        height: 7px;
-        margin-right: 8px;
+        width: 9px;
+        height: 9px;
+        margin-right: 10px;
     }
 
     .detail-description h2::after,
@@ -1309,11 +1362,11 @@ body.dark-mode .range-field input {
         background: #fff;
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
-        border: 1px solid #4B2C82;
+        border: 1px solid #5A5A5A;
         border-radius: 0;
         padding: 0;
         /* ぼかさず、真横にずらした角ばった影 */
-        box-shadow: 6px 6px 0 rgba(75, 44, 130, 0.15);
+        box-shadow: 6px 6px 0 rgba(90, 90, 90, 0.15);
         z-index: 50;
         min-width: 240px;
         max-width: calc(100vw - 40px);
@@ -1328,7 +1381,7 @@ body.dark-mode .range-field input {
         height: 44px;
         padding: 0 14px;
         border: none;
-        border-bottom: 1px solid rgba(75, 44, 130, 0.18);
+        border-bottom: 1px solid rgba(90, 90, 90, 0.18);
         border-radius: 0;
         box-shadow: none;
         background: transparent;
@@ -1339,7 +1392,7 @@ body.dark-mode .range-field input {
     }
 
     .volumes-actions .cart-btn:hover:not(:disabled) {
-        background: #4B2C82;
+        background: #5A5A5A;
         color: #fff;
         box-shadow: none;
         transform: none;
@@ -1359,6 +1412,67 @@ body.dark-mode .range-field input {
     body.dark-mode .volumes-actions .cart-btn:hover:not(:disabled) {
         background: #4B2C82;
         color: #fff;
+    }
+}
+
+/* スマホだけ「ストーリー」を「作品情報」より上に出す
+   （表紙 → タイトル・著者 → ストーリー → 作品情報 → シリーズ一覧）。
+   ストーリーは .detail-container の外にあるので、入れ物2つを display:contents で
+   ほどいて .detail-main 直下に並べ、order で順番を付け直す。
+   JSで並べ替えると表示の途中で入れ替わって見えるのでCSSだけで行う。
+   ほどいた入れ物の余白（padding 8px 20px 20px・gap 48px）は各要素の余白に移してある */
+@media (max-width: 768px) {
+    .detail-main {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-container,
+    .detail-info {
+        display: contents;
+    }
+
+    .detail-image {
+        order: 1;
+        padding: 8px 20px 0;
+    }
+
+    .detail-title {
+        order: 2;
+        margin: 48px 20px 8px;
+    }
+
+    .detail-author-line {
+        order: 3;
+        margin: 0 20px;
+    }
+
+    /* 著者名との間は、元の作品情報見出しと同じ 22px */
+    .detail-description {
+        order: 4;
+        padding: 22px 20px 0;
+        margin-bottom: 0;
+    }
+
+    /* あらすじ本文との間は、元の作品情報 → ストーリー見出しと同じ 40px */
+    .detail-meta-title {
+        order: 5;
+        margin: 40px 20px 12px;
+    }
+
+    .detail-meta {
+        order: 6;
+        margin: 0 20px;
+    }
+
+    /* 作品情報 → シリーズ一覧の間も、ストーリー → 作品情報と同じ 40px に。
+       以前は 下の余白30px＋.volumes-section の margin-top 48px＋padding-top 12〜20px が
+       重なって 90px ほど空いていた。480px以下の padding（12px 20px）に負けないよう
+       セレクタを1段強くしている */
+    .detail-main .volumes-section {
+        order: 7;
+        margin-top: 40px;
+        padding-top: 0;
     }
 }
 
@@ -1420,8 +1534,8 @@ body.dark-mode .range-field input {
 }
 
 .volume-quick-btn:hover {
-    background: #4B2C82;
-    border-color: #4B2C82;
+    background: #5A5A5A;
+    border-color: #5A5A5A;
     transform: translateY(0) scale(1.08);
 }
 
@@ -1819,7 +1933,7 @@ body.dark-mode .range-field input {
     /* VOL.タグと高さをそろえる計算の基準になるので固定値にする */
     height: 40px;
     padding: 0 22px;
-    background: #4B2C82;
+    background: #5A5A5A;
     color: #fff;
     font-family: 'Montserrat', sans-serif;
     font-size: 11px;
@@ -1833,7 +1947,7 @@ body.dark-mode .range-field input {
 
 /* .quickview-read と同じく、ホバーで横に伸びるのはやめて色だけ変える */
 .quickview-link:hover {
-    background: #371F63;
+    background: #3A3A3A;
 }
 
 /* ---- 前後の巻へ移動する左右ボタン ----
@@ -1849,7 +1963,7 @@ body.dark-mode .range-field input {
     height: 150px;
     padding: 0;
     border: none;
-    background: #4B2C82;
+    background: #5A5A5A;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s ease, background 0.15s ease;
@@ -1879,7 +1993,7 @@ body.dark-mode .range-field input {
 }
 
 .quickview-nav:hover:not(:disabled) {
-    background: #371F63;
+    background: #3A3A3A;
 }
 
 /* 端の巻では押せないので、薄く出すだけにしてクリックも通さない */

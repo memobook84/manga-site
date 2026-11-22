@@ -2181,7 +2181,7 @@ body.dark-mode .page-btn.is-current::after {
    ※右下のFAB（渦巻き）から扇形にナビが開く旧仕様は廃止した */
 
 /* ========== スプラッシュアニメーション ==========
-   ロゴ「ATLAS COMIC」が1文字ずつ上からドーンと落ちてくるだけ（動きは splash.js）。
+   ロゴ「ATLAS COMIC」がまとめて、その場で奥からぼわっと浮かび上がってくるだけ（動きは splash.js）。
    ※以前の「紫の文字が赤と水色にずれるグリッチ」版は git の履歴（commit e317b0e まで）に残っている */
 #splashOverlay {
     position: fixed;
@@ -2189,8 +2189,8 @@ body.dark-mode .page-btn.is-current::after {
     left: 0;
     width: 100%;
     height: 100%;
-    /* ヘッダーと同じ黒。以前は紙の色 #FBF8F2 に黒文字だった */
-    background: #100B06;
+    /* 白地に黒文字。以前はヘッダーと同じ黒 #100B06 に白文字、その前は紙の色 #FBF8F2 に黒文字だった */
+    background: #FFFFFF;
     z-index: 10000;
     display: flex;
     flex-direction: column;
@@ -2220,15 +2220,14 @@ body.dark-mode .page-btn.is-current::after {
     font-size: clamp(28px, 7.5vw, 72px);
     line-height: 1;
     letter-spacing: 0.02em;
-    /* 背景を黒にしたので色は反転（文字=紙の色、輪郭=黒、影=暗いグレー）。
-       反転前: 文字 #100B06 / 輪郭 #FBF8F2 / 影 #C8C2B8 */
-    color: #FBF8F2;
-    /* 背景と同じ色の輪郭線で字を少し細らせる（ヘッダーと同じ手法）。
-       右下にずらしたグレーの影との間に背景色の縁が入って、漫画のロゴらしく見える
-       ※背景色を変えたら、この色も同じ値に直すこと */
-    -webkit-text-stroke: 0.025em #100B06;
-    /* 黒の上でもはっきり見える中間のグレー（#45403A だと暗すぎて沈んだ）。以前は赤 #D8052E */
-    text-shadow: 0.07em 0.07em 0 #7A7369;
+    /* 黒い文字だけ・影なし（サイトの黒 #100B06）。
+       背景と同じ色の輪郭線で字を少し細らせるのはヘッダーのサイトタイトルと同じ（PCは40pxに1.2px＝0.03em）
+       ※背景色を変えたら、輪郭線の色も同じ値に直すこと
+       ※直前は黒地に白文字（文字 #F7F7F7 / 輪郭 #100B06）。
+         その前は右下にグレーの影を落とした立体風だった（文字 #FBF8F2 / 輪郭 0.025em #100B06 /
+         影 text-shadow: 0.07em 0.07em 0 #7A7369） */
+    color: #100B06;
+    -webkit-text-stroke: 0.03em #FFFFFF;
     text-align: center;
     white-space: nowrap;
     /* splash.js が .splash-visible を付けるまで隠しておく */
@@ -2239,11 +2238,12 @@ body.dark-mode .page-btn.is-current::after {
     opacity: 1;
 }
 
-/* 1文字ずつ落とす（splash.js の WAAPI）。動かす前は見えない */
-.splash-letter {
-    display: inline-block;
-    opacity: 0;
-    will-change: transform, opacity;
+/* タイトルは2段（上に ATLAS、下に COMIC）。HTMLは
+   <span class="splash-line">ATLAS</span> <span class="splash-line">COMIC</span> で、
+   間の空白は読み上げで「ATLAS COMIC」と続けて読ませるために残してある。
+   ※以前は1行（ATLAS COMIC）だった */
+.splash-line {
+    display: block;
 }
 
 /* ===== ページヒーローバナー（共通） ===== */
@@ -3068,8 +3068,11 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         width: auto;
         height: auto;
         margin: 0 auto 0 0;
-        /* Luckiest Guy は大文字だけだと行ボックスの上寄りに乗るので、
-           右の検索・メニューアイコンと中心をそろえるため2px下げる */
+        /* Luckiest Guy は Windows とそれ以外（iPhone/Android/Mac）で縦の基準値が違い
+           （Windows: ascent 2006/descent 504、それ以外: 1440/608）、同じ指定でも
+           スマホ実機ではPCのF12表示より約4px上に描かれる。そこで下の @supports で
+           文字の箱を「大文字の上端〜ベースライン」に切り詰め、端末によらず
+           アイコンの中心にそろえている。この2pxはそこからの見た目の補正 */
         top: 2px;
         /* PC・スプラッシュと同じコミック体。ウェイトは1種類なので400固定 */
         font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
@@ -3092,6 +3095,13 @@ body.dark-mode .nav-menu-col-sub .nav-menu-item.current {
         display: block;
         font-size: inherit;
         letter-spacing: inherit;
+    }
+    /* 文字の上下の余白（フォントごと・OSごとに違う）を切り落とす。
+       未対応ブラウザ（iOS 18.1以前など）では従来どおり top:2px だけが効く */
+    @supports (text-box: trim-both cap alphabetic) {
+        header h1 a {
+            text-box: trim-both cap alphabetic;
+        }
     }
 }
 
