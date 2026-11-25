@@ -50,6 +50,143 @@
     border-radius: inherit;
 }
 
+/* 表紙1枚ずつの入れ物（detail.js が作る）。1冊だけの作品では素通しで、従来と同じ見た目 */
+.cover-layer {
+    border-radius: inherit;
+}
+
+/* ============================================================
+   表紙3冊の横並び重ね（実験中・2026-11-25）
+   中央＝1巻、左＝2巻、右＝3巻（3巻まで揃う作品だけ）。3冊とも正面向きで、
+   中央の1冊を手前に全部見せ、左右の2冊はその後ろから半分ずつのぞかせる
+   （左の本は左半分、右の本は右半分が見える）。
+   実物の本を並べた見え方に寄せるため、
+     ・左右の本は少し小さく（--flow-side-scale）して下端を中央とそろえる＝同じ台の少し奥に立っている
+     ・中央の本から左右へ柔らかい影を落とす（本の形に沿うので帯のように浮かない）
+     ・どの本も足元に詰まった影を付けて、宙に浮かず置いてあるように見せる
+     ・左右の本はほんの少し暗くする（奥の物は光が弱い）
+   グリッドの1マスに全冊を重ね、左右へは transform でずらしている
+   （transform はレイアウトに影響しないので、枠の高さ＝中央の1冊の高さになる）。
+   左右の本の中心を中央の本の縁に置くと、ちょうど半分が見える。
+   全体の幅は 中央の幅 ×（1 + 左右の縮小率）になるので、中央の幅はそこから逆算する。
+   左右どちらに置くかは detail.js が is-left / is-center / is-right で付ける。
+   ============================================================ */
+.detail-cover-frame.is-flow {
+    /* 左右の本の大きさ（中央に対する倍率） */
+    --flow-side-scale: 0.88;
+    /* 中央の1冊の幅（枠に対する割合）。3冊がちょうど枠に収まる値 */
+    --flow-center: calc(100% / (1 + var(--flow-side-scale)));
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    box-shadow: none;
+}
+
+/* PC・タブレットは左右の2冊がのぞく分だけ表紙の列を広げる（中央の1冊＝約255px） */
+.detail-image:has(.detail-cover-frame.is-flow) {
+    width: 480px;
+}
+
+.detail-cover-frame.is-flow .cover-layer {
+    grid-area: 1 / 1;
+    justify-self: center;
+    align-self: end;
+    width: var(--flow-center);
+    border-radius: 2px;
+    /* 縮小しても下端が動かないよう、下辺の中央を基準にする */
+    transform-origin: 50% 100%;
+}
+
+/* 中央：左右の本との境目の白い隙間 ＋ 縁の締まり ＋ 左右の本へ落ちる影 ＋ 足元の影
+   （白い隙間は左右の縁だけに出る横ずらしの影。影は先に書いた物が上に重なるので先頭に置く） */
+.detail-cover-frame.is-flow .cover-layer.is-center {
+    z-index: 1;
+    box-shadow:
+        -2px 0 0 #fff,
+        2px 0 0 #fff,
+        0 1px 3px rgba(0, 0, 0, 0.14),
+        -10px 0 16px -6px rgba(0, 0, 0, 0.28),
+        10px 0 16px -6px rgba(0, 0, 0, 0.28),
+        0 14px 22px -10px rgba(0, 0, 0, 0.32);
+}
+
+/* 左右：縁の締まり ＋ 足元の影。少し暗くして奥に置く */
+.detail-cover-frame.is-flow .cover-layer.is-left,
+.detail-cover-frame.is-flow .cover-layer.is-right {
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        0 12px 18px -10px rgba(0, 0, 0, 0.26);
+    filter: brightness(0.94);
+}
+
+.detail-cover-frame.is-flow .cover-layer.is-left {
+    transform: translateX(-50%) scale(var(--flow-side-scale));
+}
+
+.detail-cover-frame.is-flow .cover-layer.is-right {
+    transform: translateX(50%) scale(var(--flow-side-scale));
+}
+
+/* ブックマークは枠の右下ではなく、中央の1冊の右下に乗せる */
+.detail-cover-frame.is-flow .follow-button {
+    right: calc((100% - var(--flow-center)) / 2 + 4px);
+}
+
+/* 白紙カバーは PC で width:300px 固定・自前の影付きなので、並べる時は入れ物に合わせる */
+.detail-cover-frame.is-flow .manga-detail-placeholder,
+.detail-cover-frame.is-split .manga-detail-placeholder {
+    width: 100%;
+    box-shadow: none;
+}
+
+/* ============================================================
+   表紙3冊の「大1＋小2」並べ（実験中・2026-11-25）
+   左に1巻を大きく、右に2巻・3巻を1巻の半分の大きさで縦に2つ積む。
+   列の幅を 2:1 にすると右の本はちょうど半分の大きさになる。
+   本と本の間は白い隙間（--split-gap）。枠の地を白にして隙間から見せる。
+   右の2冊は中身を絶対配置にして高さを持たせないので、全体の高さ＝1巻の高さになり、
+   右の2冊はその高さを2等分したマスに収まる（隙間の分だけ上下を少し切り詰める）。
+   どの本を is-main / is-sub にするかは detail.js が付ける。
+   ============================================================ */
+.detail-cover-frame.is-split {
+    --split-gap: 2px;
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: var(--split-gap);
+    background: #fff;
+}
+
+/* PC・タブレットは1巻を従来の1冊表示と同じ幅（300px）に保ち、右の列の分だけ広げる */
+.detail-image:has(.detail-cover-frame.is-split) {
+    width: calc(300px * 1.5 + 2px);
+}
+
+.detail-cover-frame.is-split .cover-layer {
+    border-radius: 2px;
+}
+
+.detail-cover-frame.is-split .cover-layer.is-main {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+.detail-cover-frame.is-split .cover-layer.is-sub {
+    grid-column: 2;
+    position: relative;
+    overflow: hidden;
+}
+
+/* img の height:auto はインラインで付いているので !important で上書きする */
+.detail-cover-frame.is-split .cover-layer.is-sub > * {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100% !important;
+    object-fit: cover;
+}
+
+/* ブックマークは基本ルールのまま枠の右下＝3巻の右下に乗る */
+
 /* ② 停止中 — 背表紙側の溝（ヒンジ・右綴じなので右側）
 .detail-cover-frame::before {
     content: '';
@@ -1199,6 +1336,23 @@ body.dark-mode .range-field input {
         --cover-side-offset: clamp(44px, 14vw, 52px);
     }
 
+    /* 3冊並べは全体の幅が1冊の2倍（大1＋小2 は1.5倍）になるので、枠を左右の余白（20px）に
+       12px ずつはみ出させて少しでも1冊を大きくする（画面端から8px残る）。上限 400px。
+       はみ出す時は margin:auto が効かないので、左マージンを計算して中央に置く
+       （width も margin の % も親の幅基準なので同じ式で揃う） */
+    .detail-image:has(.detail-cover-frame.is-flow),
+    .detail-image:has(.detail-cover-frame.is-split) {
+        width: 100%;
+    }
+
+    .detail-cover-frame.is-flow,
+    .detail-cover-frame.is-split {
+        --flow-frame-w: min(400px, calc(100% + 24px));
+        width: var(--flow-frame-w);
+        max-width: none;
+        margin: 0 0 0 calc((100% - var(--flow-frame-w)) / 2);
+    }
+
     .detail-image-badge {
         left: auto;
         /* 表紙の右外に出す。ブックマークのリボンは表紙の内側なので重ならない */
@@ -1415,8 +1569,8 @@ body.dark-mode .range-field input {
     }
 }
 
-/* スマホだけ「ストーリー」を「作品情報」より上に出す
-   （表紙 → タイトル・著者 → ストーリー → 作品情報 → シリーズ一覧）。
+/* スマホの並び順（表紙 → タイトル・著者 → 作品情報 → ストーリー → シリーズ一覧）。
+   ※以前はストーリーを作品情報より上に出していたが、2026-11-25 に作品情報を上へ戻した。
    ストーリーは .detail-container の外にあるので、入れ物2つを display:contents で
    ほどいて .detail-main 直下に並べ、order で順番を付け直す。
    JSで並べ替えると表示の途中で入れ替わって見えるのでCSSだけで行う。
@@ -1447,25 +1601,25 @@ body.dark-mode .range-field input {
         margin: 0 20px;
     }
 
-    /* 著者名との間は、元の作品情報見出しと同じ 22px */
-    .detail-description {
-        order: 4;
-        padding: 22px 20px 0;
-        margin-bottom: 0;
-    }
-
-    /* あらすじ本文との間は、元の作品情報 → ストーリー見出しと同じ 40px */
+    /* 著者名との間は 22px */
     .detail-meta-title {
-        order: 5;
-        margin: 40px 20px 12px;
+        order: 4;
+        margin: 22px 20px 12px;
     }
 
     .detail-meta {
-        order: 6;
+        order: 5;
         margin: 0 20px;
     }
 
-    /* 作品情報 → シリーズ一覧の間も、ストーリー → 作品情報と同じ 40px に。
+    /* 作品情報 → ストーリーの間は 40px */
+    .detail-description {
+        order: 6;
+        padding: 40px 20px 0;
+        margin-bottom: 0;
+    }
+
+    /* ストーリー → シリーズ一覧の間も、作品情報 → ストーリーと同じ 40px に。
        以前は 下の余白30px＋.volumes-section の margin-top 48px＋padding-top 12〜20px が
        重なって 90px ほど空いていた。480px以下の padding（12px 20px）に負けないよう
        セレクタを1段強くしている */
@@ -1609,6 +1763,55 @@ body.dark-mode .range-field input {
     justify-content: center;
     z-index: 9999;
     padding: 20px;
+    /* 左右に見切れる前後の巻ははみ出させて切る */
+    overflow: hidden;
+    /* 3枚並べの寸法（--qv-max と --qv-peek は下の画面幅ごとのブロックで決める）
+         --qv-w   … 1枚の幅。最大 --qv-max で、狭い画面では左右に見切れる分を残して縮む
+         --qv-gap … 1枚どうしの隙間。広い画面では隣の巻がちょうど --qv-peek だけ見えるよう広げる */
+    --qv-max: 1040px;
+    --qv-peek: 72px;
+    --qv-w: min(var(--qv-max), calc(100vw - 2 * (var(--qv-peek) + 10px)));
+    --qv-gap: max(10px, calc((100vw - var(--qv-w)) / 2 - var(--qv-peek)));
+}
+
+/* 前の巻・表示中の巻・次の巻の3枚を横に並べる帯（detail.js が作る）。
+   帯は画面より広いが、オーバーレイが justify-content:center なので左右へ均等にはみ出し、
+   真ん中の1枚が画面中央に来て、左右の2枚は画面の端で見切れる。
+   巻の切り替えはこの帯ごと横に送る */
+.quickview-track {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--qv-gap);
+    animation: quickviewIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.quickview-track > .quickview-content {
+    flex: 0 0 var(--qv-w);
+    width: var(--qv-w);
+    max-width: none;
+    transition: opacity 0.32s ease;
+}
+
+/* 見切れている前後の巻は暗く沈める。押すとその巻へ切り替わる（中のリンク・ボタンは効かせない） */
+.quickview-track > .quickview-content:not(.is-current) {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+.quickview-track > .quickview-content:not(.is-current) * {
+    pointer-events: none;
+}
+
+/* 閉じる・左右ボタンは表示中の巻だけに出す */
+.quickview-content:not(.is-current) .quickview-close,
+.quickview-content:not(.is-current) .quickview-nav {
+    visibility: hidden;
+}
+
+/* 最初の巻の前・最後の巻の後は空き枠。場所だけ取って何も見せない */
+.quickview-content.is-empty {
+    visibility: hidden;
 }
 
 .quickview-overlay.active {
@@ -1630,7 +1833,8 @@ body.dark-mode .range-field input {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-    animation: quickviewIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    /* 開く時の浮き上がり（quickviewIn）は3枚並べの帯（.quickview-track）に付けている。
+       1枚ずつに付けると、巻を送った時に端へ回したパネルで演出が出直してしまう */
 }
 
 /* 雑誌の背表紙風のアクセントライン（テーマカラー紫）は廃止。
@@ -1825,6 +2029,36 @@ body.dark-mode .range-field input {
     margin: 0;
     font-size: 13px;
     color: #2B2B2B;
+}
+
+/* 見出しの無い行だけ（今は 発売日・価格・レーベル）の時は、表にすると値だけが
+   浮いて見えるので、線と行の余白を外してタイトルの直下にタグの形で並べる。
+   タグは表紙左下の巻位置タグ（.quickview-vol-tag）と同じ紙色・角丸。幅が足りなければ折り返す。
+   「（税込）」の全角カッコは字の外側に半角ぶんの空きを持っていて、タグの左右の余白が
+   不揃いになるので、palt（詰め組み）で空きを取る */
+.quickview-meta:not(:has(dt)) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-top: none;
+    margin-top: -4px;
+    font-feature-settings: "palt";
+}
+
+.quickview-meta:not(:has(dt)) .quickview-meta-row {
+    padding: 0;
+}
+
+.quickview-meta:not(:has(dt)) dd {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 3px;
+    background: #F2EFE9;
+    font-size: 11.5px;
+    color: #555;
+    white-space: nowrap;
 }
 
 .quickview-desc {
@@ -2062,6 +2296,12 @@ body.dark-mode .range-field input {
    vh ではなく dvh なのはブラウザのURLバーぶんを引いた実寸で測るため。
    ※背面スクロールは固定してあるので、表示中に dvh が変わって表紙が動くことはない */
 @media (max-width: 600px) {
+    /* 1枚は最大360px。画面幅が足りない分は1枚を縮めて、左右の巻を16pxずつ見切れさせる */
+    .quickview-overlay {
+        --qv-max: 360px;
+        --qv-peek: 16px;
+    }
+
     .quickview-cover {
         padding: 34px 20px 38px;
     }
@@ -2084,6 +2324,10 @@ body.dark-mode .range-field input {
 @media (min-width: 601px) and (max-width: 1024px) {
     .quickview-content {
         max-width: 520px;
+    }
+    .quickview-overlay {
+        --qv-max: 520px;
+        --qv-peek: 40px;
     }
     .quickview-cover {
         padding: 40px 24px 44px;

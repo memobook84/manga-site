@@ -193,17 +193,55 @@ async function displayMangaDetail() {
           }
         : randomVol;
 
+    // 表紙は1・2・3巻の3冊を並べて見せる（実験中）。並べ方は COVER_TRIO_LAYOUT で切り替える
+    //   'split' … 左に1巻を大きく、右に2巻・3巻を1巻の半分の大きさで縦に2つ
+    //   'flow'  … 中央＝1巻を手前に全部見せ、左＝2巻・右＝3巻を後ろから半分ずつのぞかせる
+    //             （2026-11-25 に試した横並び。戻す時は 'flow' にするだけ）
+    // 3巻まで出ていない作品や、1〜3巻のどれかに実カバーが無い作品は、
+    // 上で決めた1冊だけを従来どおり出す
+    const COVER_TRIO_LAYOUT = 'flow';
+    const pickVolume = (n) => {
+        const list = volumes.filter(v => v.hasRealCover && extractVolumeNumber(v.title) === n);
+        // 新装版・特装版などで同じ巻数が複数ある時は、いちばん古い＝元の版を使う
+        return list.length
+            ? list.reduce((a, b) =>
+                ((a.firstReleaseDate || '') <= (b.firstReleaseDate || '') ? a : b))
+            : null;
+    };
+    // 遷移元で先読みした巻が1〜3巻に含まれていれば、その1枚は先読みしたURLを使う（二重取得を避ける）
+    const withStashedUrl = (v) => (stashedCover && v.isbn && v.isbn === stashedCover.isbn)
+        ? { ...v, imageUrl: stashedCover.url }
+        : v;
+    const [vol1, vol2, vol3] = [1, 2, 3].map(pickVolume);
+    const hasTrio = !!(vol1 && vol2 && vol3);
+    const covers = !hasTrio
+        ? [{ vol: coverVol, pos: '' }]
+        : COVER_TRIO_LAYOUT === 'split'
+            ? [
+                { vol: withStashedUrl(vol1), pos: 'is-main' },
+                { vol: withStashedUrl(vol2), pos: 'is-sub' },
+                { vol: withStashedUrl(vol3), pos: 'is-sub' },
+              ]
+            : [
+                { vol: withStashedUrl(vol2), pos: 'is-left' },
+                { vol: withStashedUrl(vol1), pos: 'is-center' },
+                { vol: withStashedUrl(vol3), pos: 'is-right' },
+              ];
+
     const imageContainer = document.querySelector('.detail-image');
     const frame = imageContainer.querySelector('.detail-cover-frame');
     const badge = imageContainer.querySelector('.detail-image-badge');
     // フレーム内に置いている浮きボタン類は innerHTML で消えるので退避して戻す
     const followBtn = imageContainer.querySelector('#follow-button');
-    const imageHtml = createDetailImageElement({
-        ...coverVol,
-        title: displaySeriesName,
-    });
+    const imageHtml = covers.map(({ vol, pos }) =>
+        `<div class="cover-layer${pos ? ` ${pos}` : ''}">${createDetailImageElement({
+            ...vol,
+            title: displaySeriesName,
+        })}</div>`).join('');
     if (frame) {
         frame.innerHTML = imageHtml;
+        frame.classList.toggle('is-flow', hasTrio && COVER_TRIO_LAYOUT !== 'split');
+        frame.classList.toggle('is-split', hasTrio && COVER_TRIO_LAYOUT === 'split');
         if (badge) frame.appendChild(badge);
         if (followBtn) {
             frame.appendChild(followBtn);
@@ -393,15 +431,14 @@ function applyReadLinks(grid) {
 }
 
 // ===== クイックビュー（シリーズ一覧の巻ホバー → 簡易ポップアップ） =====
-function ensureQuickViewModal() {
-    let overlay = document.getElementById('quickview-modal');
-    if (overlay) return overlay;
-
-    overlay = document.createElement('div');
-    overlay.id = 'quickview-modal';
-    overlay.className = 'quickview-overlay';
-    overlay.innerHTML = `
-        <div class="quickview-content" role="dialog" aria-modal="true">
+// クイックビュー1枚ぶん（巻1冊のポップアップ）。
+// 前の巻・表示中の巻・次の巻の3枚を作って .quickview-track に横に並べる
+function createQuickViewPanel() {
+    const panel = document.createElement('div');
+    panel.className = 'quickview-content';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.innerHTML = `
             <button type="button" class="quickview-close" aria-label="閉じる">
                 <i class="ph-bold ph-x" style="font-size:16px"></i>
             </button>
@@ -436,22 +473,48 @@ function ensureQuickViewModal() {
             </div>
             <button type="button" class="quickview-nav quickview-prev" aria-label="前の巻"></button>
             <button type="button" class="quickview-nav quickview-next" aria-label="次の巻"></button>
-        </div>
     `;
+    return panel;
+}
+
+function ensureQuickViewModal() {
+    let overlay = document.getElementById('quickview-modal');
+    if (overlay) return overlay;
+
+    overlay = document.createElement('div');
+    overlay.id = 'quickview-modal';
+    overlay.className = 'quickview-overlay';
+    // 前の巻・表示中の巻・次の巻の3枚を横に並べ、真ん中の1枚を画面中央に置く。
+    // 左右の2枚は画面の端で見切れて「前後にも巻がある」ことを見せる
+    const track = document.createElement('div');
+    track.className = 'quickview-track';
+    for (let i = 0; i < 3; i++) track.appendChild(createQuickViewPanel());
+    overlay.appendChild(track);
     document.body.appendChild(overlay);
 
     overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeQuickView();
+        const panel = e.target.closest('.quickview-content');
+        // 背景（ポップアップの外・ポップアップ同士の隙間）を押したら閉じる
+        if (!panel) {
+            closeQuickView();
+            return;
+        }
+        // 見切れている前後の巻を押したら、その巻へ切り替える（中のリンクは開かない）
+        if (!panel.classList.contains('is-current')) {
+            e.preventDefault();
+            slideQuickView(panel === track.firstElementChild ? -1 : 1);
+            return;
+        }
+        if (e.target.closest('.quickview-close')) closeQuickView();
+        // 左右ボタン（PCのみ表示）。モバイルのスワイプと同じ slideQuickView を呼ぶ
+        else if (e.target.closest('.quickview-prev')) slideQuickView(-1);
+        else if (e.target.closest('.quickview-next')) slideQuickView(1);
     });
     // ポップアップ表示中は背面ページのスクロールを完全に止める
     // （body overflow:hidden だけではiOSのタッチスクロールを防げない）
     overlay.addEventListener('touchmove', (e) => {
         e.preventDefault();
     }, { passive: false });
-    overlay.querySelector('.quickview-close').addEventListener('click', closeQuickView);
-    // 左右ボタン（PCのみ表示）。モバイルのスワイプと同じ slideQuickView を呼ぶ
-    overlay.querySelector('.quickview-prev').addEventListener('click', () => slideQuickView(-1));
-    overlay.querySelector('.quickview-next').addEventListener('click', () => slideQuickView(1));
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeQuickView();
     });
@@ -465,38 +528,42 @@ let qvState = null;
 let qvAnimating = false;
 
 // 前後の巻へ切り替える共通処理。dir: 1 = 次の巻 / -1 = 前の巻
-// 端に達しているときや、アニメーション中は何もしない
+// 端に達しているときや、アニメーション中は何もしない。
+// スワイプ途中から呼ばれた時は、指を離した位置からそのまま送る
 function slideQuickView(dir) {
     if (!qvState || qvAnimating) return;
     const nextIndex = qvState.index + dir;
     if (nextIndex < 0 || nextIndex >= qvState.volumes.length) return;
 
-    const overlay = ensureQuickViewModal();
-    const content = overlay.querySelector('.quickview-content');
+    const track = ensureQuickViewModal().querySelector('.quickview-track');
+    const panels = Array.from(track.children);
+    // 1枚ぶんの送り幅＝隣のパネルとの左端の差（パネル幅＋隙間）
+    const step = panels[2].offsetLeft - panels[1].offsetLeft;
     qvAnimating = true;
 
-    // 進む向きへ滑らせて消し、中身を差し替えてから反対側から滑り込ませる
-    const outX = dir > 0 ? -window.innerWidth * 0.55 : window.innerWidth * 0.55;
-    content.style.transition = 'transform 0.18s ease-in, opacity 0.18s ease-in';
-    content.style.transform = `translateX(${outX}px)`;
-    content.style.opacity = '0';
+    // 隣の巻を中央へ送り込む。明るさの入れ替えも同時に始める
+    markQuickViewCurrent(panels[1 + dir]);
+    track.style.transition = 'transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    track.style.transform = `translateX(${-dir * step}px)`;
+
     setTimeout(() => {
+        // 送り終えたら、反対の端のパネルを進んだ側の端へ回して次の隣の巻を描き、帯の位置を戻す。
+        // 中央に来たパネルは描き直さずそのまま使うので、表紙のちらつきは出ない
         qvState.index = nextIndex;
-        renderQuickView();
-        content.style.transition = 'none';
-        content.style.transform = `translateX(${-outX}px)`;
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                content.style.transition = 'transform 0.24s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.24s ease';
-                content.style.transform = '';
-                content.style.opacity = '';
-                setTimeout(() => {
-                    content.style.transition = '';
-                    qvAnimating = false;
-                }, 260);
-            });
-        });
-    }, 180);
+        if (dir > 0) {
+            track.appendChild(panels[0]);
+            renderQuickViewPanel(panels[0], nextIndex + 1);
+        } else {
+            track.insertBefore(panels[2], panels[0]);
+            renderQuickViewPanel(panels[2], nextIndex - 1);
+        }
+        track.style.transition = 'none';
+        track.style.transform = '';
+        // 戻した位置を確定させてから次の操作を受ける（続けて送った時に戻しが飛ばされないように）
+        void track.offsetWidth;
+        track.style.transition = '';
+        qvAnimating = false;
+    }, 330);
 }
 
 // data/readers.json（どの作品のどの巻がビューアで読めるか）。
@@ -529,52 +596,76 @@ function openQuickView(volumes, seriesName, index) {
     renderQuickView();
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
-    // 索引がまだ無ければ読み込んでから描き直す（開くのを待たせない）
-    if (!readerIndex) loadReaderIndex().then(renderQuickView);
+    // 索引がまだ無ければ読み込んでから描き直す（開くのを待たせない）。
+    // 巻を送っている途中に描き直すと3枚の並びが崩れるので、送り終わるまで待つ
+    if (!readerIndex) loadReaderIndex().then(function redraw() {
+        if (qvAnimating) setTimeout(redraw, 350);
+        else renderQuickView();
+    });
 }
 
+// 3枚のパネルに 前の巻・表示中の巻・次の巻 を描く
 function renderQuickView() {
     if (!qvState) return;
-    const overlay = ensureQuickViewModal();
-    const vol = qvState.volumes[qvState.index];
+    const panels = Array.from(ensureQuickViewModal().querySelector('.quickview-track').children);
+    panels.forEach((panel, i) => renderQuickViewPanel(panel, qvState.index - 1 + i));
+    markQuickViewCurrent(panels[1]);
+}
+
+// 中央に置くパネルだけを明るく・操作できるようにし、左右の見切れる2枚は読み上げからも外す
+function markQuickViewCurrent(current) {
+    current.parentElement.querySelectorAll('.quickview-content').forEach(panel => {
+        const isCurrent = panel === current;
+        panel.classList.toggle('is-current', isCurrent);
+        if (isCurrent) panel.removeAttribute('aria-hidden');
+        else panel.setAttribute('aria-hidden', 'true');
+    });
+}
+
+// 1枚のパネルに index 番目の巻を描く。最初の巻の前・最後の巻の後は空き枠（場所だけ取って見せない）
+function renderQuickViewPanel(panel, index) {
+    const vol = qvState.volumes[index];
+    panel.classList.toggle('is-empty', !vol);
+    if (!vol) return;
 
     const baseName = qvState.seriesName || extractSeriesName(vol.title) || vol.title || '';
     const volumeLabel = vol.volumeNum !== null && vol.volumeNum !== undefined
         ? `${baseName}（${vol.volumeNum}）`
         : (vol.title || baseName);
 
-    overlay.querySelector('.quickview-cover-img').innerHTML = createImageElement(vol, 400);
-    overlay.querySelector('.quickview-title').textContent = volumeLabel;
+    panel.querySelector('.quickview-cover-img').innerHTML = createImageElement(vol, 400);
+    panel.querySelector('.quickview-title').textContent = volumeLabel;
 
     // 表紙左下のタグ＝巻位置カウンター（例: 1 / 17）
-    const volTag = overlay.querySelector('.quickview-vol-tag');
-    volTag.textContent = `${qvState.index + 1} / ${qvState.volumes.length}`;
+    const volTag = panel.querySelector('.quickview-vol-tag');
+    volTag.textContent = `${index + 1} / ${qvState.volumes.length}`;
     volTag.hidden = false;
 
     // 前後ボタンは端の巻で無効化
-    overlay.querySelector('.quickview-prev').disabled = qvState.index === 0;
-    overlay.querySelector('.quickview-next').disabled = qvState.index >= qvState.volumes.length - 1;
+    panel.querySelector('.quickview-prev').disabled = index === 0;
+    panel.querySelector('.quickview-next').disabled = index >= qvState.volumes.length - 1;
 
     // Release / Price / Label は非表示にした（2026-08-05・ユーザー指示）。
     // 発売日だけ戻した（2026-11-22・ユーザー指示）。見出しは作品情報に合わせて日本語、
     // 日付も作品情報の「初刊」「最新刊」と同じ書式（2026/4/3。日の無いデータは 2014/4）。
-    // Price / Label を復活させる場合は下の2行のコメントを戻すだけ。削除しないこと。
+    // 2026-11-25 に見出しを外して日付だけにし、価格・レーベルも見出し無しで戻した（ユーザー指示）。
+    // 見出しを空にした行は dt を作らず、detail.css でタイトル直下に「日付 · 価格 · レーベル」と並ぶ。
     // （空になった .quickview-meta は detail.css の :empty で消える）
     const metaRows = [
-        ['発売日', formatMetaDate(vol.firstReleaseDate)],
-        // ['Price', vol.price],
-        // ['Label', vol.label],
+        ['', formatMetaDate(vol.firstReleaseDate)],
+        ['', vol.price],
+        ['', vol.label],
     ].filter(([, v]) => v);
-    overlay.querySelector('.quickview-meta').innerHTML = metaRows
-        .map(([k, v]) => `<div class="quickview-meta-row"><dt>${k}</dt><dd>${v}</dd></div>`)
+    panel.querySelector('.quickview-meta').innerHTML = metaRows
+        .map(([k, v]) => `<div class="quickview-meta-row">${k ? `<dt>${k}</dt>` : ''}<dd>${v}</dd></div>`)
         .join('');
 
     const desc = (vol.description || '').trim();
-    const descEl = overlay.querySelector('.quickview-desc');
+    const descEl = panel.querySelector('.quickview-desc');
     descEl.textContent = desc || 'この巻のストーリー情報はありません。';
     descEl.classList.toggle('quickview-desc-empty', !desc);
 
-    const link = overlay.querySelector('.quickview-link');
+    const link = panel.querySelector('.quickview-link');
     if (vol.isbn) {
         const series = extractSeriesName(vol.title) || '';
         link.href = `volume.html?isbn=${vol.isbn}&title=${encodeURIComponent(vol.title)}&series=${encodeURIComponent(series)}`;
@@ -584,7 +675,7 @@ function renderQuickView() {
     }
 
     // 公式に無料公開されている巻だけ「読む」を出す
-    const readLink = overlay.querySelector('.quickview-read');
+    const readLink = panel.querySelector('.quickview-read');
     const readUrl = readerUrlFor(baseName, vol.volumeNum);
     if (readUrl) {
         readLink.href = readUrl;
@@ -594,7 +685,7 @@ function renderQuickView() {
     }
 
     // Amazon購入リンク（ISBNがあればISBN検索、なければタイトル検索）
-    const buyLink = overlay.querySelector('.quickview-buy');
+    const buyLink = panel.querySelector('.quickview-buy');
     buyLink.href = getAmazonBuyUrl(vol);
 }
 
@@ -604,32 +695,34 @@ function closeQuickView() {
     overlay.classList.remove('active');
     document.body.style.overflow = '';
     // スワイプ途中で閉じた場合に備えてリセット
-    const content = overlay.querySelector('.quickview-content');
-    content.style.transition = '';
-    content.style.transform = '';
-    content.style.opacity = '';
+    const track = overlay.querySelector('.quickview-track');
+    track.style.transition = '';
+    track.style.transform = '';
+    track.style.opacity = '';
 }
 
 // クイックビューのスワイプ操作
-// 左右スワイプ＝前後の巻へ（指を右→左＝次の巻、左→右＝前の巻）
+// 左右スワイプ＝前後の巻へ（指を右→左＝次の巻、左→右＝前の巻）。
+//   3枚並んだ帯ごと指に追従させるので、見切れていた隣の巻がそのまま中央へ出てくる
 // 下スワイプ＝ポップアップを閉じる
+// 見切れている隣の巻や背景の上から始めても動かせるよう、オーバーレイ全体で受ける
 function setupQuickViewSwipe(overlay) {
-    const content = overlay.querySelector('.quickview-content');
+    const track = overlay.querySelector('.quickview-track');
     let startX = 0;
     let startY = 0;
     let tracking = false;
     let mode = null; // 'horizontal' | 'down' | null
 
-    content.addEventListener('touchstart', (e) => {
+    overlay.addEventListener('touchstart', (e) => {
         if (qvAnimating) return;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         tracking = true;
         mode = null;
-        content.style.transition = 'none';
+        track.style.transition = 'none';
     }, { passive: true });
 
-    content.addEventListener('touchmove', (e) => {
+    overlay.addEventListener('touchmove', (e) => {
         if (!tracking || !qvState) return;
         const dx = e.touches[0].clientX - startX;
         const dy = e.touches[0].clientY - startY;
@@ -653,8 +746,8 @@ function setupQuickViewSwipe(overlay) {
 
         if (mode === 'down') {
             const move = Math.max(0, dy);
-            content.style.transform = `translateY(${move}px)`;
-            content.style.opacity = String(Math.max(0.4, 1 - move / 420));
+            track.style.transform = `translateY(${move}px)`;
+            track.style.opacity = String(Math.max(0.4, 1 - move / 420));
             return;
         }
 
@@ -664,11 +757,10 @@ function setupQuickViewSwipe(overlay) {
         if ((dx > 0 && !hasPrev) || (dx < 0 && !hasNext)) {
             move = dx * 0.25;
         }
-        content.style.transform = `translateX(${move}px)`;
-        content.style.opacity = String(Math.max(0.5, 1 - Math.abs(move) / 320));
+        track.style.transform = `translateX(${move}px)`;
     }, { passive: false });
 
-    content.addEventListener('touchend', (e) => {
+    overlay.addEventListener('touchend', (e) => {
         if (!tracking) return;
         tracking = false;
         const endMode = mode;
@@ -682,17 +774,17 @@ function setupQuickViewSwipe(overlay) {
         if (endMode === 'down') {
             if (dy > 90) {
                 qvAnimating = true;
-                content.style.transition = 'transform 0.22s ease-in, opacity 0.22s ease-in';
-                content.style.transform = `translateY(${window.innerHeight * 0.5}px)`;
-                content.style.opacity = '0';
+                track.style.transition = 'transform 0.22s ease-in, opacity 0.22s ease-in';
+                track.style.transform = `translateY(${window.innerHeight * 0.5}px)`;
+                track.style.opacity = '0';
                 setTimeout(() => {
                     closeQuickView();
                     qvAnimating = false;
                 }, 210);
             } else {
-                content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
-                content.style.transform = '';
-                content.style.opacity = '';
+                track.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+                track.style.transform = '';
+                track.style.opacity = '';
             }
             return;
         }
@@ -706,9 +798,9 @@ function setupQuickViewSwipe(overlay) {
             // 切り替えの演出は左右ボタンと共通
             slideQuickView(goNext ? 1 : -1);
         } else {
-            content.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
-            content.style.transform = '';
-            content.style.opacity = '';
+            track.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease';
+            track.style.transform = '';
+            track.style.opacity = '';
         }
     }, { passive: true });
 }

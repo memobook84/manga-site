@@ -2215,9 +2215,10 @@ body.dark-mode .page-btn.is-current::after {
     /* ヘッダーのサイトタイトルと同じコミック体 */
     font-family: 'Luckiest Guy', 'Montserrat', 'Noto Sans JP', sans-serif;
     font-weight: 400;
-    /* スマホ（390px幅）で約29px、PCは最大72px。
-       以前は clamp(38px, 11vw, 112px) で画面いっぱいに出していた */
-    font-size: clamp(28px, 7.5vw, 72px);
+    /* スマホ（390px幅）で約47px、PCは最大120px（2026-11-25 に大きくした）。
+       直前は clamp(28px, 7.5vw, 72px)（スマホ約29px・PC最大72px）。
+       1行（ATLAS COMIC）だった頃は clamp(38px, 11vw, 112px) で画面いっぱいに出していた */
+    font-size: clamp(44px, 12vw, 120px);
     line-height: 1;
     letter-spacing: 0.02em;
     /* 黒い文字だけ・影なし（サイトの黒 #100B06）。

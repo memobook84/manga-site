@@ -316,9 +316,9 @@ body.dark-mode .buy-text-link--rakuten:hover i {
     white-space: nowrap;
 }
 
-/* 表示中の巻。赤(#D8052E)の outline → ネオン風の発光リング → 紫のリングと変遷し、
-   今はテーマ紫を背面に敷く形。表紙と巻数の後ろに紫の板を置き、
-   表紙のまわりが紫で縁取られて見えるようにしている。
+/* 表示中の巻。赤(#D8052E)の outline → ネオン風の発光リング → 紫のリング → 紫(#4B2C82)の板と変遷し、
+   今は黒の板を背面に敷く形（2026-11-25）。表紙と巻数の後ろに黒の板を置き、
+   表紙のまわりが黒で縁取られて見えるようにしている。
    isolation: isolate を付けるのは、z-index:-1 の板がページ背景の裏に
    回り込んで消えないよう、この要素の中に閉じ込めるため */
 .volume-item.current-volume {
@@ -332,12 +332,13 @@ body.dark-mode .buy-text-link--rakuten:hover i {
     content: '';
     position: absolute;
     inset: -8px;
-    background: #4B2C82;
+    background: #000;
+    border-radius: 2px;
     z-index: -1;
     pointer-events: none;
 }
 
-/* 背面が紫ベタになるので、その上に乗る文字は白く抜く。
+/* 背面が黒ベタになるので、その上に乗る文字は白く抜く。
    太らせると1枚だけ字面が重くなるので、太さは他の巻と同じまま色だけ変える */
 .volume-item.current-volume .volume-number,
 .volume-item.current-volume .volume-date {
